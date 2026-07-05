@@ -1,0 +1,13 @@
+# sutra (track config, ignore state)
+.sutra/*/
+.sutra/acks/
+!.sutra/rules.toml
+!.sutra/aliases.toml
+!.sutra/owners.toml
+
+# Dart
+.dart_tool/
+pubspec.lock
+
+# Rust shim build output
+rust/target/

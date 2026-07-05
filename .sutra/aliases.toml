@@ -1,0 +1,13 @@
+# Component aliases from PRD vocabulary (yojana:swisseph-rs-dart/1 §modules).
+# Paths are the planned scaffold layout — verify at swisseph-rs-dart/2.
+
+[component]
+bindings = "lib/src/bindings.dart"
+config-state = "lib/src/config_state.dart"
+facade = "lib/src/swiss_eph.dart"
+loader-seams = "lib/src/ffi_loader.dart"
+build-hook = "hook/build.dart"
+rust-shim = "rust/"
+wasm-infra = "wasm/"
+differential-harness = "test/differential/"
+stress-test = "test/stress-test-0.2/"
