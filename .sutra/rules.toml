@@ -1,5 +1,6 @@
 # swisseph_rs architectural constraints
-# Seeded from PRD (yojana:swisseph-rs-dart/1) — 2026-07-05
+# Re-seeded from PRD v2 (yojana:swisseph-rs-dart/20, ADR-0002) — 2026-07-05.
+# Supersedes the v1 seed (drop-in facade design, yojana:swisseph-rs-dart/1).
 #
 # Greenfield seed: ZERO live constraints by design. No code exists yet, and a
 # glob matching zero files enforces nothing (constraint theater). Every
@@ -8,56 +9,69 @@
 # Full routing: docs/enforcement-ledger.md.
 
 # =============================================================================
-# TRIGGER: at scaffold (swisseph-rs-dart/2) — fix paths to the real lib/src
+# TRIGGER: at scaffold (swisseph-rs-dart/21) — fix paths to the real lib/src
 # layout, uncomment, and verify every glob binds ≥1 file (dead_constraint
-# warnings must disappear). Ledger rows 2, 6, 15.
+# warnings must disappear). Ledger rows 3, 6, 7, 17.
 # =============================================================================
 
-# Ledger row 2 — "config_state… no FFI types (pure Dart, isolation-testable)"
-# (PRD §Implementation Decisions; ADR-0001). config_state must not import the
-# bindings layer or the FFI seam — its handle access goes through the injected
-# handle-factory interface.
+# Ledger row 3 — "types — every pure-Dart declaration… zero FFI imports,
+# isolation-testable" (PRD v2 §Implementation Decisions). types is the bottom
+# layer: it must not import the bindings layer or the marshal layer. The
+# dart:ffi SDK-import half of this claim is not path-expressible — it is
+# test-asserted (ledger row 4, task /23).
 #
 # [[constraint]]
 # kind = "forbidden_dep"
-# name = "config-state-ffi-free:bindings"
-# from = "lib/src/config_state.dart"
-# to = "lib/src/bindings.dart"
+# name = "types-pure:no-bindings"
+# from = "lib/src/types/**"
+# to = "lib/src/bindings/**"
 # severity = "blocking"
-# provenance = "yojana:swisseph-rs-dart/1 §implementation-decisions"
+# provenance = "yojana:swisseph-rs-dart/20 §implementation-decisions"
 #
 # [[constraint]]
 # kind = "forbidden_dep"
-# name = "config-state-ffi-free:ffi-seam"
-# from = "lib/src/config_state.dart"
-# to = "lib/src/ffi_*.dart"
+# name = "types-pure:no-marshal"
+# from = "lib/src/types/**"
+# to = "lib/src/marshal/**"
 # severity = "blocking"
-# provenance = "yojana:swisseph-rs-dart/1 §implementation-decisions"
+# provenance = "yojana:swisseph-rs-dart/20 §implementation-decisions"
 
-# Ledger row 6 — "loader seams — native/web conditional-import pairs"
-# (PRD §Implementation Decisions). Web halves must never import the native
-# halves and vice versa; the conditional-import barrels are the only join
-# points. At scaffold, verify sutra's Dart import resolution expresses this
-# (dart: SDK imports are not crate deps); if not expressible, re-route ledger
-# row 6 to bucket (c) — CLAUDE.md already carries the invariant text.
+# Ledger row 6 — "marshal — the only meeting point of Dart and FFI types"
+# (PRD v2 §Implementation Decisions). Partial teeth: ephemeris must reach FFI
+# through marshal, never bindings directly. The full single-point-of-contact
+# rule lives in CLAUDE.md (positive obligations are not glob-expressible).
+#
+# [[constraint]]
+# kind = "forbidden_dep"
+# name = "marshal-sole-seam:ephemeris-not-bindings"
+# from = "lib/src/ephemeris.dart"
+# to = "lib/src/bindings/**"
+# severity = "blocking"
+# provenance = "yojana:swisseph-rs-dart/20 §implementation-decisions"
+
+# Ledger row 7 — "web/native halves behind conditional-import barrels" (PRD
+# v2 §Implementation Decisions). Halves never cross-import; barrels are the
+# only join points. At scaffold, verify sutra's Dart import resolution
+# expresses this; if not expressible, re-route ledger row 7 to bucket (c) —
+# CLAUDE.md already carries the invariant text.
 #
 # [[constraint]]
 # kind = "forbidden_dep"
 # name = "platform-seam:web-not-native"
-# from = "lib/src/*_web.dart"
-# to = "lib/src/*_native.dart"
+# from = "lib/src/**/*_web.dart"
+# to = "lib/src/**/*_native.dart"
 # severity = "blocking"
-# provenance = "yojana:swisseph-rs-dart/1 §implementation-decisions"
+# provenance = "yojana:swisseph-rs-dart/20 §implementation-decisions"
 #
 # [[constraint]]
 # kind = "forbidden_dep"
 # name = "platform-seam:native-not-web"
-# from = "lib/src/*_native.dart"
-# to = "lib/src/*_web.dart"
+# from = "lib/src/**/*_native.dart"
+# to = "lib/src/**/*_web.dart"
 # severity = "blocking"
-# provenance = "yojana:swisseph-rs-dart/1 §implementation-decisions"
+# provenance = "yojana:swisseph-rs-dart/20 §implementation-decisions"
 
-# Ledger row 15 — skill default: no import cycles in the package source.
+# Ledger row 17 — skill default: no import cycles in the package source.
 #
 # [[constraint]]
 # kind = "no_cycles"
@@ -67,14 +81,14 @@
 # provenance = "skill default (vidhi-sutra-seed)"
 
 # =============================================================================
-# TRIGGER: at first review checkpoint / vidhi-sutra-tend (swisseph-rs-dart/6)
-# — module interiors exist; run initial convention triage (FCA has data),
-# constrain interiors while small, and set an initial max_fan_in threshold
-# from observed fan-in. Ledger row 16. Revisit the threshold at the R2 tend
-# (swisseph-rs-dart/14) when the full API surface gives real data.
+# TRIGGER: at R1 review / vidhi-sutra-tend (swisseph-rs-dart/25) — module
+# interiors exist; run initial convention triage (FCA has data), constrain
+# interiors while small, and set the max_fan_in threshold from observed
+# fan-in. Ledger row 18. Revisit the threshold at the R2 tend
+# (swisseph-rs-dart/35) when the full 63-method surface gives real data.
 # =============================================================================
 
-# Ledger row 16 — skill default: fan-in guardrail. Threshold intentionally
+# Ledger row 18 — skill default: fan-in guardrail. Threshold intentionally
 # unset at seed time; needs observed data. Fill N at the R1 tend.
 #
 # [[constraint]]

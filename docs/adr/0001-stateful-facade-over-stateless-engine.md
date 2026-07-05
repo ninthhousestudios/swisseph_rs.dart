@@ -1,3 +1,7 @@
+---
+status: superseded by ADR-0002
+---
+
 # Stateful facade over the stateless Rust engine
 
 swisseph.dart's public API is set-then-call (`setSidMode` → `calcUt`) because

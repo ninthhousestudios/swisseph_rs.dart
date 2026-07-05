@@ -1,5 +1,11 @@
 # PRD: swisseph_rs — drop-in Dart bindings to the pure-Rust Swiss Ephemeris
 
+> **SUPERSEDED** by [prd-swisseph-rs-v2.md](./prd-swisseph-rs-v2.md) per
+> [ADR-0002](./adr/0002-idiomatic-transliteration-over-drop-in-facade.md):
+> the drop-in contract was dropped in favor of an idiomatic transliteration
+> of the swisseph-rs Rust API. Retained for the domain analysis and the
+> facade design rationale it records.
+
 ## Problem Statement
 
 Applications built on swisseph.dart inherit the C Swiss Ephemeris's

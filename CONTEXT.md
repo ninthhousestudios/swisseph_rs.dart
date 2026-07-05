@@ -1,97 +1,103 @@
 # swisseph_rs
 
-Dart bindings to the pure-Rust Swiss Ephemeris port (`swisseph-rs`), built as a
-drop-in replacement for `swisseph.dart` (the C-backed bindings). Directory name
-`swisseph.rs.dart`; pub package name `swisseph_rs`.
+Idiomatic Dart transliteration of the swisseph-rs Rust API (pure-Rust Swiss
+Ephemeris), bound via swisseph-ffi. Directory name `swisseph.rs.dart`; pub
+package name `swisseph_rs`. Supersedes the earlier drop-in-replacement design
+(see ADR-0002).
 
 ## Language
 
-**Drop-in contract**:
-The promise that any code written against swisseph.dart runs unchanged (modulo
-import line) with observable behavior matching C 2.10.03 within documented
-tolerance classes; API growth is additive-only.
-_Avoid_: "compatible", "API parity" (both weaker than the contract)
+**Transliteration rule**:
+The Dart public API mirrors `swisseph::*` symbol-for-symbol: same type names,
+same method vocabulary (camelCased), same semantics. One API design, expressed
+twice. A public Dart symbol that deviates from its counterpart without a
+governing systematic divergence is a defect.
+_Avoid_: "inspired by", "based on" (both imply license to drift)
 
-**Compat baseline**:
-C Swiss Ephemeris 2.10.03 — the version swisseph-rs is bit-compatible with and
-the version swisseph.dart vendors; `version()` reports it.
-_Avoid_: "the C version"
+**Counterpart**:
+The Rust construct a public Dart symbol mirrors — every public Dart symbol has
+exactly one, declared in a fixed-format dartdoc line
+(`/// Counterpart: swisseph::Ephemeris::calc_ut`). A test walks the public
+API and fails on any symbol missing its declaration.
+
+**Systematic divergence**:
+A deviation class applied uniformly across the whole surface and documented
+once, where Dart idiom demands a different mechanism: `Result<T, E>` → thrown
+`SweException` subtypes; bitflags → extension-type flag sets; payload enums →
+sealed classes; newtypes → extension types; snake_case → camelCase; Rust free
+fns taking `&Ephemeris` → Dart methods only; additive `DateTime` ↔ `JdUt1`
+helpers. Case-by-case divergence is not systematic.
 
 **Engine version**:
-The swisseph-rs crate version actually performing calculations, exposed via the
-additive `engineVersion` getter.
+The swisseph-rs crate version actually loaded at runtime, via the top-level
+`engineVersion` getter (reads `swisseph_version`). The only runtime-queryable
+version — the package itself is versioned by pubspec like any Dart package;
+there is no `version()` method.
 
-**Facade**:
-The `SwissEph` class emulating swisseph.dart's stateful API (set-then-call) on
-top of the stateless Rust engine.
+**Oracle**:
+swisseph.dart driving vendored C Swiss Ephemeris 2.10.03 — the reference
+implementation the differential harness compares against. "Oracle version" =
+2.10.03, the version swisseph-rs is bit-compatible with.
+_Avoid_: "compat baseline" (dead drop-in-era term), "the C version"
 
-**Handle**:
-The opaque `SweEphemeris*` from `swisseph_new` — immutable, `Send + Sync`,
-owned by one `SwissEph` instance, rebuilt only on rebuild triggers.
-
-**Rebuild trigger**:
-A setter or event whose value lives in `SweConfig` and therefore invalidates
-the handle: `setEphePath`, `setJplFile`, `setTidAcc`, `setDeltaTUserdef`,
-`setAstroModels`, and auto-registration of a new asteroid.
-
-**Auto-registration**:
-The facade's C-parity emulation of lazy asteroid file opening: the first calc
-of an undeclared asteroid/planet-moon body grows the declared set and rebuilds
-the handle transparently (the stateless engine opens files only at
-construction).
+**Oracle mapping**:
+The harness-owned declaration of how a public Dart method is verified:
+*direct* (one swisseph.dart call, compare numbers), *composite* (a
+set-then-call sequence on the oracle side — how every `*WithConfig` variant
+verifies), or *engine-trusted* (no C call corresponds; correctness rests on
+swisseph-rs's own C-parity suite plus pure-Dart unit tests — with the reason
+declared). The map is total: an undeclared public method fails the harness
+self-check, which walks the same public API as the counterpart test.
 
 **Agreement class**:
 The tolerance tier a compared value belongs to in the differential harness:
 *bitwise* (pure math), *positional* (1e-9°), *boundary* (documented stateless
 artifacts: deflection speed 1e-7°, Moshier osculating node speed 5e-6°/day,
-SPEED3 at file boundaries), or *search* (iterative event-finding epsilons). A
-green harness is the normative test of the drop-in contract.
+SPEED3 at file boundaries), or *search* (iterative event-finding epsilons).
+An unclassified comparison fails the harness by design.
 
-**Per-call state**:
-Facade-held config passed as FFI parameters on each call rather than baked into
-the handle: sidereal mode, topocentric position, lapse rate.
+**Handle**:
+The opaque `SweEphemeris*` from `swisseph_new` or `swisseph_share` —
+immutable, `Send + Sync`, an `Arc` clone at the FFI boundary. Every
+`Ephemeris` owns its handle equally: `close()` drops one refcount (with a
+`NativeFinalizer` backstop per instance), the last drop frees the engine.
+Handles are never rebuilt; there is no configuration mutation of any kind and
+no owner/share asymmetry.
 
-**Owner**:
-A `SwissEph` instance that created its handle; `close()` frees only owned
-handles.
-
-**View**:
-A `SwissEph` created from another instance's handle address
-(`SwissEph.view(addr)`) — shares the handle for calculation, keeps its own
-per-call state, and detaches via copy-on-write if it hits a rebuild trigger.
-Native-only.
-
-**Default ephe path**:
-When `setEphePath` was never called, the facade uses `SE_EPHE_PATH` from the
-environment (native only), matching C. Explicit `setEphePath` always wins.
+**Share**:
+`ephemeris.share()` → a token sendable to another isolate, materialized there
+as a co-equal `Ephemeris` over the same engine (`swisseph_share` bumps the
+refcount). Close order across instances is irrelevant by construction.
+Native-only; throws `UnsupportedError` on web.
 
 ## Relationships
 
-- A **SwissEph instance** owns at most one live **Handle**
-- A **Rebuild trigger** invalidates the **Handle**; the next FFI-touching call
-  lazily reconstructs it from **Facade** state
-- **Per-call state** never touches the **Handle**
-- A **View** shares an **Owner**'s handle until it hits a **Rebuild trigger**
-  (including **auto-registration**), at which point it detaches into an
-  **Owner** of its own handle
+- Every public Dart symbol has exactly one **counterpart**; every deviation
+  from it belongs to a named **systematic divergence**
+- An **Ephemeris** holds exactly one **handle** from construction (or
+  **share** materialization) to `close()` — configuration is immutable, so
+  nothing can invalidate it, and refcounting makes any close order safe
 - Every compared value in the differential harness belongs to exactly one
-  **Agreement class**
+  **agreement class**
+- Every public method carries an **oracle mapping** (or a documented reason
+  it cannot have one)
 
 ## Example dialogue
 
-> **Dev:** "Does `setSidMode` rebuild the **handle**?"
-> **Domain expert:** "No — sidereal mode is **per-call state**; only the four
-> **rebuild triggers** invalidate the handle. That's why `setSidMode` in a hot
-> loop costs nothing."
+> **Dev:** "Should `calcUt` also accept a plain `double` for convenience?"
+> **Domain expert:** "No — its **counterpart** takes `JdUt1`, and loosening
+> the type isn't a **systematic divergence**, it's drift. The additive
+> `DateTime` helpers are the sanctioned convenience path."
 
 ## Flagged ambiguities
 
-- "version" was overloaded — resolved: `version()` returns the **compat
-  baseline** ("2.10.03"); `engineVersion` returns the Rust crate version.
-- "isolate safety" means something weaker here than in swisseph.dart: there is
-  no shared C global state at all, so the copy-the-.so hack and the
-  "re-set config after every await" discipline are unnecessary (but harmless).
-  Facade state is per-instance Dart data and cannot drift.
-- "drop-in" does NOT include performance parity (Rust Swiss-file single-call is
-  ~2.6× C) or exact error-message text — only observable calculation behavior
-  and API shape.
+- "SwissEph" now means only the old package's class. The new API class is
+  `Ephemeris`, mirroring its counterpart — never reuse the name `SwissEph`.
+- "isolate safety" is trivial here: the handle is immutable and the Rust side
+  is `Send + Sync`, so there is no per-isolate state to manage at all —
+  unlike swisseph.dart's copy-the-.so hack.
+- No environment variables: swisseph-rs never reads `SE_EPHE_PATH`, so
+  neither does this package. `ephePath` is always explicit config.
+- Alignment with swisseph.dart *names* is coincidence, not contract: many
+  camelCased Rust names land near swisseph.dart's (`calcUt`, `riseTrans`),
+  which eases migration, but the counterpart is always the Rust symbol.
