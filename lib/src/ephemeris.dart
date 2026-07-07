@@ -702,7 +702,7 @@ final class Ephemeris implements Finalizable {
   }
 
   /// Counterpart: swisseph::Ephemeris::fixstar2_mag
-  double fixstar2Mag(String star) {
+  FixstarMagResult fixstar2Mag(String star) {
     _checkOpen();
     return marshal.fixstar2Mag(_handle, star);
   }

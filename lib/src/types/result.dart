@@ -509,6 +509,14 @@ final class FixstarResult {
   });
 }
 
+/// Counterpart: swisseph::Ephemeris::fixstar2_mag (result)
+final class FixstarMagResult {
+  final String starName;
+  final double magnitude;
+
+  const FixstarMagResult({required this.starName, required this.magnitude});
+}
+
 // ---------------------------------------------------------------------------
 // Heliacal result types (task /33)
 // ---------------------------------------------------------------------------

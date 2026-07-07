@@ -1862,22 +1862,26 @@ FixstarResult fixstar2Ut(
   });
 }
 
-double fixstar2Mag(Pointer<Void> handle, String star) {
+FixstarMagResult fixstar2Mag(Pointer<Void> handle, String star) {
   return using((arena) {
     final starIn = star.toNativeUtf8(allocator: arena);
+    final starOut = arena<Uint8>(_starBufSize).cast<Utf8>();
     final mag = arena<Double>(1);
     final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
     final code = swissephFixstar2Mag(
       handle,
       starIn,
-      nullptr.cast(),
-      0,
+      starOut,
+      _starBufSize,
       mag,
       errBuf,
       _errBufSize,
     );
     _checkResult(code, errBuf);
-    return mag[0];
+    return FixstarMagResult(
+      starName: starOut.toDartString(),
+      magnitude: mag[0],
+    );
   });
 }
 

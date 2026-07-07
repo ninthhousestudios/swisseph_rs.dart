@@ -366,9 +366,15 @@ void main() {
       });
 
       test('Sirius magnitude', () {
-        final actual = starEph.fixstar2Mag('Sirius');
+        final result = starEph.fixstar2Mag('Sirius');
         final expected = starOracle.fixstar2Mag('Sirius');
-        expectAgreement('magnitude', actual, expected, AgreementClass.bitwise);
+        expectAgreement(
+          'magnitude',
+          result.magnitude,
+          expected,
+          AgreementClass.bitwise,
+        );
+        expect(result.starName, contains('Sirius'));
       });
     },
   );
