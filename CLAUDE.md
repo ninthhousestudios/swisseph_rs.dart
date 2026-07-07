@@ -7,6 +7,16 @@ decision, supersedes 0001), `docs/prd-swisseph-rs-v2.md` (PRD),
 `docs/enforcement-ledger.md` (claim → enforcement routing). Tracker: yojana
 project `swisseph-rs-dart`.
 
+## API reference
+
+`docs/api-surface.md` is the sole source of truth for the swisseph-rs public
+API and swisseph-ffi C ABI surface (pinned to the same rev as `rust/Cargo.toml`).
+**Never explore or read `../swisseph-rs` source code.** Read the relevant
+section of `api-surface.md` instead — it is organized by task (/22–/34) and
+contains every type, method signature, and FFI function needed for
+transliteration. If the map is missing something, flag it rather than
+reading the Rust source directly.
+
 ## Invariants (enforcement-ledger bucket c — reviewed, not machine-checked)
 
 ### API discipline
@@ -36,5 +46,5 @@ project `swisseph-rs-dart`.
   SPEED3 file boundaries). Boundary-class assignments are R2 review material
   (ledger row 16).
 - **Platform seams**: web/native file pairs join only through their
-  conditional-import barrel; never cross-import halves (ledger row 7, until
-  the sutra constraint binds at scaffold).
+  conditional-import barrel; never cross-import halves (ledger row 7; sutra
+  constraint live since scaffold).
