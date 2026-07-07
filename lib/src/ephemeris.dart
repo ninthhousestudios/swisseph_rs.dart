@@ -148,6 +148,106 @@ final class Ephemeris implements Finalizable {
     return marshal.jdut1ToUtc(_handle, jd.value, cal.value);
   }
 
+  // -----------------------------------------------------------------------
+  // Houses
+  // -----------------------------------------------------------------------
+
+  /// Counterpart: swisseph::Ephemeris::houses
+  HouseResult houses(JdUt1 jd, double geolat, double geolon, HouseSystem hsys) {
+    _checkOpen();
+    return marshal.housesEx2(
+      _handle,
+      jd.value,
+      0, // no flags
+      geolat,
+      geolon,
+      hsys.charCode,
+    );
+  }
+
+  /// Counterpart: swisseph::Ephemeris::houses_ex2
+  HouseResult housesEx2(
+    JdUt1 jd,
+    CalcFlags flags,
+    double geolat,
+    double geolon,
+    HouseSystem hsys,
+  ) {
+    _checkOpen();
+    return marshal.housesEx2(
+      _handle,
+      jd.value,
+      flags.value,
+      geolat,
+      geolon,
+      hsys.charCode,
+    );
+  }
+
+  /// Counterpart: swisseph::Ephemeris::gauquelin_sector
+  double gauquelinSector(
+    JdUt1 jd,
+    Body body,
+    CalcFlags flags,
+    int method,
+    double geolon,
+    double geolat,
+    double geoalt, {
+    double atpress = 0,
+    double attemp = 0,
+  }) {
+    _checkOpen();
+    return marshal.gauquelinSector(
+      _handle,
+      jd.value,
+      body.rawValue,
+      flags.value,
+      method,
+      geolon,
+      geolat,
+      geoalt,
+      atpress,
+      attemp,
+    );
+  }
+
+  // -----------------------------------------------------------------------
+  // Ayanamsa
+  // -----------------------------------------------------------------------
+
+  /// Counterpart: swisseph::Ephemeris::get_ayanamsa_ex
+  double getAyanamsaEx(JdTt jd, CalcFlags flags) {
+    _checkOpen();
+    return marshal.getAyanamsaEx(_handle, jd.value, flags.value);
+  }
+
+  /// Counterpart: swisseph::Ephemeris::get_ayanamsa_ex_with_config
+  double getAyanamsaExWithConfig(
+    JdTt jd,
+    CalcFlags flags,
+    EphemerisConfig config,
+  ) {
+    _checkOpen();
+    return marshal.getAyanamsaExWithConfig(
+      _handle,
+      jd.value,
+      flags.value,
+      config,
+    );
+  }
+
+  /// Counterpart: swisseph::Ephemeris::get_ayanamsa_ut
+  double getAyanamsaUt(JdUt1 jd, CalcFlags flags) {
+    _checkOpen();
+    return marshal.getAyanamsaUt(_handle, jd.value, flags.value);
+  }
+
+  /// Counterpart: swisseph::Ephemeris::get_ayanamsa
+  double getAyanamsa(JdTt jd) {
+    _checkOpen();
+    return marshal.getAyanamsa(_handle, jd.value);
+  }
+
   /// Counterpart: swisseph::Ephemeris (share via Arc clone)
   ///
   /// Returns a token sendable to another isolate. Native-only.
@@ -213,4 +313,36 @@ double normalizeDegrees(double x) {
   var result = x % 360.0;
   if (result < 0) result += 360.0;
   return result;
+}
+
+/// Counterpart: swisseph::houses::houses_armc
+HouseResult housesArmc(
+  double armc,
+  double geolat,
+  double eps,
+  HouseSystem hsys,
+) {
+  return marshal.housesArmcEx2(armc, geolat, eps, hsys.charCode);
+}
+
+/// Counterpart: swisseph::houses::house_pos
+double housePos(
+  double armc,
+  double geolat,
+  double eps,
+  HouseSystem hsys,
+  double bodyLon,
+  double bodyLat,
+) {
+  return marshal.housePos(armc, geolat, eps, hsys.charCode, bodyLon, bodyLat);
+}
+
+/// Counterpart: swisseph::types::HouseSystem::name
+String houseName(HouseSystem hsys) {
+  return marshal.houseName(hsys.charCode);
+}
+
+/// Counterpart: swisseph::types::SiderealMode::name
+String getAyanamsaName(SiderealMode sidMode) {
+  return marshal.getAyanamsaName(sidMode.value);
 }

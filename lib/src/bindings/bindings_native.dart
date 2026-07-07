@@ -452,3 +452,213 @@ external void swissephSplitDeg(
   Pointer<Double> secfr,
   Pointer<Int32> sign,
 );
+
+// ---------------------------------------------------------------------------
+// Houses & Gauquelin
+// ---------------------------------------------------------------------------
+
+@Native<
+  Int32 Function(
+    Pointer<Void>,
+    Double,
+    Int32,
+    Double,
+    Double,
+    Int32,
+    Pointer<Double>,
+    Pointer<Double>,
+    Pointer<Double>,
+    Pointer<Double>,
+    Pointer<Utf8>,
+    Size,
+  )
+>(symbol: 'swisseph_houses_ex2')
+external int swissephHousesEx2(
+  Pointer<Void> handle,
+  double tjdUt,
+  int iflag,
+  double geolat,
+  double geolon,
+  int hsys,
+  Pointer<Double> cusps,
+  Pointer<Double> ascmc,
+  Pointer<Double> cuspSpeed,
+  Pointer<Double> ascmcSpeed,
+  Pointer<Utf8> errBuf,
+  int errCap,
+);
+
+@Native<
+  Int32 Function(
+    Double,
+    Double,
+    Double,
+    Int32,
+    Pointer<Double>,
+    Pointer<Double>,
+    Pointer<Double>,
+    Pointer<Double>,
+    Pointer<Double>,
+    Pointer<Utf8>,
+    Size,
+  )
+>(symbol: 'swisseph_houses_armc_ex2')
+external int swissephHousesArmcEx2(
+  double armc,
+  double geolat,
+  double eps,
+  int hsys,
+  Pointer<Double> sundec,
+  Pointer<Double> cusps,
+  Pointer<Double> ascmc,
+  Pointer<Double> cuspSpeed,
+  Pointer<Double> ascmcSpeed,
+  Pointer<Utf8> errBuf,
+  int errCap,
+);
+
+@Native<
+  Int32 Function(
+    Double,
+    Double,
+    Double,
+    Int32,
+    Pointer<Double>,
+    Pointer<Double>,
+    Pointer<Double>,
+    Pointer<Utf8>,
+    Size,
+  )
+>(symbol: 'swisseph_house_pos')
+external int swissephHousePos(
+  double armc,
+  double geolat,
+  double eps,
+  int hsys,
+  Pointer<Double> xpin,
+  Pointer<Double> sundec,
+  Pointer<Double> hpos,
+  Pointer<Utf8> errBuf,
+  int errCap,
+);
+
+@Native<Int32 Function(Int32, Pointer<Utf8>, Size, Pointer<Utf8>, Size)>(
+  symbol: 'swisseph_house_name',
+)
+external int swissephHouseName(
+  int hsys,
+  Pointer<Utf8> buf,
+  int cap,
+  Pointer<Utf8> errBuf,
+  int errCap,
+);
+
+@Native<
+  Int32 Function(
+    Pointer<Void>,
+    Double,
+    Int32,
+    Pointer<Utf8>,
+    Int32,
+    Int32,
+    Pointer<Double>,
+    Double,
+    Double,
+    Pointer<Double>,
+    Pointer<Utf8>,
+    Size,
+  )
+>(symbol: 'swisseph_gauquelin_sector')
+external int swissephGauquelinSector(
+  Pointer<Void> handle,
+  double tjdUt,
+  int ipl,
+  Pointer<Utf8> starname,
+  int iflag,
+  int imeth,
+  Pointer<Double> geopos,
+  double atpress,
+  double attemp,
+  Pointer<Double> dgsect,
+  Pointer<Utf8> errBuf,
+  int errCap,
+);
+
+// ---------------------------------------------------------------------------
+// Ayanamsa
+// ---------------------------------------------------------------------------
+
+@Native<
+  Int32 Function(
+    Pointer<Void>,
+    Double,
+    Int32,
+    Pointer<SweSidMode>,
+    Pointer<Double>,
+    Pointer<Int32>,
+    Pointer<Utf8>,
+    Size,
+  )
+>(symbol: 'swisseph_get_ayanamsa_ex')
+external int swissephGetAyanamsaEx(
+  Pointer<Void> handle,
+  double tjdEt,
+  int iflag,
+  Pointer<SweSidMode> sidMode,
+  Pointer<Double> daya,
+  Pointer<Int32> flagsUsed,
+  Pointer<Utf8> errBuf,
+  int errCap,
+);
+
+@Native<
+  Int32 Function(
+    Pointer<Void>,
+    Double,
+    Int32,
+    Pointer<SweSidMode>,
+    Pointer<Double>,
+    Pointer<Int32>,
+    Pointer<Utf8>,
+    Size,
+  )
+>(symbol: 'swisseph_get_ayanamsa_ex_ut')
+external int swissephGetAyanamsaExUt(
+  Pointer<Void> handle,
+  double tjdUt,
+  int iflag,
+  Pointer<SweSidMode> sidMode,
+  Pointer<Double> daya,
+  Pointer<Int32> flagsUsed,
+  Pointer<Utf8> errBuf,
+  int errCap,
+);
+
+@Native<Double Function(Pointer<Void>, Double, Pointer<SweSidMode>)>(
+  symbol: 'swisseph_get_ayanamsa',
+)
+external double swissephGetAyanamsa(
+  Pointer<Void> handle,
+  double tjdEt,
+  Pointer<SweSidMode> sidMode,
+);
+
+@Native<Double Function(Pointer<Void>, Double, Pointer<SweSidMode>)>(
+  symbol: 'swisseph_get_ayanamsa_ut',
+)
+external double swissephGetAyanamsaUt(
+  Pointer<Void> handle,
+  double tjdUt,
+  Pointer<SweSidMode> sidMode,
+);
+
+@Native<Int32 Function(Int32, Pointer<Utf8>, Size, Pointer<Utf8>, Size)>(
+  symbol: 'swisseph_get_ayanamsa_name',
+)
+external int swissephGetAyanamsaName(
+  int sidModeRaw,
+  Pointer<Utf8> buf,
+  int cap,
+  Pointer<Utf8> errBuf,
+  int errCap,
+);

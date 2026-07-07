@@ -241,5 +241,142 @@ class Oracle {
     );
   }
 
+  // -----------------------------------------------------------------------
+  // Houses
+  // -----------------------------------------------------------------------
+
+  ({
+    List<double> cusps,
+    List<double> ascmc,
+    List<double> cuspSpeeds,
+    List<double> ascmcSpeeds,
+  })
+  houses(double jdUt, double geolat, double geolon, int hsys) {
+    final r = _swe.housesEx2(jdUt, 0, geolat, geolon, hsys);
+    return (
+      cusps: r.cusps,
+      ascmc: r.ascmc,
+      cuspSpeeds: r.cuspSpeeds,
+      ascmcSpeeds: r.ascmcSpeeds,
+    );
+  }
+
+  ({
+    List<double> cusps,
+    List<double> ascmc,
+    List<double> cuspSpeeds,
+    List<double> ascmcSpeeds,
+  })
+  housesEx2(double jdUt, int flags, double geolat, double geolon, int hsys) {
+    final r = _swe.housesEx2(jdUt, flags, geolat, geolon, hsys);
+    return (
+      cusps: r.cusps,
+      ascmc: r.ascmc,
+      cuspSpeeds: r.cuspSpeeds,
+      ascmcSpeeds: r.ascmcSpeeds,
+    );
+  }
+
+  ({List<double> cusps, List<double> ascmc}) housesArmc(
+    double armc,
+    double geolat,
+    double eps,
+    int hsys,
+  ) {
+    final r = _swe.housesArmc(armc, geolat, eps, hsys);
+    return (cusps: r.cusps, ascmc: r.ascmc);
+  }
+
+  double housePos(
+    double armc,
+    double geolat,
+    double eps,
+    int hsys,
+    double bodyLon,
+    double bodyLat,
+  ) {
+    return _swe.housePos(armc, geolat, eps, hsys, bodyLon, bodyLat);
+  }
+
+  String houseName(int hsys) {
+    return _swe.houseName(hsys);
+  }
+
+  double gauquelinSector(
+    double jdUt,
+    int body,
+    int flags,
+    int method, {
+    required double geolon,
+    required double geolat,
+    double geoalt = 0,
+    double atpress = 0,
+    double attemp = 0,
+  }) {
+    return _swe.gauquelinSector(
+      jdUt,
+      body,
+      flags,
+      method,
+      geolon: geolon,
+      geolat: geolat,
+      geoalt: geoalt,
+      atpress: atpress,
+      attemp: attemp,
+    );
+  }
+
+  // -----------------------------------------------------------------------
+  // Ayanamsa
+  // -----------------------------------------------------------------------
+
+  double getAyanamsaEx(
+    double jdEt,
+    int flags,
+    int sidMode, {
+    double t0 = 0,
+    double ayanT0 = 0,
+  }) {
+    _swe.setSidMode(sidMode, t0: t0, ayanT0: ayanT0);
+    try {
+      return _swe.getAyanamsaEx(jdEt, flags).ayanamsa;
+    } finally {
+      _swe.setSidMode(0);
+    }
+  }
+
+  double getAyanamsaUt(
+    double jdUt,
+    int flags,
+    int sidMode, {
+    double t0 = 0,
+    double ayanT0 = 0,
+  }) {
+    _swe.setSidMode(sidMode, t0: t0, ayanT0: ayanT0);
+    try {
+      return _swe.getAyanamsaExUt(jdUt, flags).ayanamsa;
+    } finally {
+      _swe.setSidMode(0);
+    }
+  }
+
+  double getAyanamsa(
+    double jdEt,
+    int sidMode, {
+    double t0 = 0,
+    double ayanT0 = 0,
+  }) {
+    _swe.setSidMode(sidMode, t0: t0, ayanT0: ayanT0);
+    try {
+      return _swe.getAyanamsa(jdEt);
+    } finally {
+      _swe.setSidMode(0);
+    }
+  }
+
+  String getAyanamsaName(int sidMode) {
+    return _swe.getAyanamsaName(sidMode);
+  }
+
   void close() => _swe.close();
 }

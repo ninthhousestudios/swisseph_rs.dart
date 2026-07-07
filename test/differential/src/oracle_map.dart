@@ -50,4 +50,15 @@ const oracleMap = <String, OracleEntry>{
   'normalizeDegrees': OracleEntry.engineTrusted(
     'pure math (x % 360); oracle uses identical algorithm',
   ),
+  'Ephemeris.houses': OracleEntry.direct(),
+  'Ephemeris.housesEx2': OracleEntry.direct(),
+  'Ephemeris.gauquelinSector': OracleEntry.direct(),
+  'Ephemeris.getAyanamsaEx': OracleEntry.composite(),
+  'Ephemeris.getAyanamsaExWithConfig': OracleEntry.composite(),
+  'Ephemeris.getAyanamsaUt': OracleEntry.composite(),
+  'Ephemeris.getAyanamsa': OracleEntry.composite(),
+  'housesArmc': OracleEntry.direct(),
+  'housePos': OracleEntry.direct(),
+  'houseName': OracleEntry.direct(),
+  'getAyanamsaName': OracleEntry.direct(),
 };

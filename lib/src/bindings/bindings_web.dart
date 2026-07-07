@@ -183,3 +183,107 @@ void swissephSplitDeg(
   dynamic secfr,
   dynamic sign,
 ) => _unsupported();
+
+// Houses & Gauquelin
+
+int swissephHousesEx2(
+  dynamic handle,
+  double tjdUt,
+  int iflag,
+  double geolat,
+  double geolon,
+  int hsys,
+  dynamic cusps,
+  dynamic ascmc,
+  dynamic cuspSpeed,
+  dynamic ascmcSpeed,
+  dynamic errBuf,
+  int errCap,
+) => _unsupported();
+
+int swissephHousesArmcEx2(
+  double armc,
+  double geolat,
+  double eps,
+  int hsys,
+  dynamic sundec,
+  dynamic cusps,
+  dynamic ascmc,
+  dynamic cuspSpeed,
+  dynamic ascmcSpeed,
+  dynamic errBuf,
+  int errCap,
+) => _unsupported();
+
+int swissephHousePos(
+  double armc,
+  double geolat,
+  double eps,
+  int hsys,
+  dynamic xpin,
+  dynamic sundec,
+  dynamic hpos,
+  dynamic errBuf,
+  int errCap,
+) => _unsupported();
+
+int swissephHouseName(
+  int hsys,
+  dynamic buf,
+  int cap,
+  dynamic errBuf,
+  int errCap,
+) => _unsupported();
+
+int swissephGauquelinSector(
+  dynamic handle,
+  double tjdUt,
+  int ipl,
+  dynamic starname,
+  int iflag,
+  int imeth,
+  dynamic geopos,
+  double atpress,
+  double attemp,
+  dynamic dgsect,
+  dynamic errBuf,
+  int errCap,
+) => _unsupported();
+
+// Ayanamsa
+
+int swissephGetAyanamsaEx(
+  dynamic handle,
+  double tjdEt,
+  int iflag,
+  dynamic sidMode,
+  dynamic daya,
+  dynamic flagsUsed,
+  dynamic errBuf,
+  int errCap,
+) => _unsupported();
+
+int swissephGetAyanamsaExUt(
+  dynamic handle,
+  double tjdUt,
+  int iflag,
+  dynamic sidMode,
+  dynamic daya,
+  dynamic flagsUsed,
+  dynamic errBuf,
+  int errCap,
+) => _unsupported();
+
+double swissephGetAyanamsa(dynamic handle, double tjdEt, dynamic sidMode) =>
+    _unsupported();
+
+double swissephGetAyanamsaUt(dynamic handle, double tjdUt, dynamic sidMode) =>
+    _unsupported();
+
+int swissephGetAyanamsaName(
+  int sidModeRaw,
+  dynamic buf,
+  int cap,
+  dynamic errBuf,
+  int errCap,
+) => _unsupported();

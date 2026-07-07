@@ -567,3 +567,285 @@ DegreeParts splitDegrees(double ddeg, int roundflag) {
     );
   });
 }
+
+// ---------------------------------------------------------------------------
+// Houses
+// ---------------------------------------------------------------------------
+
+/// Unmarshal a 10-element ascmc array into [AscMc].
+AscMc _unmarshalAscMc(Pointer<Double> p) {
+  return AscMc(
+    ascendant: p[0],
+    mc: p[1],
+    armc: p[2],
+    vertex: p[3],
+    equatorialAscendant: p[4],
+    coascendantKoch: p[5],
+    coascendantMunkasey: p[6],
+    polarAscendant: p[7],
+  );
+}
+
+/// Unmarshal cusps from a native 37-element buffer into a Dart list.
+/// The list length is 37 for Gauquelin (hsys 0x47), 13 otherwise.
+List<double> _unmarshalCusps(Pointer<Double> p, int hsys) {
+  final len = hsys == 0x47 ? 37 : 13;
+  return [for (var i = 0; i < len; i++) p[i]];
+}
+
+/// Call `swisseph_houses_ex2` and return a typed [HouseResult].
+HouseResult housesEx2(
+  Pointer<Void> handle,
+  double tjdUt,
+  int iflag,
+  double geolat,
+  double geolon,
+  int hsys,
+) {
+  return using((arena) {
+    final cusps = arena<Double>(37);
+    final ascmc = arena<Double>(10);
+    final cuspSpeed = arena<Double>(37);
+    final ascmcSpeed = arena<Double>(10);
+    final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
+    final code = swissephHousesEx2(
+      handle,
+      tjdUt,
+      iflag,
+      geolat,
+      geolon,
+      hsys,
+      cusps,
+      ascmc,
+      cuspSpeed,
+      ascmcSpeed,
+      errBuf,
+      _errBufSize,
+    );
+    _checkResult(code, errBuf);
+    return HouseResult(
+      cusps: _unmarshalCusps(cusps, hsys),
+      cuspSpeeds: _unmarshalCusps(cuspSpeed, hsys),
+      ascmc: _unmarshalAscMc(ascmc),
+      ascmcSpeeds: _unmarshalAscMc(ascmcSpeed),
+    );
+  });
+}
+
+/// Call `swisseph_houses_armc_ex2` (handle-free) and return a [HouseResult].
+HouseResult housesArmcEx2(double armc, double geolat, double eps, int hsys) {
+  return using((arena) {
+    final cusps = arena<Double>(37);
+    final ascmc = arena<Double>(10);
+    final cuspSpeed = arena<Double>(37);
+    final ascmcSpeed = arena<Double>(10);
+    final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
+    final code = swissephHousesArmcEx2(
+      armc,
+      geolat,
+      eps,
+      hsys,
+      nullptr, // sundec
+      cusps,
+      ascmc,
+      cuspSpeed,
+      ascmcSpeed,
+      errBuf,
+      _errBufSize,
+    );
+    _checkResult(code, errBuf);
+    return HouseResult(
+      cusps: _unmarshalCusps(cusps, hsys),
+      cuspSpeeds: _unmarshalCusps(cuspSpeed, hsys),
+      ascmc: _unmarshalAscMc(ascmc),
+      ascmcSpeeds: _unmarshalAscMc(ascmcSpeed),
+    );
+  });
+}
+
+/// Call `swisseph_house_pos` (handle-free) and return the house position.
+double housePos(
+  double armc,
+  double geolat,
+  double eps,
+  int hsys,
+  double bodyLon,
+  double bodyLat,
+) {
+  return using((arena) {
+    final xpin = arena<Double>(2);
+    xpin[0] = bodyLon;
+    xpin[1] = bodyLat;
+    final hpos = arena<Double>();
+    final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
+    final code = swissephHousePos(
+      armc,
+      geolat,
+      eps,
+      hsys,
+      xpin,
+      nullptr, // sundec
+      hpos,
+      errBuf,
+      _errBufSize,
+    );
+    _checkResult(code, errBuf);
+    return hpos.value;
+  });
+}
+
+/// Call `swisseph_house_name` (handle-free) and return the name string.
+String houseName(int hsys) {
+  return using((arena) {
+    final buf = arena<Uint8>(256).cast<Utf8>();
+    final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
+    final code = swissephHouseName(hsys, buf, 256, errBuf, _errBufSize);
+    _checkResult(code, errBuf);
+    return buf.toDartString();
+  });
+}
+
+/// Call `swisseph_gauquelin_sector` and return the sector number.
+double gauquelinSector(
+  Pointer<Void> handle,
+  double tjdUt,
+  int ipl,
+  int iflag,
+  int imeth,
+  double geolon,
+  double geolat,
+  double geoalt,
+  double atpress,
+  double attemp,
+) {
+  return using((arena) {
+    final geopos = arena<Double>(3);
+    geopos[0] = geolon;
+    geopos[1] = geolat;
+    geopos[2] = geoalt;
+    final dgsect = arena<Double>();
+    final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
+    final code = swissephGauquelinSector(
+      handle,
+      tjdUt,
+      ipl,
+      nullptr, // starname (null for planets)
+      iflag,
+      imeth,
+      geopos,
+      atpress,
+      attemp,
+      dgsect,
+      errBuf,
+      _errBufSize,
+    );
+    _checkResult(code, errBuf);
+    return dgsect.value;
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Ayanamsa
+// ---------------------------------------------------------------------------
+
+/// Call `swisseph_get_ayanamsa_ex` and return the ayanamsa value.
+double getAyanamsaEx(Pointer<Void> handle, double tjdEt, int iflag) {
+  return using((arena) {
+    final daya = arena<Double>();
+    final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
+    final code = swissephGetAyanamsaEx(
+      handle,
+      tjdEt,
+      iflag,
+      nullptr, // use handle's configured sidereal mode
+      daya,
+      nullptr, // flagsUsed
+      errBuf,
+      _errBufSize,
+    );
+    _checkResult(code, errBuf);
+    return daya.value;
+  });
+}
+
+/// Call `swisseph_get_ayanamsa_ex` with per-call sidereal mode override.
+double getAyanamsaExWithConfig(
+  Pointer<Void> handle,
+  double tjdEt,
+  int iflag,
+  EphemerisConfig config,
+) {
+  return using((arena) {
+    final daya = arena<Double>();
+    final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
+
+    Pointer<SweSidMode> sidMode = nullptr;
+    if (config.siderealMode != null) {
+      sidMode = arena<SweSidMode>();
+      var bits = config.siderealBits.value;
+      if (config.siderealT0IsUt) bits |= SiderealBits.userUt.value;
+      sidMode.ref.sidMode = config.siderealMode!.value | bits;
+      sidMode.ref.t0 = config.siderealT0;
+      sidMode.ref.ayanT0 = config.siderealAyanT0;
+    }
+
+    final code = swissephGetAyanamsaEx(
+      handle,
+      tjdEt,
+      iflag,
+      sidMode,
+      daya,
+      nullptr,
+      errBuf,
+      _errBufSize,
+    );
+    _checkResult(code, errBuf);
+    return daya.value;
+  });
+}
+
+/// Call `swisseph_get_ayanamsa_ex_ut` and return the ayanamsa value.
+double getAyanamsaUt(Pointer<Void> handle, double tjdUt, int iflag) {
+  return using((arena) {
+    final daya = arena<Double>();
+    final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
+    final code = swissephGetAyanamsaExUt(
+      handle,
+      tjdUt,
+      iflag,
+      nullptr,
+      daya,
+      nullptr,
+      errBuf,
+      _errBufSize,
+    );
+    _checkResult(code, errBuf);
+    return daya.value;
+  });
+}
+
+/// Call `swisseph_get_ayanamsa` (legacy, no flags).
+double getAyanamsa(Pointer<Void> handle, double tjdEt) {
+  final result = swissephGetAyanamsa(handle, tjdEt, nullptr);
+  if (result.isNaN) {
+    throw const CErrorException('swisseph_get_ayanamsa returned NaN');
+  }
+  return result;
+}
+
+/// Call `swisseph_get_ayanamsa_name` (handle-free) and return the name.
+String getAyanamsaName(int sidModeRaw) {
+  return using((arena) {
+    final buf = arena<Uint8>(256).cast<Utf8>();
+    final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
+    final code = swissephGetAyanamsaName(
+      sidModeRaw,
+      buf,
+      256,
+      errBuf,
+      _errBufSize,
+    );
+    _checkResult(code, errBuf);
+    return buf.toDartString();
+  });
+}

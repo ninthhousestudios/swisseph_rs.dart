@@ -78,3 +78,49 @@ final class DegreeParts {
     required this.sign,
   });
 }
+
+/// Counterpart: swisseph::houses::AscMc
+final class AscMc {
+  final double ascendant;
+  final double mc;
+  final double armc;
+  final double vertex;
+  final double equatorialAscendant;
+  final double coascendantKoch;
+  final double coascendantMunkasey;
+  final double polarAscendant;
+
+  const AscMc({
+    required this.ascendant,
+    required this.mc,
+    required this.armc,
+    required this.vertex,
+    required this.equatorialAscendant,
+    required this.coascendantKoch,
+    required this.coascendantMunkasey,
+    required this.polarAscendant,
+  });
+}
+
+/// Counterpart: swisseph::houses::HouseResult
+final class HouseResult {
+  /// Cusp longitudes. Index 0 is unused; cusps are at indices 1..12
+  /// (or 1..36 for Gauquelin sectors).
+  final List<double> cusps;
+
+  /// Cusp speeds in degrees/day, same indexing as [cusps].
+  final List<double> cuspSpeeds;
+
+  /// Angular points (Ascendant, MC, ARMC, Vertex, etc.).
+  final AscMc ascmc;
+
+  /// Angular-point speeds in degrees/day.
+  final AscMc ascmcSpeeds;
+
+  const HouseResult({
+    required this.cusps,
+    required this.cuspSpeeds,
+    required this.ascmc,
+    required this.ascmcSpeeds,
+  });
+}
