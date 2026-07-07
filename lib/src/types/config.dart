@@ -1,7 +1,22 @@
 import 'body.dart';
 
+/// Counterpart: swisseph::config::EphemerisSource
+enum EphemerisSource {
+  /// Counterpart: swisseph::config::EphemerisSource::Moshier
+  moshier,
+
+  /// Counterpart: swisseph::config::EphemerisSource::Swiss
+  swiss,
+
+  /// Counterpart: swisseph::config::EphemerisSource::Jpl
+  jpl,
+}
+
 /// Counterpart: swisseph::config::EphemerisConfig
 final class EphemerisConfig {
+  /// Counterpart: swisseph::config::EphemerisConfig::ephemeris_source
+  final EphemerisSource ephemerisSource;
+
   /// Counterpart: swisseph::config::EphemerisConfig::ephe_path
   final String? ephePath;
 
@@ -15,6 +30,7 @@ final class EphemerisConfig {
   final SiderealMode? siderealMode;
 
   const EphemerisConfig({
+    this.ephemerisSource = EphemerisSource.moshier,
     this.ephePath,
     this.asteroids = const [],
     this.topographic,

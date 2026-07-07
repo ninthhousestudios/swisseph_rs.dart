@@ -1,13 +1,18 @@
+import 'dart:ffi';
+
+import 'marshal/marshal.dart' as marshal;
 import 'types/types.dart';
 
 /// Counterpart: swisseph::Ephemeris
-final class Ephemeris {
+final class Ephemeris implements Finalizable {
+  final Pointer<Void> _handle;
   bool _closed = false;
 
+  static final _finalizer = NativeFinalizer(marshal.swissephFreeFnPtr);
+
   /// Counterpart: swisseph::Ephemeris::new
-  Ephemeris(EphemerisConfig config) {
-    // TODO: marshal config, call swisseph_new, store handle
-    _use(config);
+  Ephemeris(EphemerisConfig config) : _handle = marshal.createHandle(config) {
+    _finalizer.attach(this, _handle, detach: this);
   }
 
   void _checkOpen() {
@@ -19,11 +24,7 @@ final class Ephemeris {
   /// Counterpart: swisseph::Ephemeris::calc_ut
   CalcResult calcUt(JdUt1 jd, Body body, CalcFlags flags) {
     _checkOpen();
-    // TODO: marshal, call, unmarshal, throw
-    _use(jd);
-    _use(body);
-    _use(flags);
-    throw UnimplementedError('calcUt not yet implemented');
+    return marshal.calcUt(_handle, jd.value, body.rawValue, flags.value);
   }
 
   /// Release the native handle. Idempotent; use-after-close throws
@@ -32,7 +33,8 @@ final class Ephemeris {
   void close() {
     if (_closed) return;
     _closed = true;
-    // TODO: call swisseph_free
+    _finalizer.detach(this);
+    marshal.freeHandle(_handle);
   }
 
   /// Counterpart: swisseph::Ephemeris (share via Arc clone)
@@ -40,15 +42,9 @@ final class Ephemeris {
   /// Returns a token sendable to another isolate. Native-only.
   Object share() {
     _checkOpen();
-    // TODO: call swisseph_share, return SendPort-compatible token
     throw UnimplementedError('share not yet implemented');
   }
 }
 
 /// Counterpart: swisseph::swisseph_version
-String get engineVersion {
-  // TODO: call swisseph_version, convert Pointer<Utf8> to String
-  throw UnimplementedError('engineVersion not yet implemented');
-}
-
-void _use(Object? _) {}
+String get engineVersion => marshal.engineVersion();
