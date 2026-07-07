@@ -106,5 +106,140 @@ class Oracle {
     return OracleCalcResult._fromSwe(result);
   }
 
+  double julday(
+    int year,
+    int month,
+    int day,
+    double hour, {
+    bool gregorian = true,
+  }) {
+    return _swe.julday(year, month, day, hour, gregorian: gregorian);
+  }
+
+  ({int year, int month, int day, double hour}) revjul(
+    double jd, {
+    bool gregorian = true,
+  }) {
+    final r = _swe.revjul(jd, gregorian: gregorian);
+    return (year: r.year, month: r.month, day: r.day, hour: r.hour);
+  }
+
+  double? dateConversion(
+    int year,
+    int month,
+    int day,
+    double hour, {
+    bool gregorian = true,
+  }) {
+    return _swe.dateConversion(year, month, day, hour, gregorian: gregorian);
+  }
+
+  int dayOfWeek(double jd) {
+    return _swe.dayOfWeek(jd);
+  }
+
+  ({int year, int month, int day, int hour, int min, double sec}) utcTimeZone(
+    int year,
+    int month,
+    int day,
+    int hour,
+    int min,
+    double sec,
+    double timezone,
+  ) {
+    final r = _swe.utcTimeZone(year, month, day, hour, min, sec, timezone);
+    return (
+      year: r.year,
+      month: r.month,
+      day: r.day,
+      hour: r.hour,
+      min: r.min,
+      sec: r.sec,
+    );
+  }
+
+  ({double et, double ut1}) utcToJd(
+    int year,
+    int month,
+    int day,
+    int hour,
+    int min,
+    double sec, {
+    bool gregorian = true,
+  }) {
+    final r = _swe.utcToJd(
+      year,
+      month,
+      day,
+      hour,
+      min,
+      sec,
+      gregorian: gregorian,
+    );
+    return (et: r.et, ut1: r.ut1);
+  }
+
+  ({int year, int month, int day, int hour, int min, double sec}) jdetToUtc(
+    double jdEt, {
+    bool gregorian = true,
+  }) {
+    final r = _swe.jdetToUtc(jdEt, gregorian: gregorian);
+    return (
+      year: r.year,
+      month: r.month,
+      day: r.day,
+      hour: r.hour,
+      min: r.min,
+      sec: r.sec,
+    );
+  }
+
+  ({int year, int month, int day, int hour, int min, double sec}) jdut1ToUtc(
+    double jdUt, {
+    bool gregorian = true,
+  }) {
+    final r = _swe.jdToUtc(jdUt, gregorian: gregorian);
+    return (
+      year: r.year,
+      month: r.month,
+      day: r.day,
+      hour: r.hour,
+      min: r.min,
+      sec: r.sec,
+    );
+  }
+
+  double deltat(double jd) {
+    return _swe.deltat(jd);
+  }
+
+  double timeEqu(double jd) {
+    return _swe.timeEqu(jd);
+  }
+
+  double lmtToLat(double jdLmt, double geolon) {
+    return _swe.lmtToLat(jdLmt, geolon);
+  }
+
+  double latToLmt(double jdLat, double geolon) {
+    return _swe.latToLmt(jdLat, geolon);
+  }
+
+  String getPlanetName(int body) {
+    return _swe.getPlanetName(body);
+  }
+
+  ({int degrees, int minutes, int seconds, double secondsFraction, int sign})
+  splitDeg(double degrees, int roundFlag) {
+    final r = _swe.splitDeg(degrees, roundFlag);
+    return (
+      degrees: r.degrees,
+      minutes: r.minutes,
+      seconds: r.seconds,
+      secondsFraction: r.secondsFraction,
+      sign: r.sign,
+    );
+  }
+
   void close() => _swe.close();
 }

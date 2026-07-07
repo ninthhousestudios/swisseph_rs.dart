@@ -315,3 +315,255 @@ CalcResult calcPctr(
 String engineVersion() {
   return swissephVersion().toDartString();
 }
+
+// ---------------------------------------------------------------------------
+// Date/time free functions
+// ---------------------------------------------------------------------------
+
+/// Call `swisseph_julday`.
+double julday(int year, int month, int day, double hour, int gregflag) {
+  return swissephJulday(year, month, day, hour, gregflag);
+}
+
+/// Call `swisseph_revjul` and return components.
+({int year, int month, int day, double hour}) revjul(double jd, int gregflag) {
+  return using((arena) {
+    final y = arena<Int32>();
+    final m = arena<Int32>();
+    final d = arena<Int32>();
+    final h = arena<Double>();
+    swissephRevjul(jd, gregflag, y, m, d, h);
+    return (year: y.value, month: m.value, day: d.value, hour: h.value);
+  });
+}
+
+/// Call `swisseph_date_conversion`. Throws on invalid date.
+double dateConversion(int year, int month, int day, double hour, int cal) {
+  return using((arena) {
+    final tjd = arena<Double>();
+    final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
+    final code = swissephDateConversion(
+      year,
+      month,
+      day,
+      hour,
+      cal,
+      tjd,
+      errBuf,
+      _errBufSize,
+    );
+    _checkResult(code, errBuf);
+    return tjd.value;
+  });
+}
+
+/// Call `swisseph_day_of_week`.
+int dayOfWeek(double jd) {
+  return swissephDayOfWeek(jd);
+}
+
+/// Call `swisseph_utc_time_zone` and return [UtcComponents].
+UtcComponents utcTimeZone(
+  int year,
+  int month,
+  int day,
+  int hour,
+  int minute,
+  double second,
+  double tzOffset,
+) {
+  return using((arena) {
+    final oy = arena<Int32>();
+    final om = arena<Int32>();
+    final od = arena<Int32>();
+    final oh = arena<Int32>();
+    final omin = arena<Int32>();
+    final osec = arena<Double>();
+    swissephUtcTimeZone(
+      year,
+      month,
+      day,
+      hour,
+      minute,
+      second,
+      tzOffset,
+      oy,
+      om,
+      od,
+      oh,
+      omin,
+      osec,
+    );
+    return UtcComponents(
+      year: oy.value,
+      month: om.value,
+      day: od.value,
+      hour: oh.value,
+      minute: omin.value,
+      second: osec.value,
+    );
+  });
+}
+
+/// Call `swisseph_utc_to_jd` and return [UtcToJd].
+UtcToJd utcToJd(
+  Pointer<Void> handle,
+  int year,
+  int month,
+  int day,
+  int hour,
+  int min,
+  double sec,
+  int gregflag,
+) {
+  return using((arena) {
+    final dret = arena<Double>(2);
+    final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
+    final code = swissephUtcToJd(
+      handle,
+      year,
+      month,
+      day,
+      hour,
+      min,
+      sec,
+      gregflag,
+      dret,
+      errBuf,
+      _errBufSize,
+    );
+    _checkResult(code, errBuf);
+    return UtcToJd(tt: JdTt(dret[0]), ut1: JdUt1(dret[1]));
+  });
+}
+
+/// Call `swisseph_jdet_to_utc` and return [UtcComponents].
+UtcComponents jdetToUtc(Pointer<Void> handle, double tjdEt, int gregflag) {
+  return using((arena) {
+    final y = arena<Int32>();
+    final m = arena<Int32>();
+    final d = arena<Int32>();
+    final h = arena<Int32>();
+    final min = arena<Int32>();
+    final sec = arena<Double>();
+    swissephJdetToUtc(handle, tjdEt, gregflag, y, m, d, h, min, sec);
+    return UtcComponents(
+      year: y.value,
+      month: m.value,
+      day: d.value,
+      hour: h.value,
+      minute: min.value,
+      second: sec.value,
+    );
+  });
+}
+
+/// Call `swisseph_jdut1_to_utc` and return [UtcComponents].
+UtcComponents jdut1ToUtc(Pointer<Void> handle, double tjdUt, int gregflag) {
+  return using((arena) {
+    final y = arena<Int32>();
+    final m = arena<Int32>();
+    final d = arena<Int32>();
+    final h = arena<Int32>();
+    final min = arena<Int32>();
+    final sec = arena<Double>();
+    swissephJdut1ToUtc(handle, tjdUt, gregflag, y, m, d, h, min, sec);
+    return UtcComponents(
+      year: y.value,
+      month: m.value,
+      day: d.value,
+      hour: h.value,
+      minute: min.value,
+      second: sec.value,
+    );
+  });
+}
+
+/// Call `swisseph_deltat`.
+double deltaT(Pointer<Void> handle, double tjdUt) {
+  return swissephDeltat(handle, tjdUt);
+}
+
+/// Call `swisseph_time_equ`.
+double timeEqu(Pointer<Void> handle, double tjdUt) {
+  return using((arena) {
+    final e = arena<Double>();
+    final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
+    final code = swissephTimeEqu(handle, tjdUt, e, errBuf, _errBufSize);
+    _checkResult(code, errBuf);
+    return e.value;
+  });
+}
+
+/// Call `swisseph_lmt_to_lat`.
+double lmtToLat(Pointer<Void> handle, double tjdLmt, double geolon) {
+  return using((arena) {
+    final tjdLat = arena<Double>();
+    final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
+    final code = swissephLmtToLat(
+      handle,
+      tjdLmt,
+      geolon,
+      tjdLat,
+      errBuf,
+      _errBufSize,
+    );
+    _checkResult(code, errBuf);
+    return tjdLat.value;
+  });
+}
+
+/// Call `swisseph_lat_to_lmt`.
+double latToLmt(Pointer<Void> handle, double tjdLat, double geolon) {
+  return using((arena) {
+    final tjdLmt = arena<Double>();
+    final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
+    final code = swissephLatToLmt(
+      handle,
+      tjdLat,
+      geolon,
+      tjdLmt,
+      errBuf,
+      _errBufSize,
+    );
+    _checkResult(code, errBuf);
+    return tjdLmt.value;
+  });
+}
+
+/// Call `swisseph_get_planet_name`.
+String getPlanetName(Pointer<Void> handle, int ipl) {
+  return using((arena) {
+    final buf = arena<Uint8>(256).cast<Utf8>();
+    final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
+    final code = swissephGetPlanetName(
+      handle,
+      ipl,
+      buf,
+      256,
+      errBuf,
+      _errBufSize,
+    );
+    _checkResult(code, errBuf);
+    return buf.toDartString();
+  });
+}
+
+/// Call `swisseph_split_deg` and return [DegreeParts].
+DegreeParts splitDegrees(double ddeg, int roundflag) {
+  return using((arena) {
+    final deg = arena<Int32>();
+    final min = arena<Int32>();
+    final sec = arena<Int32>();
+    final secfr = arena<Double>();
+    final sign = arena<Int32>();
+    swissephSplitDeg(ddeg, roundflag, deg, min, sec, secfr, sign);
+    return DegreeParts(
+      degrees: deg.value,
+      minutes: min.value,
+      seconds: sec.value,
+      secondFraction: secfr.value,
+      sign: sign.value,
+    );
+  });
+}

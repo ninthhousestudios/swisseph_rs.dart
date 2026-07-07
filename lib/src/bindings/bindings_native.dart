@@ -195,3 +195,260 @@ external int swissephCalcPctr(
   Pointer<Utf8> errBuf,
   int errCap,
 );
+
+// ---------------------------------------------------------------------------
+// Date/time functions (handle-free unless noted)
+// ---------------------------------------------------------------------------
+
+@Native<Double Function(Int32, Int32, Int32, Double, Int32)>(
+  symbol: 'swisseph_julday',
+)
+external double swissephJulday(
+  int year,
+  int month,
+  int day,
+  double hour,
+  int gregflag,
+);
+
+@Native<
+  Void Function(
+    Double,
+    Int32,
+    Pointer<Int32>,
+    Pointer<Int32>,
+    Pointer<Int32>,
+    Pointer<Double>,
+  )
+>(symbol: 'swisseph_revjul')
+external void swissephRevjul(
+  double jd,
+  int gregflag,
+  Pointer<Int32> year,
+  Pointer<Int32> month,
+  Pointer<Int32> day,
+  Pointer<Double> hour,
+);
+
+@Native<
+  Int32 Function(
+    Int32,
+    Int32,
+    Int32,
+    Double,
+    Int8,
+    Pointer<Double>,
+    Pointer<Utf8>,
+    Size,
+  )
+>(symbol: 'swisseph_date_conversion')
+external int swissephDateConversion(
+  int year,
+  int month,
+  int day,
+  double hour,
+  int cal,
+  Pointer<Double> tjd,
+  Pointer<Utf8> errBuf,
+  int errCap,
+);
+
+@Native<Int32 Function(Double)>(symbol: 'swisseph_day_of_week')
+external int swissephDayOfWeek(double jd);
+
+@Native<
+  Void Function(
+    Int32,
+    Int32,
+    Int32,
+    Int32,
+    Int32,
+    Double,
+    Double,
+    Pointer<Int32>,
+    Pointer<Int32>,
+    Pointer<Int32>,
+    Pointer<Int32>,
+    Pointer<Int32>,
+    Pointer<Double>,
+  )
+>(symbol: 'swisseph_utc_time_zone')
+external void swissephUtcTimeZone(
+  int iyear,
+  int imonth,
+  int iday,
+  int ihour,
+  int imin,
+  double dsec,
+  double dTimezone,
+  Pointer<Int32> oyear,
+  Pointer<Int32> omonth,
+  Pointer<Int32> oday,
+  Pointer<Int32> ohour,
+  Pointer<Int32> omin,
+  Pointer<Double> osec,
+);
+
+@Native<
+  Int32 Function(
+    Pointer<Void>,
+    Int32,
+    Int32,
+    Int32,
+    Int32,
+    Int32,
+    Double,
+    Int32,
+    Pointer<Double>,
+    Pointer<Utf8>,
+    Size,
+  )
+>(symbol: 'swisseph_utc_to_jd')
+external int swissephUtcToJd(
+  Pointer<Void> handle,
+  int year,
+  int month,
+  int day,
+  int hour,
+  int min,
+  double sec,
+  int gregflag,
+  Pointer<Double> dret,
+  Pointer<Utf8> errBuf,
+  int errCap,
+);
+
+@Native<
+  Void Function(
+    Pointer<Void>,
+    Double,
+    Int32,
+    Pointer<Int32>,
+    Pointer<Int32>,
+    Pointer<Int32>,
+    Pointer<Int32>,
+    Pointer<Int32>,
+    Pointer<Double>,
+  )
+>(symbol: 'swisseph_jdet_to_utc')
+external void swissephJdetToUtc(
+  Pointer<Void> handle,
+  double tjdEt,
+  int gregflag,
+  Pointer<Int32> year,
+  Pointer<Int32> month,
+  Pointer<Int32> day,
+  Pointer<Int32> hour,
+  Pointer<Int32> min,
+  Pointer<Double> sec,
+);
+
+@Native<
+  Void Function(
+    Pointer<Void>,
+    Double,
+    Int32,
+    Pointer<Int32>,
+    Pointer<Int32>,
+    Pointer<Int32>,
+    Pointer<Int32>,
+    Pointer<Int32>,
+    Pointer<Double>,
+  )
+>(symbol: 'swisseph_jdut1_to_utc')
+external void swissephJdut1ToUtc(
+  Pointer<Void> handle,
+  double tjdUt,
+  int gregflag,
+  Pointer<Int32> year,
+  Pointer<Int32> month,
+  Pointer<Int32> day,
+  Pointer<Int32> hour,
+  Pointer<Int32> min,
+  Pointer<Double> sec,
+);
+
+@Native<Double Function(Pointer<Void>, Double)>(symbol: 'swisseph_deltat')
+external double swissephDeltat(Pointer<Void> handle, double tjdUt);
+
+@Native<
+  Int32 Function(Pointer<Void>, Double, Pointer<Double>, Pointer<Utf8>, Size)
+>(symbol: 'swisseph_time_equ')
+external int swissephTimeEqu(
+  Pointer<Void> handle,
+  double tjdUt,
+  Pointer<Double> e,
+  Pointer<Utf8> errBuf,
+  int errCap,
+);
+
+@Native<
+  Int32 Function(
+    Pointer<Void>,
+    Double,
+    Double,
+    Pointer<Double>,
+    Pointer<Utf8>,
+    Size,
+  )
+>(symbol: 'swisseph_lmt_to_lat')
+external int swissephLmtToLat(
+  Pointer<Void> handle,
+  double tjdLmt,
+  double geolon,
+  Pointer<Double> tjdLat,
+  Pointer<Utf8> errBuf,
+  int errCap,
+);
+
+@Native<
+  Int32 Function(
+    Pointer<Void>,
+    Double,
+    Double,
+    Pointer<Double>,
+    Pointer<Utf8>,
+    Size,
+  )
+>(symbol: 'swisseph_lat_to_lmt')
+external int swissephLatToLmt(
+  Pointer<Void> handle,
+  double tjdLat,
+  double geolon,
+  Pointer<Double> tjdLmt,
+  Pointer<Utf8> errBuf,
+  int errCap,
+);
+
+@Native<
+  Int32 Function(Pointer<Void>, Int32, Pointer<Utf8>, Size, Pointer<Utf8>, Size)
+>(symbol: 'swisseph_get_planet_name')
+external int swissephGetPlanetName(
+  Pointer<Void> handle,
+  int ipl,
+  Pointer<Utf8> buf,
+  int cap,
+  Pointer<Utf8> errBuf,
+  int errCap,
+);
+
+@Native<
+  Void Function(
+    Double,
+    Int32,
+    Pointer<Int32>,
+    Pointer<Int32>,
+    Pointer<Int32>,
+    Pointer<Double>,
+    Pointer<Int32>,
+  )
+>(symbol: 'swisseph_split_deg')
+external void swissephSplitDeg(
+  double ddeg,
+  int roundflag,
+  Pointer<Int32> deg,
+  Pointer<Int32> min,
+  Pointer<Int32> sec,
+  Pointer<Double> secfr,
+  Pointer<Int32> sign,
+);

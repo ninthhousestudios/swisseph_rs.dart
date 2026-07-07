@@ -27,10 +27,27 @@ const oracleMap = <String, OracleEntry>{
   'Ephemeris.share': OracleEntry.engineTrusted(
     'unimplemented; pending upstream FFI',
   ),
+  'Ephemeris.deltaT': OracleEntry.direct(),
+  'Ephemeris.timeEqu': OracleEntry.direct(),
+  'Ephemeris.lmtToLat': OracleEntry.direct(),
+  'Ephemeris.latToLmt': OracleEntry.direct(),
+  'Ephemeris.getPlanetName': OracleEntry.direct(),
+  'Ephemeris.utcToJd': OracleEntry.direct(),
+  'Ephemeris.jdetToUtc': OracleEntry.direct(),
+  'Ephemeris.jdut1ToUtc': OracleEntry.direct(),
   'engineVersion': OracleEntry.engineTrusted(
     'reports Rust engine version; no oracle comparison',
   ),
   'exceptionFromCode': OracleEntry.engineTrusted(
     'error-code dispatch; tested by unit tests',
+  ),
+  'julday': OracleEntry.direct(),
+  'revjul': OracleEntry.direct(),
+  'dateConversion': OracleEntry.direct(),
+  'dayOfWeek': OracleEntry.direct(),
+  'utcTimeZone': OracleEntry.direct(),
+  'splitDegrees': OracleEntry.direct(),
+  'normalizeDegrees': OracleEntry.engineTrusted(
+    'pure math (x % 360); oracle uses identical algorithm',
   ),
 };

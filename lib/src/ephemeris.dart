@@ -91,6 +91,63 @@ final class Ephemeris implements Finalizable {
     marshal.freeHandle(_handle);
   }
 
+  /// Counterpart: swisseph::Ephemeris::delta_t
+  double deltaT(JdUt1 jd) {
+    _checkOpen();
+    return marshal.deltaT(_handle, jd.value);
+  }
+
+  /// Counterpart: swisseph::Ephemeris::time_equ
+  double timeEqu(double tjdUt) {
+    _checkOpen();
+    return marshal.timeEqu(_handle, tjdUt);
+  }
+
+  /// Counterpart: swisseph::Ephemeris::lmt_to_lat
+  double lmtToLat(double tjdLmt, double geolon) {
+    _checkOpen();
+    return marshal.lmtToLat(_handle, tjdLmt, geolon);
+  }
+
+  /// Counterpart: swisseph::Ephemeris::lat_to_lmt
+  double latToLmt(double tjdLat, double geolon) {
+    _checkOpen();
+    return marshal.latToLmt(_handle, tjdLat, geolon);
+  }
+
+  /// Counterpart: swisseph::Ephemeris::get_planet_name
+  String getPlanetName(Body body) {
+    _checkOpen();
+    return marshal.getPlanetName(_handle, body.rawValue);
+  }
+
+  /// Counterpart: swisseph::Ephemeris::utc_to_jd
+  UtcToJd utcToJd(UtcComponents utc, CalendarType cal) {
+    _checkOpen();
+    return marshal.utcToJd(
+      _handle,
+      utc.year,
+      utc.month,
+      utc.day,
+      utc.hour,
+      utc.minute,
+      utc.second,
+      cal.value,
+    );
+  }
+
+  /// Counterpart: swisseph::Ephemeris::jdet_to_utc
+  UtcComponents jdetToUtc(JdTt jd, CalendarType cal) {
+    _checkOpen();
+    return marshal.jdetToUtc(_handle, jd.value, cal.value);
+  }
+
+  /// Counterpart: swisseph::Ephemeris::jdut1_to_utc
+  UtcComponents jdut1ToUtc(JdUt1 jd, CalendarType cal) {
+    _checkOpen();
+    return marshal.jdut1ToUtc(_handle, jd.value, cal.value);
+  }
+
   /// Counterpart: swisseph::Ephemeris (share via Arc clone)
   ///
   /// Returns a token sendable to another isolate. Native-only.
@@ -102,3 +159,58 @@ final class Ephemeris implements Finalizable {
 
 /// Counterpart: swisseph::swisseph_version
 String get engineVersion => marshal.engineVersion();
+
+/// Counterpart: swisseph::date::julday
+JdUt1 julday(int year, int month, int day, double hour, CalendarType cal) {
+  return JdUt1(marshal.julday(year, month, day, hour, cal.value));
+}
+
+/// Counterpart: swisseph::date::revjul
+({int year, int month, int day, double hour}) revjul(
+  double jd,
+  CalendarType cal,
+) {
+  return marshal.revjul(jd, cal.value);
+}
+
+/// Counterpart: swisseph::date::date_conversion
+JdUt1 dateConversion(
+  int year,
+  int month,
+  int day,
+  double hour,
+  CalendarType cal,
+) {
+  final calChar = cal == CalendarType.gregorian ? 0x67 : 0x6A; // 'g' or 'j'
+  return JdUt1(marshal.dateConversion(year, month, day, hour, calChar));
+}
+
+/// Counterpart: swisseph::date::day_of_week
+int dayOfWeek(double jd) {
+  return marshal.dayOfWeek(jd);
+}
+
+/// Counterpart: swisseph::date::utc_time_zone
+UtcComponents utcTimeZone(UtcComponents input, double tzOffset) {
+  return marshal.utcTimeZone(
+    input.year,
+    input.month,
+    input.day,
+    input.hour,
+    input.minute,
+    input.second,
+    tzOffset,
+  );
+}
+
+/// Counterpart: swisseph::math::split_degrees
+DegreeParts splitDegrees(double ddeg, SplitDegFlags flags) {
+  return marshal.splitDegrees(ddeg, flags.value);
+}
+
+/// Counterpart: swisseph::math::normalize_degrees
+double normalizeDegrees(double x) {
+  var result = x % 360.0;
+  if (result < 0) result += 360.0;
+  return result;
+}

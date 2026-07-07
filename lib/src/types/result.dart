@@ -1,4 +1,5 @@
 import 'flags.dart';
+import 'julian_day.dart';
 
 /// Counterpart: swisseph::CalcResult
 final class CalcResult {
@@ -31,5 +32,49 @@ final class CalcResult {
     required this.latitudeSpeed,
     required this.distanceSpeed,
     required this.flagsUsed,
+  });
+}
+
+/// Counterpart: swisseph::types::UtcComponents
+final class UtcComponents {
+  final int year;
+  final int month;
+  final int day;
+  final int hour;
+  final int minute;
+  final double second;
+
+  const UtcComponents({
+    required this.year,
+    required this.month,
+    required this.day,
+    required this.hour,
+    required this.minute,
+    required this.second,
+  });
+}
+
+/// Counterpart: swisseph::types::UtcToJd
+final class UtcToJd {
+  final JdTt tt;
+  final JdUt1 ut1;
+
+  const UtcToJd({required this.tt, required this.ut1});
+}
+
+/// Counterpart: swisseph::types::DegreeParts
+final class DegreeParts {
+  final int degrees;
+  final int minutes;
+  final int seconds;
+  final double secondFraction;
+  final int sign;
+
+  const DegreeParts({
+    required this.degrees,
+    required this.minutes,
+    required this.seconds,
+    required this.secondFraction,
+    required this.sign,
   });
 }
