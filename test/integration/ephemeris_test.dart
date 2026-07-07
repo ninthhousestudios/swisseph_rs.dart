@@ -1,3 +1,5 @@
+import 'dart:io' show Platform;
+
 import 'package:swisseph_rs/swisseph_rs.dart';
 import 'package:test/test.dart';
 
@@ -82,6 +84,29 @@ void main() {
       expect(result.longitude, greaterThanOrEqualTo(0));
       expect(result.longitude, lessThan(360));
       expect(result.longitudeSpeed, closeTo(13.0, 2.0));
+    });
+
+    test('Swiss-file: Sun at J2000 epoch', () {
+      final ephePath = Platform.environment['SWE_EPHE_PATH'];
+      if (ephePath == null) {
+        markTestSkipped('SWE_EPHE_PATH not set');
+        return;
+      }
+      final swissEph = Ephemeris(
+        EphemerisConfig(
+          ephemerisSource: EphemerisSource.swiss,
+          ephePath: ephePath,
+        ),
+      );
+      addTearDown(swissEph.close);
+      final result = swissEph.calcUt(
+        const JdUt1(2451545.0),
+        Body.sun,
+        CalcFlags.speed | CalcFlags.swiEph,
+      );
+      // Swiss-file Sun at J2000.0. Positional agreement class: 1e-9°.
+      expect(result.longitude, closeTo(280.3689186985535, 1e-9));
+      expect(result.longitudeSpeed, closeTo(1.019434162877954, 1e-9));
     });
   });
 }
