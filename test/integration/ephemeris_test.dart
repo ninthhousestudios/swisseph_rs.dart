@@ -57,11 +57,11 @@ void main() {
         Body.sun,
         CalcFlags.speed,
       );
-      // Sun longitude at J2000.0 (2000-01-01 12:00 UT) ~ 280.36°
-      // Coarse sanity check first; exact oracle comparison follows.
-      expect(result.longitude, closeTo(280.36, 0.1));
-      expect(result.longitudeSpeed, closeTo(1.0, 0.2));
-      expect(result.distance, closeTo(0.983, 0.01));
+      // Moshier Sun at J2000.0 (2000-01-01 12:00 UT).
+      // Positional agreement class: 1e-9°.
+      expect(result.longitude, closeTo(280.36891967534336, 1e-9));
+      expect(result.longitudeSpeed, closeTo(1.0194320944233946, 1e-9));
+      expect(result.distance, closeTo(0.9833276448202026, 1e-12));
     });
 
     test('Moshier: Sun returns speed components when SPEED flag set', () {
