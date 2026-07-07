@@ -906,3 +906,661 @@ external int swissephLunOccultWhenLoc(
   Pointer<Utf8> errBuf,
   int errCap,
 );
+
+// ---------------------------------------------------------------------------
+// Rise/set & crossings (task /32)
+// ---------------------------------------------------------------------------
+
+@Native<
+  Int32 Function(
+    Pointer<Void>,
+    Double,
+    Int32,
+    Pointer<Utf8>,
+    Int32,
+    Int32,
+    Pointer<Double>,
+    Double,
+    Double,
+    Pointer<Double>,
+    Pointer<Utf8>,
+    Size,
+  )
+>(symbol: 'swisseph_rise_trans')
+external int swissephRiseTrans(
+  Pointer<Void> handle,
+  double tjdUt,
+  int ipl,
+  Pointer<Utf8> starname,
+  int epheflag,
+  int rsmi,
+  Pointer<Double> geopos,
+  double atpress,
+  double attemp,
+  Pointer<Double> tret,
+  Pointer<Utf8> errBuf,
+  int errCap,
+);
+
+@Native<
+  Int32 Function(
+    Pointer<Void>,
+    Double,
+    Int32,
+    Pointer<Utf8>,
+    Int32,
+    Int32,
+    Pointer<Double>,
+    Double,
+    Double,
+    Double,
+    Pointer<Double>,
+    Pointer<Utf8>,
+    Size,
+  )
+>(symbol: 'swisseph_rise_trans_true_hor')
+external int swissephRiseTransTrueHor(
+  Pointer<Void> handle,
+  double tjdUt,
+  int ipl,
+  Pointer<Utf8> starname,
+  int epheflag,
+  int rsmi,
+  Pointer<Double> geopos,
+  double atpress,
+  double attemp,
+  double horhgt,
+  Pointer<Double> tret,
+  Pointer<Utf8> errBuf,
+  int errCap,
+);
+
+@Native<
+  Int32 Function(
+    Pointer<Void>,
+    Double,
+    Double,
+    Int32,
+    Pointer<Double>,
+    Pointer<Utf8>,
+    Size,
+  )
+>(symbol: 'swisseph_solcross')
+external int swissephSolcross(
+  Pointer<Void> handle,
+  double x2cross,
+  double tjdEt,
+  int iflag,
+  Pointer<Double> jx,
+  Pointer<Utf8> errBuf,
+  int errCap,
+);
+
+@Native<
+  Int32 Function(
+    Pointer<Void>,
+    Double,
+    Double,
+    Int32,
+    Pointer<Double>,
+    Pointer<Utf8>,
+    Size,
+  )
+>(symbol: 'swisseph_solcross_ut')
+external int swissephSolcrossUt(
+  Pointer<Void> handle,
+  double x2cross,
+  double tjdUt,
+  int iflag,
+  Pointer<Double> jx,
+  Pointer<Utf8> errBuf,
+  int errCap,
+);
+
+@Native<
+  Int32 Function(
+    Pointer<Void>,
+    Double,
+    Double,
+    Int32,
+    Pointer<Double>,
+    Pointer<Utf8>,
+    Size,
+  )
+>(symbol: 'swisseph_mooncross')
+external int swissephMooncross(
+  Pointer<Void> handle,
+  double x2cross,
+  double tjdEt,
+  int iflag,
+  Pointer<Double> jx,
+  Pointer<Utf8> errBuf,
+  int errCap,
+);
+
+@Native<
+  Int32 Function(
+    Pointer<Void>,
+    Double,
+    Double,
+    Int32,
+    Pointer<Double>,
+    Pointer<Utf8>,
+    Size,
+  )
+>(symbol: 'swisseph_mooncross_ut')
+external int swissephMooncrossUt(
+  Pointer<Void> handle,
+  double x2cross,
+  double tjdUt,
+  int iflag,
+  Pointer<Double> jx,
+  Pointer<Utf8> errBuf,
+  int errCap,
+);
+
+@Native<
+  Int32 Function(
+    Pointer<Void>,
+    Double,
+    Int32,
+    Pointer<Double>,
+    Pointer<Double>,
+    Pointer<Double>,
+    Pointer<Utf8>,
+    Size,
+  )
+>(symbol: 'swisseph_mooncross_node')
+external int swissephMooncrossNode(
+  Pointer<Void> handle,
+  double tjdEt,
+  int iflag,
+  Pointer<Double> xlon,
+  Pointer<Double> xlat,
+  Pointer<Double> jx,
+  Pointer<Utf8> errBuf,
+  int errCap,
+);
+
+@Native<
+  Int32 Function(
+    Pointer<Void>,
+    Double,
+    Int32,
+    Pointer<Double>,
+    Pointer<Double>,
+    Pointer<Double>,
+    Pointer<Utf8>,
+    Size,
+  )
+>(symbol: 'swisseph_mooncross_node_ut')
+external int swissephMooncrossNodeUt(
+  Pointer<Void> handle,
+  double tjdUt,
+  int iflag,
+  Pointer<Double> xlon,
+  Pointer<Double> xlat,
+  Pointer<Double> jx,
+  Pointer<Utf8> errBuf,
+  int errCap,
+);
+
+@Native<
+  Int32 Function(
+    Pointer<Void>,
+    Int32,
+    Double,
+    Double,
+    Int32,
+    Int32,
+    Pointer<Double>,
+    Pointer<Utf8>,
+    Size,
+  )
+>(symbol: 'swisseph_helio_cross')
+external int swissephHelioCross(
+  Pointer<Void> handle,
+  int ipl,
+  double x2cross,
+  double tjdEt,
+  int iflag,
+  int dir,
+  Pointer<Double> jx,
+  Pointer<Utf8> errBuf,
+  int errCap,
+);
+
+@Native<
+  Int32 Function(
+    Pointer<Void>,
+    Int32,
+    Double,
+    Double,
+    Int32,
+    Int32,
+    Pointer<Double>,
+    Pointer<Utf8>,
+    Size,
+  )
+>(symbol: 'swisseph_helio_cross_ut')
+external int swissephHelioCrossUt(
+  Pointer<Void> handle,
+  int ipl,
+  double x2cross,
+  double tjdUt,
+  int iflag,
+  int dir,
+  Pointer<Double> jx,
+  Pointer<Utf8> errBuf,
+  int errCap,
+);
+
+// ---------------------------------------------------------------------------
+// Phenomena, orbital, nodes/apsides (task /33)
+// ---------------------------------------------------------------------------
+
+@Native<
+  Int32 Function(
+    Pointer<Void>,
+    Double,
+    Int32,
+    Int32,
+    Pointer<Double>,
+    Pointer<SweSidMode>,
+    Pointer<Double>,
+    Pointer<Int32>,
+    Pointer<Utf8>,
+    Size,
+  )
+>(symbol: 'swisseph_pheno')
+external int swissephPheno(
+  Pointer<Void> handle,
+  double tjdEt,
+  int ipl,
+  int iflag,
+  Pointer<Double> geopos,
+  Pointer<SweSidMode> sidMode,
+  Pointer<Double> attr,
+  Pointer<Int32> flagsUsed,
+  Pointer<Utf8> errBuf,
+  int errCap,
+);
+
+@Native<
+  Int32 Function(
+    Pointer<Void>,
+    Double,
+    Int32,
+    Int32,
+    Pointer<Double>,
+    Pointer<SweSidMode>,
+    Pointer<Double>,
+    Pointer<Int32>,
+    Pointer<Utf8>,
+    Size,
+  )
+>(symbol: 'swisseph_pheno_ut')
+external int swissephPhenoUt(
+  Pointer<Void> handle,
+  double tjdUt,
+  int ipl,
+  int iflag,
+  Pointer<Double> geopos,
+  Pointer<SweSidMode> sidMode,
+  Pointer<Double> attr,
+  Pointer<Int32> flagsUsed,
+  Pointer<Utf8> errBuf,
+  int errCap,
+);
+
+@Native<
+  Int32 Function(
+    Pointer<Void>,
+    Double,
+    Int32,
+    Int32,
+    Int32,
+    Pointer<Double>,
+    Pointer<Double>,
+    Pointer<Double>,
+    Pointer<Double>,
+    Pointer<Utf8>,
+    Size,
+  )
+>(symbol: 'swisseph_nod_aps')
+external int swissephNodAps(
+  Pointer<Void> handle,
+  double tjdEt,
+  int ipl,
+  int iflag,
+  int method,
+  Pointer<Double> xnasc,
+  Pointer<Double> xndsc,
+  Pointer<Double> xperi,
+  Pointer<Double> xaphe,
+  Pointer<Utf8> errBuf,
+  int errCap,
+);
+
+@Native<
+  Int32 Function(
+    Pointer<Void>,
+    Double,
+    Int32,
+    Int32,
+    Int32,
+    Pointer<Double>,
+    Pointer<Double>,
+    Pointer<Double>,
+    Pointer<Double>,
+    Pointer<Utf8>,
+    Size,
+  )
+>(symbol: 'swisseph_nod_aps_ut')
+external int swissephNodApsUt(
+  Pointer<Void> handle,
+  double tjdUt,
+  int ipl,
+  int iflag,
+  int method,
+  Pointer<Double> xnasc,
+  Pointer<Double> xndsc,
+  Pointer<Double> xperi,
+  Pointer<Double> xaphe,
+  Pointer<Utf8> errBuf,
+  int errCap,
+);
+
+@Native<
+  Int32 Function(
+    Pointer<Void>,
+    Double,
+    Int32,
+    Int32,
+    Pointer<Double>,
+    Pointer<Utf8>,
+    Size,
+  )
+>(symbol: 'swisseph_get_orbital_elements')
+external int swissephGetOrbitalElements(
+  Pointer<Void> handle,
+  double tjdEt,
+  int ipl,
+  int iflag,
+  Pointer<Double> dret,
+  Pointer<Utf8> errBuf,
+  int errCap,
+);
+
+@Native<
+  Int32 Function(
+    Pointer<Void>,
+    Double,
+    Int32,
+    Int32,
+    Pointer<Double>,
+    Pointer<Double>,
+    Pointer<Double>,
+    Pointer<Utf8>,
+    Size,
+  )
+>(symbol: 'swisseph_orbit_max_min_true_distance')
+external int swissephOrbitMaxMinTrueDistance(
+  Pointer<Void> handle,
+  double tjdEt,
+  int ipl,
+  int iflag,
+  Pointer<Double> dmax,
+  Pointer<Double> dmin,
+  Pointer<Double> dtrue,
+  Pointer<Utf8> errBuf,
+  int errCap,
+);
+
+// ---------------------------------------------------------------------------
+// Fixed stars (task /33)
+// ---------------------------------------------------------------------------
+
+@Native<
+  Int32 Function(
+    Pointer<Void>,
+    Pointer<Utf8>,
+    Pointer<Utf8>,
+    Size,
+    Double,
+    Int32,
+    Pointer<Double>,
+    Pointer<SweSidMode>,
+    Pointer<Double>,
+    Pointer<Int32>,
+    Pointer<Utf8>,
+    Size,
+  )
+>(symbol: 'swisseph_fixstar2')
+external int swissephFixstar2(
+  Pointer<Void> handle,
+  Pointer<Utf8> star,
+  Pointer<Utf8> starOut,
+  int starOutCap,
+  double tjdEt,
+  int iflag,
+  Pointer<Double> geopos,
+  Pointer<SweSidMode> sidMode,
+  Pointer<Double> xx,
+  Pointer<Int32> flagsUsed,
+  Pointer<Utf8> errBuf,
+  int errCap,
+);
+
+@Native<
+  Int32 Function(
+    Pointer<Void>,
+    Pointer<Utf8>,
+    Pointer<Utf8>,
+    Size,
+    Double,
+    Int32,
+    Pointer<Double>,
+    Pointer<SweSidMode>,
+    Pointer<Double>,
+    Pointer<Int32>,
+    Pointer<Utf8>,
+    Size,
+  )
+>(symbol: 'swisseph_fixstar2_ut')
+external int swissephFixstar2Ut(
+  Pointer<Void> handle,
+  Pointer<Utf8> star,
+  Pointer<Utf8> starOut,
+  int starOutCap,
+  double tjdUt,
+  int iflag,
+  Pointer<Double> geopos,
+  Pointer<SweSidMode> sidMode,
+  Pointer<Double> xx,
+  Pointer<Int32> flagsUsed,
+  Pointer<Utf8> errBuf,
+  int errCap,
+);
+
+@Native<
+  Int32 Function(
+    Pointer<Void>,
+    Pointer<Utf8>,
+    Pointer<Utf8>,
+    Size,
+    Pointer<Double>,
+    Pointer<Utf8>,
+    Size,
+  )
+>(symbol: 'swisseph_fixstar2_mag')
+external int swissephFixstar2Mag(
+  Pointer<Void> handle,
+  Pointer<Utf8> star,
+  Pointer<Utf8> starOut,
+  int starOutCap,
+  Pointer<Double> mag,
+  Pointer<Utf8> errBuf,
+  int errCap,
+);
+
+// ---------------------------------------------------------------------------
+// Heliacal (task /33)
+// ---------------------------------------------------------------------------
+
+@Native<
+  Int32 Function(
+    Pointer<Void>,
+    Double,
+    Pointer<Double>,
+    Pointer<Double>,
+    Pointer<Double>,
+    Pointer<Utf8>,
+    Int32,
+    Int32,
+    Pointer<Double>,
+    Pointer<Utf8>,
+    Size,
+  )
+>(symbol: 'swisseph_heliacal_ut')
+external int swissephHeliacalUt(
+  Pointer<Void> handle,
+  double tjdStart,
+  Pointer<Double> dgeo,
+  Pointer<Double> datm,
+  Pointer<Double> dobs,
+  Pointer<Utf8> objectName,
+  int eventType,
+  int helflag,
+  Pointer<Double> dret,
+  Pointer<Utf8> errBuf,
+  int errCap,
+);
+
+@Native<
+  Int32 Function(
+    Pointer<Void>,
+    Double,
+    Pointer<Double>,
+    Pointer<Double>,
+    Pointer<Double>,
+    Pointer<Utf8>,
+    Int32,
+    Int32,
+    Pointer<Double>,
+    Pointer<Utf8>,
+    Size,
+  )
+>(symbol: 'swisseph_heliacal_pheno_ut')
+external int swissephHeliacalPhenoUt(
+  Pointer<Void> handle,
+  double tjdUt,
+  Pointer<Double> dgeo,
+  Pointer<Double> datm,
+  Pointer<Double> dobs,
+  Pointer<Utf8> objectName,
+  int eventType,
+  int helflag,
+  Pointer<Double> darr,
+  Pointer<Utf8> errBuf,
+  int errCap,
+);
+
+@Native<
+  Int32 Function(
+    Pointer<Void>,
+    Double,
+    Pointer<Double>,
+    Pointer<Double>,
+    Pointer<Double>,
+    Pointer<Utf8>,
+    Int32,
+    Pointer<Double>,
+    Pointer<Utf8>,
+    Size,
+  )
+>(symbol: 'swisseph_vis_limit_mag')
+external int swissephVisLimitMag(
+  Pointer<Void> handle,
+  double tjdUt,
+  Pointer<Double> dgeo,
+  Pointer<Double> datm,
+  Pointer<Double> dobs,
+  Pointer<Utf8> objectName,
+  int helflag,
+  Pointer<Double> dret,
+  Pointer<Utf8> errBuf,
+  int errCap,
+);
+
+@Native<
+  Int32 Function(
+    Pointer<Void>,
+    Double,
+    Pointer<Double>,
+    Pointer<Double>,
+    Pointer<Double>,
+    Int32,
+    Double,
+    Double,
+    Double,
+    Double,
+    Double,
+    Pointer<Double>,
+    Pointer<Utf8>,
+    Size,
+  )
+>(symbol: 'swisseph_heliacal_angle')
+external int swissephHeliacalAngle(
+  Pointer<Void> handle,
+  double tjdUt,
+  Pointer<Double> dgeo,
+  Pointer<Double> datm,
+  Pointer<Double> dobs,
+  int helflag,
+  double mag,
+  double aziObj,
+  double aziSun,
+  double aziMoon,
+  double altMoon,
+  Pointer<Double> dret,
+  Pointer<Utf8> errBuf,
+  int errCap,
+);
+
+@Native<
+  Int32 Function(
+    Pointer<Void>,
+    Double,
+    Pointer<Double>,
+    Pointer<Double>,
+    Pointer<Double>,
+    Int32,
+    Double,
+    Double,
+    Double,
+    Double,
+    Double,
+    Double,
+    Pointer<Double>,
+    Pointer<Utf8>,
+    Size,
+  )
+>(symbol: 'swisseph_topo_arcus_visionis')
+external int swissephTopoArcusVisionis(
+  Pointer<Void> handle,
+  double tjdUt,
+  Pointer<Double> dgeo,
+  Pointer<Double> datm,
+  Pointer<Double> dobs,
+  int helflag,
+  double mag,
+  double aziObj,
+  double altObj,
+  double aziSun,
+  double aziMoon,
+  double altMoon,
+  Pointer<Double> dret,
+  Pointer<Utf8> errBuf,
+  int errCap,
+);

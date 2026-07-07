@@ -404,3 +404,320 @@ int swissephLunOccultWhenLoc(
   dynamic errBuf,
   int errCap,
 ) => _unsupported();
+
+// Rise/set & crossings (task /32)
+
+int swissephRiseTrans(
+  dynamic handle,
+  double tjdUt,
+  int ipl,
+  dynamic starname,
+  int epheflag,
+  int rsmi,
+  dynamic geopos,
+  double atpress,
+  double attemp,
+  dynamic tret,
+  dynamic errBuf,
+  int errCap,
+) => _unsupported();
+
+int swissephRiseTransTrueHor(
+  dynamic handle,
+  double tjdUt,
+  int ipl,
+  dynamic starname,
+  int epheflag,
+  int rsmi,
+  dynamic geopos,
+  double atpress,
+  double attemp,
+  double horhgt,
+  dynamic tret,
+  dynamic errBuf,
+  int errCap,
+) => _unsupported();
+
+int swissephSolcross(
+  dynamic handle,
+  double x2cross,
+  double tjdEt,
+  int iflag,
+  dynamic jx,
+  dynamic errBuf,
+  int errCap,
+) => _unsupported();
+
+int swissephSolcrossUt(
+  dynamic handle,
+  double x2cross,
+  double tjdUt,
+  int iflag,
+  dynamic jx,
+  dynamic errBuf,
+  int errCap,
+) => _unsupported();
+
+int swissephMooncross(
+  dynamic handle,
+  double x2cross,
+  double tjdEt,
+  int iflag,
+  dynamic jx,
+  dynamic errBuf,
+  int errCap,
+) => _unsupported();
+
+int swissephMooncrossUt(
+  dynamic handle,
+  double x2cross,
+  double tjdUt,
+  int iflag,
+  dynamic jx,
+  dynamic errBuf,
+  int errCap,
+) => _unsupported();
+
+int swissephMooncrossNode(
+  dynamic handle,
+  double tjdEt,
+  int iflag,
+  dynamic xlon,
+  dynamic xlat,
+  dynamic jx,
+  dynamic errBuf,
+  int errCap,
+) => _unsupported();
+
+int swissephMooncrossNodeUt(
+  dynamic handle,
+  double tjdUt,
+  int iflag,
+  dynamic xlon,
+  dynamic xlat,
+  dynamic jx,
+  dynamic errBuf,
+  int errCap,
+) => _unsupported();
+
+int swissephHelioCross(
+  dynamic handle,
+  int ipl,
+  double x2cross,
+  double tjdEt,
+  int iflag,
+  int dir,
+  dynamic jx,
+  dynamic errBuf,
+  int errCap,
+) => _unsupported();
+
+int swissephHelioCrossUt(
+  dynamic handle,
+  int ipl,
+  double x2cross,
+  double tjdUt,
+  int iflag,
+  int dir,
+  dynamic jx,
+  dynamic errBuf,
+  int errCap,
+) => _unsupported();
+
+// Phenomena, orbital, nodes/apsides (task /33)
+
+int swissephPheno(
+  dynamic handle,
+  double tjdEt,
+  int ipl,
+  int iflag,
+  dynamic geopos,
+  dynamic sidMode,
+  dynamic attr,
+  dynamic flagsUsed,
+  dynamic errBuf,
+  int errCap,
+) => _unsupported();
+
+int swissephPhenoUt(
+  dynamic handle,
+  double tjdUt,
+  int ipl,
+  int iflag,
+  dynamic geopos,
+  dynamic sidMode,
+  dynamic attr,
+  dynamic flagsUsed,
+  dynamic errBuf,
+  int errCap,
+) => _unsupported();
+
+int swissephNodAps(
+  dynamic handle,
+  double tjdEt,
+  int ipl,
+  int iflag,
+  int method,
+  dynamic xnasc,
+  dynamic xndsc,
+  dynamic xperi,
+  dynamic xaphe,
+  dynamic errBuf,
+  int errCap,
+) => _unsupported();
+
+int swissephNodApsUt(
+  dynamic handle,
+  double tjdUt,
+  int ipl,
+  int iflag,
+  int method,
+  dynamic xnasc,
+  dynamic xndsc,
+  dynamic xperi,
+  dynamic xaphe,
+  dynamic errBuf,
+  int errCap,
+) => _unsupported();
+
+int swissephGetOrbitalElements(
+  dynamic handle,
+  double tjdEt,
+  int ipl,
+  int iflag,
+  dynamic dret,
+  dynamic errBuf,
+  int errCap,
+) => _unsupported();
+
+int swissephOrbitMaxMinTrueDistance(
+  dynamic handle,
+  double tjdEt,
+  int ipl,
+  int iflag,
+  dynamic dmax,
+  dynamic dmin,
+  dynamic dtrue,
+  dynamic errBuf,
+  int errCap,
+) => _unsupported();
+
+// Fixed stars (task /33)
+
+int swissephFixstar2(
+  dynamic handle,
+  dynamic star,
+  dynamic starOut,
+  int starOutCap,
+  double tjdEt,
+  int iflag,
+  dynamic geopos,
+  dynamic sidMode,
+  dynamic xx,
+  dynamic flagsUsed,
+  dynamic errBuf,
+  int errCap,
+) => _unsupported();
+
+int swissephFixstar2Ut(
+  dynamic handle,
+  dynamic star,
+  dynamic starOut,
+  int starOutCap,
+  double tjdUt,
+  int iflag,
+  dynamic geopos,
+  dynamic sidMode,
+  dynamic xx,
+  dynamic flagsUsed,
+  dynamic errBuf,
+  int errCap,
+) => _unsupported();
+
+int swissephFixstar2Mag(
+  dynamic handle,
+  dynamic star,
+  dynamic starOut,
+  int starOutCap,
+  dynamic mag,
+  dynamic errBuf,
+  int errCap,
+) => _unsupported();
+
+// Heliacal (task /33)
+
+int swissephHeliacalUt(
+  dynamic handle,
+  double tjdStart,
+  dynamic dgeo,
+  dynamic datm,
+  dynamic dobs,
+  dynamic objectName,
+  int eventType,
+  int helflag,
+  dynamic dret,
+  dynamic errBuf,
+  int errCap,
+) => _unsupported();
+
+int swissephHeliacalPhenoUt(
+  dynamic handle,
+  double tjdUt,
+  dynamic dgeo,
+  dynamic datm,
+  dynamic dobs,
+  dynamic objectName,
+  int eventType,
+  int helflag,
+  dynamic darr,
+  dynamic errBuf,
+  int errCap,
+) => _unsupported();
+
+int swissephVisLimitMag(
+  dynamic handle,
+  double tjdUt,
+  dynamic dgeo,
+  dynamic datm,
+  dynamic dobs,
+  dynamic objectName,
+  int helflag,
+  dynamic dret,
+  dynamic errBuf,
+  int errCap,
+) => _unsupported();
+
+int swissephHeliacalAngle(
+  dynamic handle,
+  double tjdUt,
+  dynamic dgeo,
+  dynamic datm,
+  dynamic dobs,
+  int helflag,
+  double mag,
+  double aziObj,
+  double aziSun,
+  double aziMoon,
+  double altMoon,
+  dynamic dret,
+  dynamic errBuf,
+  int errCap,
+) => _unsupported();
+
+int swissephTopoArcusVisionis(
+  dynamic handle,
+  double tjdUt,
+  dynamic dgeo,
+  dynamic datm,
+  dynamic dobs,
+  int helflag,
+  double mag,
+  double aziObj,
+  double altObj,
+  double aziSun,
+  double aziMoon,
+  double altMoon,
+  dynamic dret,
+  dynamic errBuf,
+  int errCap,
+) => _unsupported();

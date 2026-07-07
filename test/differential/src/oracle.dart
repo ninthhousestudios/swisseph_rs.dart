@@ -533,5 +533,295 @@ class Oracle {
     return _swe.lunOccultWhere(jdUt, body, flags, starname: starname);
   }
 
+  // -----------------------------------------------------------------------
+  // Rise/set & crossings (task /32)
+  // -----------------------------------------------------------------------
+
+  swe.RiseTransResult riseTrans(
+    double jdUt,
+    int body, {
+    String? starName,
+    int epheflag = 0,
+    int rsmi = swe.seCalcRise,
+    required double geolon,
+    required double geolat,
+    double geoalt = 0,
+    double atpress = 1013.25,
+    double attemp = 15.0,
+  }) {
+    return _swe.riseTrans(
+      jdUt,
+      body,
+      starName: starName,
+      epheflag: epheflag,
+      rsmi: rsmi,
+      geolon: geolon,
+      geolat: geolat,
+      geoalt: geoalt,
+      atpress: atpress,
+      attemp: attemp,
+    );
+  }
+
+  swe.RiseTransResult riseTransTrueHor(
+    double jdUt,
+    int body, {
+    String? starName,
+    int epheflag = 0,
+    int rsmi = swe.seCalcRise,
+    required double geolon,
+    required double geolat,
+    double geoalt = 0,
+    double atpress = 1013.25,
+    double attemp = 15.0,
+    required double horizonHeight,
+  }) {
+    return _swe.riseTransTrueHor(
+      jdUt,
+      body,
+      starName: starName,
+      epheflag: epheflag,
+      rsmi: rsmi,
+      geolon: geolon,
+      geolat: geolat,
+      geoalt: geoalt,
+      atpress: atpress,
+      attemp: attemp,
+      horizonHeight: horizonHeight,
+    );
+  }
+
+  double solcrossUt(double longitude, double jdUt, int flags) {
+    return _swe.solCrossUt(longitude, jdUt, flags);
+  }
+
+  double solcross(double longitude, double jdEt, int flags) {
+    return _swe.solCross(longitude, jdEt, flags);
+  }
+
+  double mooncrossUt(double longitude, double jdUt, int flags) {
+    return _swe.moonCrossUt(longitude, jdUt, flags);
+  }
+
+  double mooncross(double longitude, double jdEt, int flags) {
+    return _swe.moonCross(longitude, jdEt, flags);
+  }
+
+  swe.MoonNodeCrossResult mooncrossNodeUt(double jdUt, int flags) {
+    return _swe.moonCrossNodeUt(jdUt, flags);
+  }
+
+  swe.MoonNodeCrossResult mooncrossNode(double jdEt, int flags) {
+    return _swe.moonCrossNode(jdEt, flags);
+  }
+
+  double helioCrossUt(
+    int body,
+    double longitude,
+    double jdUt,
+    int flags,
+    int dir,
+  ) {
+    return _swe.helioCrossUt(body, longitude, jdUt, flags, dir);
+  }
+
+  double helioCross(
+    int body,
+    double longitude,
+    double jdEt,
+    int flags,
+    int dir,
+  ) {
+    return _swe.helioCross(body, longitude, jdEt, flags, dir);
+  }
+
+  // -----------------------------------------------------------------------
+  // Phenomena, orbital, nodes/apsides (task /33)
+  // -----------------------------------------------------------------------
+
+  swe.PhenoResult phenoUt(double jdUt, int body, int flags) {
+    return _swe.phenoUt(jdUt, body, flags);
+  }
+
+  swe.PhenoResult pheno(double jdEt, int body, int flags) {
+    return _swe.pheno(jdEt, body, flags);
+  }
+
+  swe.NodeApsResult nodApsUt(double jdUt, int body, int flags, int method) {
+    return _swe.nodApsUt(jdUt, body, flags, method);
+  }
+
+  swe.NodeApsResult nodAps(double jdEt, int body, int flags, int method) {
+    return _swe.nodAps(jdEt, body, flags, method);
+  }
+
+  swe.OrbitalElementsResult getOrbitalElements(
+    double jdEt,
+    int body,
+    int flags,
+  ) {
+    return _swe.getOrbitalElements(jdEt, body, flags);
+  }
+
+  swe.OrbitDistanceResult orbitMaxMinTrueDistance(
+    double jdEt,
+    int body,
+    int flags,
+  ) {
+    return _swe.orbitMaxMinTrueDistance(jdEt, body, flags);
+  }
+
+  // -----------------------------------------------------------------------
+  // Fixed stars (task /33)
+  // -----------------------------------------------------------------------
+
+  swe.FixstarResult fixstar2Ut(String star, double jdUt, int flags) {
+    return _swe.fixstar2Ut(star, jdUt, flags);
+  }
+
+  swe.FixstarResult fixstar2(String star, double jdEt, int flags) {
+    return _swe.fixstar2(star, jdEt, flags);
+  }
+
+  double fixstar2Mag(String star) {
+    return _swe.fixstar2Mag(star);
+  }
+
+  // -----------------------------------------------------------------------
+  // Heliacal (task /33)
+  // -----------------------------------------------------------------------
+
+  swe.HeliacalResult heliacalUt(
+    double jdStart, {
+    required double geolon,
+    required double geolat,
+    double geoalt = 0,
+    required swe.AtmoConditions atmo,
+    required swe.ObserverConditions observer,
+    required String objectName,
+    required int typeEvent,
+    int flags = 0,
+  }) {
+    return _swe.heliacalUt(
+      jdStart,
+      geolon: geolon,
+      geolat: geolat,
+      geoalt: geoalt,
+      atmo: atmo,
+      observer: observer,
+      objectName: objectName,
+      typeEvent: typeEvent,
+      flags: flags,
+    );
+  }
+
+  swe.HeliacalPhenoResult heliacalPhenoUt(
+    double jdUt, {
+    required double geolon,
+    required double geolat,
+    double geoalt = 0,
+    required swe.AtmoConditions atmo,
+    required swe.ObserverConditions observer,
+    required String objectName,
+    required int typeEvent,
+    int flags = 0,
+  }) {
+    return _swe.heliacalPhenoUt(
+      jdUt,
+      geolon: geolon,
+      geolat: geolat,
+      geoalt: geoalt,
+      atmo: atmo,
+      observer: observer,
+      objectName: objectName,
+      typeEvent: typeEvent,
+      flags: flags,
+    );
+  }
+
+  swe.VisLimitResult visLimitMag(
+    double jdUt, {
+    required double geolon,
+    required double geolat,
+    double geoalt = 0,
+    required swe.AtmoConditions atmo,
+    required swe.ObserverConditions observer,
+    required String objectName,
+    int flags = 0,
+  }) {
+    return _swe.visLimitMag(
+      jdUt,
+      geolon: geolon,
+      geolat: geolat,
+      geoalt: geoalt,
+      atmo: atmo,
+      observer: observer,
+      objectName: objectName,
+      flags: flags,
+    );
+  }
+
+  swe.HeliacalAngleResult heliacalAngle(
+    double jdUt, {
+    required double geolon,
+    required double geolat,
+    double geoalt = 0,
+    required swe.AtmoConditions atmo,
+    required swe.ObserverConditions observer,
+    required int helflag,
+    required double mag,
+    required double aziObj,
+    required double aziSun,
+    required double aziMoon,
+    required double altMoon,
+  }) {
+    return _swe.heliacalAngle(
+      jdUt,
+      geolon: geolon,
+      geolat: geolat,
+      geoalt: geoalt,
+      atmo: atmo,
+      observer: observer,
+      helflag: helflag,
+      mag: mag,
+      aziObj: aziObj,
+      aziSun: aziSun,
+      aziMoon: aziMoon,
+      altMoon: altMoon,
+    );
+  }
+
+  double topoArcusVisionis(
+    double jdUt, {
+    required double geolon,
+    required double geolat,
+    double geoalt = 0,
+    required swe.AtmoConditions atmo,
+    required swe.ObserverConditions observer,
+    required int helflag,
+    required double mag,
+    required double aziObj,
+    required double altObj,
+    required double aziSun,
+    required double aziMoon,
+    required double altMoon,
+  }) {
+    return _swe.topoArcusVisionis(
+      jdUt,
+      geolon: geolon,
+      geolat: geolat,
+      geoalt: geoalt,
+      atmo: atmo,
+      observer: observer,
+      helflag: helflag,
+      mag: mag,
+      aziObj: aziObj,
+      altObj: altObj,
+      aziSun: aziSun,
+      aziMoon: aziMoon,
+      altMoon: altMoon,
+    );
+  }
+
   void close() => _swe.close();
 }

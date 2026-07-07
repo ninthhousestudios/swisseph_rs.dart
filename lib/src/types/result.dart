@@ -363,3 +363,268 @@ final class OccultLocal {
     required this.flags,
   });
 }
+
+// ---------------------------------------------------------------------------
+// Crossing result types (task /32)
+// ---------------------------------------------------------------------------
+
+/// Counterpart: swisseph::crossings::MoonCrossing
+final class MoonCrossing {
+  final double jd;
+  final double longitude;
+  final double latitude;
+
+  const MoonCrossing({
+    required this.jd,
+    required this.longitude,
+    required this.latitude,
+  });
+}
+
+/// Counterpart: swisseph::riseset::RiseSetResult
+final class RiseSetResult {
+  final double time;
+
+  const RiseSetResult({required this.time});
+}
+
+// ---------------------------------------------------------------------------
+// Phenomena & orbital result types (task /33)
+// ---------------------------------------------------------------------------
+
+/// Counterpart: swisseph::phenomena::Phenomena
+final class Phenomena {
+  final double phaseAngle;
+  final double phase;
+  final double elongation;
+  final double apparentDiameter;
+  final double apparentMagnitude;
+  final double horizontalParallax;
+  final CalcFlags flagsUsed;
+
+  const Phenomena({
+    required this.phaseAngle,
+    required this.phase,
+    required this.elongation,
+    required this.apparentDiameter,
+    required this.apparentMagnitude,
+    required this.horizontalParallax,
+    required this.flagsUsed,
+  });
+}
+
+/// Counterpart: swisseph::nodaps::NodesApsides
+final class NodesApsides {
+  final List<double> ascending;
+  final List<double> descending;
+  final List<double> perihelion;
+  final List<double> aphelion;
+
+  const NodesApsides({
+    required this.ascending,
+    required this.descending,
+    required this.perihelion,
+    required this.aphelion,
+  });
+}
+
+/// Counterpart: swisseph::orbit::OrbitalElements
+final class OrbitalElements {
+  final double semiMajorAxis;
+  final double eccentricity;
+  final double inclination;
+  final double ascendingNode;
+  final double argPerihelion;
+  final double perihelionLon;
+  final double meanAnomaly;
+  final double trueAnomaly;
+  final double eccentricAnomaly;
+  final double meanLongitude;
+  final double siderealPeriod;
+  final double meanDailyMotion;
+  final double tropicalPeriod;
+  final double synodicPeriod;
+  final double perihelionPassage;
+  final double perihelionDistance;
+  final double aphelionDistance;
+
+  const OrbitalElements({
+    required this.semiMajorAxis,
+    required this.eccentricity,
+    required this.inclination,
+    required this.ascendingNode,
+    required this.argPerihelion,
+    required this.perihelionLon,
+    required this.meanAnomaly,
+    required this.trueAnomaly,
+    required this.eccentricAnomaly,
+    required this.meanLongitude,
+    required this.siderealPeriod,
+    required this.meanDailyMotion,
+    required this.tropicalPeriod,
+    required this.synodicPeriod,
+    required this.perihelionPassage,
+    required this.perihelionDistance,
+    required this.aphelionDistance,
+  });
+}
+
+/// Counterpart: swisseph::orbit::Ephemeris::orbit_max_min_true_distance
+final class OrbitDistances {
+  final double max;
+  final double min;
+  final double trueDist;
+
+  const OrbitDistances({
+    required this.max,
+    required this.min,
+    required this.trueDist,
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Fixed star result types (task /33)
+// ---------------------------------------------------------------------------
+
+/// Counterpart: swisseph::Ephemeris::fixstar2 (result)
+final class FixstarResult {
+  final String starName;
+  final double longitude;
+  final double latitude;
+  final double distance;
+  final double longitudeSpeed;
+  final double latitudeSpeed;
+  final double distanceSpeed;
+  final CalcFlags flagsUsed;
+
+  const FixstarResult({
+    required this.starName,
+    required this.longitude,
+    required this.latitude,
+    required this.distance,
+    required this.longitudeSpeed,
+    required this.latitudeSpeed,
+    required this.distanceSpeed,
+    required this.flagsUsed,
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Heliacal result types (task /33)
+// ---------------------------------------------------------------------------
+
+/// Counterpart: swisseph::heliacal::VisLimitResult
+final class VisLimitMagResult {
+  final double limitingMagnitude;
+  final double altitudeObject;
+  final double azimuthObject;
+  final double altitudeSun;
+  final double azimuthSun;
+  final double altitudeMoon;
+  final double azimuthMoon;
+  final double magnitudeObject;
+  final VisLimFlags vision;
+  final bool belowHorizon;
+
+  const VisLimitMagResult({
+    required this.limitingMagnitude,
+    required this.altitudeObject,
+    required this.azimuthObject,
+    required this.altitudeSun,
+    required this.azimuthSun,
+    required this.altitudeMoon,
+    required this.azimuthMoon,
+    required this.magnitudeObject,
+    required this.vision,
+    required this.belowHorizon,
+  });
+}
+
+/// Counterpart: swisseph::heliacal::HeliacalAngleResult
+final class HeliacalAngleResult {
+  final double optimalAltitude;
+  final double arcusVisionis;
+  final double sunAltitudeDiff;
+
+  const HeliacalAngleResult({
+    required this.optimalAltitude,
+    required this.arcusVisionis,
+    required this.sunAltitudeDiff,
+  });
+}
+
+/// Counterpart: swisseph::heliacal::HeliacalPheno
+final class HeliacalPheno {
+  final double tcAltitude;
+  final double tcApparentAltitude;
+  final double gcAltitude;
+  final double azimuthObject;
+  final double tcSunAltitude;
+  final double sunAzimuth;
+  final double tavAct;
+  final double arcvAct;
+  final double dazAct;
+  final double arclAct;
+  final double kact;
+  final double minTav;
+  final double tFirstVr;
+  final double tBestVr;
+  final double tLastVr;
+  final double tBestYallop;
+  final double wMoon;
+  final double qYallop;
+  final double qCrit;
+  final double parO;
+  final double magnO;
+  final double riseO;
+  final double riseS;
+  final double lag;
+  final double tVisVr;
+  final double lMoon;
+  final double elongation;
+  final double illumination;
+
+  const HeliacalPheno({
+    required this.tcAltitude,
+    required this.tcApparentAltitude,
+    required this.gcAltitude,
+    required this.azimuthObject,
+    required this.tcSunAltitude,
+    required this.sunAzimuth,
+    required this.tavAct,
+    required this.arcvAct,
+    required this.dazAct,
+    required this.arclAct,
+    required this.kact,
+    required this.minTav,
+    required this.tFirstVr,
+    required this.tBestVr,
+    required this.tLastVr,
+    required this.tBestYallop,
+    required this.wMoon,
+    required this.qYallop,
+    required this.qCrit,
+    required this.parO,
+    required this.magnO,
+    required this.riseO,
+    required this.riseS,
+    required this.lag,
+    required this.tVisVr,
+    required this.lMoon,
+    required this.elongation,
+    required this.illumination,
+  });
+}
+
+/// Counterpart: swisseph::heliacal::HeliacalEvent
+final class HeliacalEvent {
+  final double startVisible;
+  final double optimumVisibility;
+  final double endVisible;
+
+  const HeliacalEvent({
+    required this.startVisible,
+    required this.optimumVisibility,
+    required this.endVisible,
+  });
+}

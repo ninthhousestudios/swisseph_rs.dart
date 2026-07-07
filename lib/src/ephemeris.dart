@@ -470,6 +470,476 @@ final class Ephemeris implements Finalizable {
       backward,
     );
   }
+
+  // -----------------------------------------------------------------------
+  // Rise/set & crossings (task /32)
+  // -----------------------------------------------------------------------
+
+  /// Counterpart: swisseph::Ephemeris::rise_trans
+  RiseSetResult riseTrans(
+    JdUt1 jdUt,
+    Body body,
+    CalcFlags epheflag,
+    RiseSetFlags rsmi, {
+    String? starname,
+    required double geolon,
+    required double geolat,
+    double geoalt = 0,
+    double atpress = 1013.25,
+    double attemp = 15.0,
+  }) {
+    _checkOpen();
+    return marshal.riseTrans(
+      _handle,
+      jdUt.value,
+      body.rawValue,
+      starname,
+      epheflag.value,
+      rsmi.value,
+      geolon,
+      geolat,
+      geoalt,
+      atpress,
+      attemp,
+    );
+  }
+
+  /// Counterpart: swisseph::Ephemeris::rise_trans_true_hor
+  RiseSetResult riseTransTrueHor(
+    JdUt1 jdUt,
+    Body body,
+    CalcFlags epheflag,
+    RiseSetFlags rsmi, {
+    String? starname,
+    required double geolon,
+    required double geolat,
+    double geoalt = 0,
+    double atpress = 1013.25,
+    double attemp = 15.0,
+    double horhgt = 0,
+  }) {
+    _checkOpen();
+    return marshal.riseTransTrueHor(
+      _handle,
+      jdUt.value,
+      body.rawValue,
+      starname,
+      epheflag.value,
+      rsmi.value,
+      geolon,
+      geolat,
+      geoalt,
+      atpress,
+      attemp,
+      horhgt,
+    );
+  }
+
+  /// Counterpart: swisseph::Ephemeris::solcross
+  double solcross(double x2cross, JdTt jdEt, CalcFlags flags) {
+    _checkOpen();
+    return marshal.solcross(_handle, x2cross, jdEt.value, flags.value);
+  }
+
+  /// Counterpart: swisseph::Ephemeris::solcross_ut
+  double solcrossUt(double x2cross, JdUt1 jdUt, CalcFlags flags) {
+    _checkOpen();
+    return marshal.solcrossUt(_handle, x2cross, jdUt.value, flags.value);
+  }
+
+  /// Counterpart: swisseph::Ephemeris::mooncross
+  double mooncross(double x2cross, JdTt jdEt, CalcFlags flags) {
+    _checkOpen();
+    return marshal.mooncross(_handle, x2cross, jdEt.value, flags.value);
+  }
+
+  /// Counterpart: swisseph::Ephemeris::mooncross_ut
+  double mooncrossUt(double x2cross, JdUt1 jdUt, CalcFlags flags) {
+    _checkOpen();
+    return marshal.mooncrossUt(_handle, x2cross, jdUt.value, flags.value);
+  }
+
+  /// Counterpart: swisseph::Ephemeris::mooncross_node
+  MoonCrossing mooncrossNode(JdTt jdEt, CalcFlags flags) {
+    _checkOpen();
+    return marshal.mooncrossNode(_handle, jdEt.value, flags.value);
+  }
+
+  /// Counterpart: swisseph::Ephemeris::mooncross_node_ut
+  MoonCrossing mooncrossNodeUt(JdUt1 jdUt, CalcFlags flags) {
+    _checkOpen();
+    return marshal.mooncrossNodeUt(_handle, jdUt.value, flags.value);
+  }
+
+  /// Counterpart: swisseph::Ephemeris::helio_cross
+  double helioCross(
+    Body body,
+    double x2cross,
+    JdTt jdEt,
+    CalcFlags flags, {
+    int dir = 1,
+  }) {
+    _checkOpen();
+    return marshal.helioCross(
+      _handle,
+      body.rawValue,
+      x2cross,
+      jdEt.value,
+      flags.value,
+      dir,
+    );
+  }
+
+  /// Counterpart: swisseph::Ephemeris::helio_cross_ut
+  double helioCrossUt(
+    Body body,
+    double x2cross,
+    JdUt1 jdUt,
+    CalcFlags flags, {
+    int dir = 1,
+  }) {
+    _checkOpen();
+    return marshal.helioCrossUt(
+      _handle,
+      body.rawValue,
+      x2cross,
+      jdUt.value,
+      flags.value,
+      dir,
+    );
+  }
+
+  // -----------------------------------------------------------------------
+  // Phenomena, orbital, nodes/apsides (task /33)
+  // -----------------------------------------------------------------------
+
+  /// Counterpart: swisseph::Ephemeris::pheno_ut
+  Phenomena phenoUt(JdUt1 jdUt, Body body, CalcFlags flags) {
+    _checkOpen();
+    return marshal.phenoUt(_handle, jdUt.value, body.rawValue, flags.value);
+  }
+
+  /// Counterpart: swisseph::Ephemeris::pheno
+  Phenomena pheno(JdTt jdEt, Body body, CalcFlags flags) {
+    _checkOpen();
+    return marshal.pheno(_handle, jdEt.value, body.rawValue, flags.value);
+  }
+
+  /// Counterpart: swisseph::Ephemeris::nod_aps_ut
+  NodesApsides nodApsUt(
+    JdUt1 jdUt,
+    Body body,
+    CalcFlags flags,
+    NodApsMethod method,
+  ) {
+    _checkOpen();
+    return marshal.nodApsUt(
+      _handle,
+      jdUt.value,
+      body.rawValue,
+      flags.value,
+      method.value,
+    );
+  }
+
+  /// Counterpart: swisseph::Ephemeris::nod_aps
+  NodesApsides nodAps(
+    JdTt jdEt,
+    Body body,
+    CalcFlags flags,
+    NodApsMethod method,
+  ) {
+    _checkOpen();
+    return marshal.nodAps(
+      _handle,
+      jdEt.value,
+      body.rawValue,
+      flags.value,
+      method.value,
+    );
+  }
+
+  /// Counterpart: swisseph::Ephemeris::get_orbital_elements
+  OrbitalElements getOrbitalElements(JdTt jdEt, Body body, CalcFlags flags) {
+    _checkOpen();
+    return marshal.getOrbitalElements(
+      _handle,
+      jdEt.value,
+      body.rawValue,
+      flags.value,
+    );
+  }
+
+  /// Counterpart: swisseph::Ephemeris::orbit_max_min_true_distance
+  OrbitDistances orbitMaxMinTrueDistance(
+    JdTt jdEt,
+    Body body,
+    CalcFlags flags,
+  ) {
+    _checkOpen();
+    return marshal.orbitMaxMinTrueDistance(
+      _handle,
+      jdEt.value,
+      body.rawValue,
+      flags.value,
+    );
+  }
+
+  // -----------------------------------------------------------------------
+  // Fixed stars (task /33)
+  // -----------------------------------------------------------------------
+
+  /// Counterpart: swisseph::Ephemeris::fixstar2
+  FixstarResult fixstar2(String star, JdTt jdEt, CalcFlags flags) {
+    _checkOpen();
+    return marshal.fixstar2(_handle, star, jdEt.value, flags.value);
+  }
+
+  /// Counterpart: swisseph::Ephemeris::fixstar2_ut
+  FixstarResult fixstar2Ut(String star, JdUt1 jdUt, CalcFlags flags) {
+    _checkOpen();
+    return marshal.fixstar2Ut(_handle, star, jdUt.value, flags.value);
+  }
+
+  /// Counterpart: swisseph::Ephemeris::fixstar2_mag
+  double fixstar2Mag(String star) {
+    _checkOpen();
+    return marshal.fixstar2Mag(_handle, star);
+  }
+
+  // -----------------------------------------------------------------------
+  // Heliacal (task /33)
+  // -----------------------------------------------------------------------
+
+  /// Counterpart: swisseph::Ephemeris::heliacal_ut
+  HeliacalEvent heliacalUt(
+    JdUt1 jdStart,
+    String objectName,
+    HeliacalEventType event,
+    CalcFlags epheflag,
+    HeliacalFlags helflag, {
+    required double geolon,
+    required double geolat,
+    double geoalt = 0,
+    double pressure = 1013.25,
+    double temperature = 15.0,
+    double humidity = 40.0,
+    double extinction = 0.0,
+    double age = 36.0,
+    double snellenRatio = 1.0,
+    double opticType = 0,
+    double aperture = 0,
+    double magnification = 0,
+    double transmission = 0,
+  }) {
+    _checkOpen();
+    return marshal.heliacalUt(
+      _handle,
+      jdStart.value,
+      geolon,
+      geolat,
+      geoalt,
+      pressure,
+      temperature,
+      humidity,
+      extinction,
+      age,
+      snellenRatio,
+      opticType,
+      aperture,
+      magnification,
+      transmission,
+      objectName,
+      event.value,
+      epheflag.value | helflag.value,
+    );
+  }
+
+  /// Counterpart: swisseph::Ephemeris::heliacal_pheno_ut
+  HeliacalPheno heliacalPhenoUt(
+    JdUt1 jdUt,
+    String objectName,
+    HeliacalEventType event,
+    CalcFlags epheflag,
+    HeliacalFlags helflag, {
+    required double geolon,
+    required double geolat,
+    double geoalt = 0,
+    double pressure = 1013.25,
+    double temperature = 15.0,
+    double humidity = 40.0,
+    double extinction = 0.0,
+    double age = 36.0,
+    double snellenRatio = 1.0,
+    double opticType = 0,
+    double aperture = 0,
+    double magnification = 0,
+    double transmission = 0,
+  }) {
+    _checkOpen();
+    return marshal.heliacalPhenoUt(
+      _handle,
+      jdUt.value,
+      geolon,
+      geolat,
+      geoalt,
+      pressure,
+      temperature,
+      humidity,
+      extinction,
+      age,
+      snellenRatio,
+      opticType,
+      aperture,
+      magnification,
+      transmission,
+      objectName,
+      event.value,
+      epheflag.value | helflag.value,
+    );
+  }
+
+  /// Counterpart: swisseph::Ephemeris::vis_limit_mag
+  VisLimitMagResult visLimitMag(
+    JdUt1 jdUt,
+    String objectName,
+    CalcFlags epheflag,
+    HeliacalFlags helflag, {
+    required double geolon,
+    required double geolat,
+    double geoalt = 0,
+    double pressure = 1013.25,
+    double temperature = 15.0,
+    double humidity = 40.0,
+    double extinction = 0.0,
+    double age = 36.0,
+    double snellenRatio = 1.0,
+    double opticType = 0,
+    double aperture = 0,
+    double magnification = 0,
+    double transmission = 0,
+  }) {
+    _checkOpen();
+    return marshal.visLimitMag(
+      _handle,
+      jdUt.value,
+      geolon,
+      geolat,
+      geoalt,
+      pressure,
+      temperature,
+      humidity,
+      extinction,
+      age,
+      snellenRatio,
+      opticType,
+      aperture,
+      magnification,
+      transmission,
+      objectName,
+      epheflag.value | helflag.value,
+    );
+  }
+
+  /// Counterpart: swisseph::Ephemeris::heliacal_angle
+  HeliacalAngleResult heliacalAngle(
+    JdUt1 jdUt,
+    HeliacalFlags helflag, {
+    required double geolon,
+    required double geolat,
+    double geoalt = 0,
+    double pressure = 1013.25,
+    double temperature = 15.0,
+    double humidity = 40.0,
+    double extinction = 0.0,
+    double age = 36.0,
+    double snellenRatio = 1.0,
+    double opticType = 0,
+    double aperture = 0,
+    double magnification = 0,
+    double transmission = 0,
+    required double mag,
+    required double aziObj,
+    required double aziSun,
+    required double aziMoon,
+    required double altMoon,
+  }) {
+    _checkOpen();
+    return marshal.heliacalAngle(
+      _handle,
+      jdUt.value,
+      geolon,
+      geolat,
+      geoalt,
+      pressure,
+      temperature,
+      humidity,
+      extinction,
+      age,
+      snellenRatio,
+      opticType,
+      aperture,
+      magnification,
+      transmission,
+      helflag.value,
+      mag,
+      aziObj,
+      aziSun,
+      aziMoon,
+      altMoon,
+    );
+  }
+
+  /// Counterpart: swisseph::Ephemeris::topo_arcus_visionis
+  double topoArcusVisionis(
+    JdUt1 jdUt,
+    HeliacalFlags helflag, {
+    required double geolon,
+    required double geolat,
+    double geoalt = 0,
+    double pressure = 1013.25,
+    double temperature = 15.0,
+    double humidity = 40.0,
+    double extinction = 0.0,
+    double age = 36.0,
+    double snellenRatio = 1.0,
+    double opticType = 0,
+    double aperture = 0,
+    double magnification = 0,
+    double transmission = 0,
+    required double mag,
+    required double aziObj,
+    required double altObj,
+    required double aziSun,
+    required double aziMoon,
+    required double altMoon,
+  }) {
+    _checkOpen();
+    return marshal.topoArcusVisionis(
+      _handle,
+      jdUt.value,
+      geolon,
+      geolat,
+      geoalt,
+      pressure,
+      temperature,
+      humidity,
+      extinction,
+      age,
+      snellenRatio,
+      opticType,
+      aperture,
+      magnification,
+      transmission,
+      helflag.value,
+      mag,
+      aziObj,
+      altObj,
+      aziSun,
+      aziMoon,
+      altMoon,
+    );
+  }
 }
 
 /// Counterpart: swisseph::swisseph_version

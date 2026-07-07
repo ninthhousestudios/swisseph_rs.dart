@@ -25,6 +25,15 @@ void _checkResult(int code, Pointer<Utf8> errBuf) {
   }
 }
 
+/// rise_trans FFI returns raw -2 for circumpolar (C convention),
+/// not SweErrorCode::CircumpolarBody (-11).
+void _checkRiseTransResult(int code, Pointer<Utf8> errBuf) {
+  if (code == -2) {
+    throw CircumpolarBodyException(errBuf.toDartString());
+  }
+  _checkResult(code, errBuf);
+}
+
 // ---------------------------------------------------------------------------
 // Config marshaling
 // ---------------------------------------------------------------------------
@@ -1287,5 +1296,1006 @@ OccultLocal lunOccultWhenLoc(
       attr: _unmarshalEclipseHow(attr, flags),
       flags: flags,
     );
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Rise/set & crossings (task /32)
+// ---------------------------------------------------------------------------
+
+RiseSetResult riseTrans(
+  Pointer<Void> handle,
+  double tjdUt,
+  int ipl,
+  String? starname,
+  int epheflag,
+  int rsmi,
+  double geolon,
+  double geolat,
+  double geoalt,
+  double atpress,
+  double attemp,
+) {
+  return using((arena) {
+    final geopos = arena<Double>(3);
+    geopos[0] = geolon;
+    geopos[1] = geolat;
+    geopos[2] = geoalt;
+    final tret = arena<Double>(1);
+    final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
+    final starBuf = starname != null
+        ? starname.toNativeUtf8(allocator: arena)
+        : nullptr.cast<Utf8>();
+    final code = swissephRiseTrans(
+      handle,
+      tjdUt,
+      ipl,
+      starBuf,
+      epheflag,
+      rsmi,
+      geopos,
+      atpress,
+      attemp,
+      tret,
+      errBuf,
+      _errBufSize,
+    );
+    _checkRiseTransResult(code, errBuf);
+    return RiseSetResult(time: tret[0]);
+  });
+}
+
+RiseSetResult riseTransTrueHor(
+  Pointer<Void> handle,
+  double tjdUt,
+  int ipl,
+  String? starname,
+  int epheflag,
+  int rsmi,
+  double geolon,
+  double geolat,
+  double geoalt,
+  double atpress,
+  double attemp,
+  double horhgt,
+) {
+  return using((arena) {
+    final geopos = arena<Double>(3);
+    geopos[0] = geolon;
+    geopos[1] = geolat;
+    geopos[2] = geoalt;
+    final tret = arena<Double>(1);
+    final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
+    final starBuf = starname != null
+        ? starname.toNativeUtf8(allocator: arena)
+        : nullptr.cast<Utf8>();
+    final code = swissephRiseTransTrueHor(
+      handle,
+      tjdUt,
+      ipl,
+      starBuf,
+      epheflag,
+      rsmi,
+      geopos,
+      atpress,
+      attemp,
+      horhgt,
+      tret,
+      errBuf,
+      _errBufSize,
+    );
+    _checkRiseTransResult(code, errBuf);
+    return RiseSetResult(time: tret[0]);
+  });
+}
+
+double solcross(Pointer<Void> handle, double x2cross, double tjdEt, int iflag) {
+  return using((arena) {
+    final jx = arena<Double>(1);
+    final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
+    final code = swissephSolcross(
+      handle,
+      x2cross,
+      tjdEt,
+      iflag,
+      jx,
+      errBuf,
+      _errBufSize,
+    );
+    _checkResult(code, errBuf);
+    return jx[0];
+  });
+}
+
+double solcrossUt(
+  Pointer<Void> handle,
+  double x2cross,
+  double tjdUt,
+  int iflag,
+) {
+  return using((arena) {
+    final jx = arena<Double>(1);
+    final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
+    final code = swissephSolcrossUt(
+      handle,
+      x2cross,
+      tjdUt,
+      iflag,
+      jx,
+      errBuf,
+      _errBufSize,
+    );
+    _checkResult(code, errBuf);
+    return jx[0];
+  });
+}
+
+double mooncross(
+  Pointer<Void> handle,
+  double x2cross,
+  double tjdEt,
+  int iflag,
+) {
+  return using((arena) {
+    final jx = arena<Double>(1);
+    final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
+    final code = swissephMooncross(
+      handle,
+      x2cross,
+      tjdEt,
+      iflag,
+      jx,
+      errBuf,
+      _errBufSize,
+    );
+    _checkResult(code, errBuf);
+    return jx[0];
+  });
+}
+
+double mooncrossUt(
+  Pointer<Void> handle,
+  double x2cross,
+  double tjdUt,
+  int iflag,
+) {
+  return using((arena) {
+    final jx = arena<Double>(1);
+    final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
+    final code = swissephMooncrossUt(
+      handle,
+      x2cross,
+      tjdUt,
+      iflag,
+      jx,
+      errBuf,
+      _errBufSize,
+    );
+    _checkResult(code, errBuf);
+    return jx[0];
+  });
+}
+
+MoonCrossing mooncrossNode(Pointer<Void> handle, double tjdEt, int iflag) {
+  return using((arena) {
+    final xlon = arena<Double>(1);
+    final xlat = arena<Double>(1);
+    final jx = arena<Double>(1);
+    final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
+    final code = swissephMooncrossNode(
+      handle,
+      tjdEt,
+      iflag,
+      xlon,
+      xlat,
+      jx,
+      errBuf,
+      _errBufSize,
+    );
+    _checkResult(code, errBuf);
+    return MoonCrossing(jd: jx[0], longitude: xlon[0], latitude: xlat[0]);
+  });
+}
+
+MoonCrossing mooncrossNodeUt(Pointer<Void> handle, double tjdUt, int iflag) {
+  return using((arena) {
+    final xlon = arena<Double>(1);
+    final xlat = arena<Double>(1);
+    final jx = arena<Double>(1);
+    final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
+    final code = swissephMooncrossNodeUt(
+      handle,
+      tjdUt,
+      iflag,
+      xlon,
+      xlat,
+      jx,
+      errBuf,
+      _errBufSize,
+    );
+    _checkResult(code, errBuf);
+    return MoonCrossing(jd: jx[0], longitude: xlon[0], latitude: xlat[0]);
+  });
+}
+
+double helioCross(
+  Pointer<Void> handle,
+  int ipl,
+  double x2cross,
+  double tjdEt,
+  int iflag,
+  int dir,
+) {
+  return using((arena) {
+    final jx = arena<Double>(1);
+    final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
+    final code = swissephHelioCross(
+      handle,
+      ipl,
+      x2cross,
+      tjdEt,
+      iflag,
+      dir,
+      jx,
+      errBuf,
+      _errBufSize,
+    );
+    _checkResult(code, errBuf);
+    return jx[0];
+  });
+}
+
+double helioCrossUt(
+  Pointer<Void> handle,
+  int ipl,
+  double x2cross,
+  double tjdUt,
+  int iflag,
+  int dir,
+) {
+  return using((arena) {
+    final jx = arena<Double>(1);
+    final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
+    final code = swissephHelioCrossUt(
+      handle,
+      ipl,
+      x2cross,
+      tjdUt,
+      iflag,
+      dir,
+      jx,
+      errBuf,
+      _errBufSize,
+    );
+    _checkResult(code, errBuf);
+    return jx[0];
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Phenomena, orbital, nodes/apsides (task /33)
+// ---------------------------------------------------------------------------
+
+Phenomena phenoUt(Pointer<Void> handle, double tjdUt, int ipl, int iflag) {
+  return using((arena) {
+    final attr = arena<Double>(20);
+    final flagsUsed = arena<Int32>(1);
+    final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
+    final code = swissephPhenoUt(
+      handle,
+      tjdUt,
+      ipl,
+      iflag,
+      nullptr,
+      nullptr.cast(),
+      attr,
+      flagsUsed,
+      errBuf,
+      _errBufSize,
+    );
+    _checkResult(code, errBuf);
+    return Phenomena(
+      phaseAngle: attr[0],
+      phase: attr[1],
+      elongation: attr[2],
+      apparentDiameter: attr[3],
+      apparentMagnitude: attr[4],
+      horizontalParallax: attr[5],
+      flagsUsed: CalcFlags(flagsUsed[0]),
+    );
+  });
+}
+
+Phenomena pheno(Pointer<Void> handle, double tjdEt, int ipl, int iflag) {
+  return using((arena) {
+    final attr = arena<Double>(20);
+    final flagsUsed = arena<Int32>(1);
+    final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
+    final code = swissephPheno(
+      handle,
+      tjdEt,
+      ipl,
+      iflag,
+      nullptr,
+      nullptr.cast(),
+      attr,
+      flagsUsed,
+      errBuf,
+      _errBufSize,
+    );
+    _checkResult(code, errBuf);
+    return Phenomena(
+      phaseAngle: attr[0],
+      phase: attr[1],
+      elongation: attr[2],
+      apparentDiameter: attr[3],
+      apparentMagnitude: attr[4],
+      horizontalParallax: attr[5],
+      flagsUsed: CalcFlags(flagsUsed[0]),
+    );
+  });
+}
+
+NodesApsides nodApsUt(
+  Pointer<Void> handle,
+  double tjdUt,
+  int ipl,
+  int iflag,
+  int method,
+) {
+  return using((arena) {
+    final xnasc = arena<Double>(6);
+    final xndsc = arena<Double>(6);
+    final xperi = arena<Double>(6);
+    final xaphe = arena<Double>(6);
+    final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
+    final code = swissephNodApsUt(
+      handle,
+      tjdUt,
+      ipl,
+      iflag,
+      method,
+      xnasc,
+      xndsc,
+      xperi,
+      xaphe,
+      errBuf,
+      _errBufSize,
+    );
+    _checkResult(code, errBuf);
+    return NodesApsides(
+      ascending: List.generate(6, (i) => xnasc[i]),
+      descending: List.generate(6, (i) => xndsc[i]),
+      perihelion: List.generate(6, (i) => xperi[i]),
+      aphelion: List.generate(6, (i) => xaphe[i]),
+    );
+  });
+}
+
+NodesApsides nodAps(
+  Pointer<Void> handle,
+  double tjdEt,
+  int ipl,
+  int iflag,
+  int method,
+) {
+  return using((arena) {
+    final xnasc = arena<Double>(6);
+    final xndsc = arena<Double>(6);
+    final xperi = arena<Double>(6);
+    final xaphe = arena<Double>(6);
+    final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
+    final code = swissephNodAps(
+      handle,
+      tjdEt,
+      ipl,
+      iflag,
+      method,
+      xnasc,
+      xndsc,
+      xperi,
+      xaphe,
+      errBuf,
+      _errBufSize,
+    );
+    _checkResult(code, errBuf);
+    return NodesApsides(
+      ascending: List.generate(6, (i) => xnasc[i]),
+      descending: List.generate(6, (i) => xndsc[i]),
+      perihelion: List.generate(6, (i) => xperi[i]),
+      aphelion: List.generate(6, (i) => xaphe[i]),
+    );
+  });
+}
+
+OrbitalElements getOrbitalElements(
+  Pointer<Void> handle,
+  double tjdEt,
+  int ipl,
+  int iflag,
+) {
+  return using((arena) {
+    final dret = arena<Double>(50);
+    final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
+    final code = swissephGetOrbitalElements(
+      handle,
+      tjdEt,
+      ipl,
+      iflag,
+      dret,
+      errBuf,
+      _errBufSize,
+    );
+    _checkResult(code, errBuf);
+    return OrbitalElements(
+      semiMajorAxis: dret[0],
+      eccentricity: dret[1],
+      inclination: dret[2],
+      ascendingNode: dret[3],
+      argPerihelion: dret[4],
+      perihelionLon: dret[5],
+      meanAnomaly: dret[6],
+      trueAnomaly: dret[7],
+      eccentricAnomaly: dret[8],
+      meanLongitude: dret[9],
+      siderealPeriod: dret[10],
+      meanDailyMotion: dret[11],
+      tropicalPeriod: dret[12],
+      synodicPeriod: dret[13],
+      perihelionPassage: dret[14],
+      perihelionDistance: dret[15],
+      aphelionDistance: dret[16],
+    );
+  });
+}
+
+OrbitDistances orbitMaxMinTrueDistance(
+  Pointer<Void> handle,
+  double tjdEt,
+  int ipl,
+  int iflag,
+) {
+  return using((arena) {
+    final dmax = arena<Double>(1);
+    final dmin = arena<Double>(1);
+    final dtrue = arena<Double>(1);
+    final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
+    final code = swissephOrbitMaxMinTrueDistance(
+      handle,
+      tjdEt,
+      ipl,
+      iflag,
+      dmax,
+      dmin,
+      dtrue,
+      errBuf,
+      _errBufSize,
+    );
+    _checkResult(code, errBuf);
+    return OrbitDistances(max: dmax[0], min: dmin[0], trueDist: dtrue[0]);
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Fixed stars (task /33)
+// ---------------------------------------------------------------------------
+
+const _starBufSize = 256;
+
+FixstarResult fixstar2(
+  Pointer<Void> handle,
+  String star,
+  double tjdEt,
+  int iflag,
+) {
+  return using((arena) {
+    final starIn = star.toNativeUtf8(allocator: arena);
+    final starOut = arena<Uint8>(_starBufSize).cast<Utf8>();
+    final xx = arena<Double>(6);
+    final flagsUsed = arena<Int32>(1);
+    final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
+    final code = swissephFixstar2(
+      handle,
+      starIn,
+      starOut,
+      _starBufSize,
+      tjdEt,
+      iflag,
+      nullptr,
+      nullptr.cast(),
+      xx,
+      flagsUsed,
+      errBuf,
+      _errBufSize,
+    );
+    _checkResult(code, errBuf);
+    return FixstarResult(
+      starName: starOut.toDartString(),
+      longitude: xx[0],
+      latitude: xx[1],
+      distance: xx[2],
+      longitudeSpeed: xx[3],
+      latitudeSpeed: xx[4],
+      distanceSpeed: xx[5],
+      flagsUsed: CalcFlags(flagsUsed[0]),
+    );
+  });
+}
+
+FixstarResult fixstar2Ut(
+  Pointer<Void> handle,
+  String star,
+  double tjdUt,
+  int iflag,
+) {
+  return using((arena) {
+    final starIn = star.toNativeUtf8(allocator: arena);
+    final starOut = arena<Uint8>(_starBufSize).cast<Utf8>();
+    final xx = arena<Double>(6);
+    final flagsUsed = arena<Int32>(1);
+    final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
+    final code = swissephFixstar2Ut(
+      handle,
+      starIn,
+      starOut,
+      _starBufSize,
+      tjdUt,
+      iflag,
+      nullptr,
+      nullptr.cast(),
+      xx,
+      flagsUsed,
+      errBuf,
+      _errBufSize,
+    );
+    _checkResult(code, errBuf);
+    return FixstarResult(
+      starName: starOut.toDartString(),
+      longitude: xx[0],
+      latitude: xx[1],
+      distance: xx[2],
+      longitudeSpeed: xx[3],
+      latitudeSpeed: xx[4],
+      distanceSpeed: xx[5],
+      flagsUsed: CalcFlags(flagsUsed[0]),
+    );
+  });
+}
+
+double fixstar2Mag(Pointer<Void> handle, String star) {
+  return using((arena) {
+    final starIn = star.toNativeUtf8(allocator: arena);
+    final mag = arena<Double>(1);
+    final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
+    final code = swissephFixstar2Mag(
+      handle,
+      starIn,
+      nullptr.cast(),
+      0,
+      mag,
+      errBuf,
+      _errBufSize,
+    );
+    _checkResult(code, errBuf);
+    return mag[0];
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Heliacal (task /33)
+// ---------------------------------------------------------------------------
+
+void _fillHeliacal(
+  Arena arena,
+  Pointer<Double> dgeo,
+  double geolon,
+  double geolat,
+  double geoalt,
+  Pointer<Double> datm,
+  double pressure,
+  double temperature,
+  double humidity,
+  double extinction,
+  Pointer<Double> dobs,
+  double age,
+  double snellenRatio,
+  double opticType,
+  double aperture,
+  double magnification,
+  double transmission,
+) {
+  dgeo[0] = geolon;
+  dgeo[1] = geolat;
+  dgeo[2] = geoalt;
+  datm[0] = pressure;
+  datm[1] = temperature;
+  datm[2] = humidity;
+  datm[3] = extinction;
+  dobs[0] = age;
+  dobs[1] = snellenRatio;
+  dobs[2] = opticType;
+  dobs[3] = aperture;
+  dobs[4] = magnification;
+  dobs[5] = transmission;
+}
+
+HeliacalEvent heliacalUt(
+  Pointer<Void> handle,
+  double tjdStart,
+  double geolon,
+  double geolat,
+  double geoalt,
+  double pressure,
+  double temperature,
+  double humidity,
+  double extinction,
+  double age,
+  double snellenRatio,
+  double opticType,
+  double aperture,
+  double magnification,
+  double transmission,
+  String objectName,
+  int eventType,
+  int helflag,
+) {
+  return using((arena) {
+    final dgeo = arena<Double>(3);
+    final datm = arena<Double>(4);
+    final dobs = arena<Double>(6);
+    final dret = arena<Double>(50);
+    final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
+    final objName = objectName.toNativeUtf8(allocator: arena);
+    _fillHeliacal(
+      arena,
+      dgeo,
+      geolon,
+      geolat,
+      geoalt,
+      datm,
+      pressure,
+      temperature,
+      humidity,
+      extinction,
+      dobs,
+      age,
+      snellenRatio,
+      opticType,
+      aperture,
+      magnification,
+      transmission,
+    );
+    final code = swissephHeliacalUt(
+      handle,
+      tjdStart,
+      dgeo,
+      datm,
+      dobs,
+      objName,
+      eventType,
+      helflag,
+      dret,
+      errBuf,
+      _errBufSize,
+    );
+    _checkResult(code, errBuf);
+    return HeliacalEvent(
+      startVisible: dret[0],
+      optimumVisibility: dret[1],
+      endVisible: dret[2],
+    );
+  });
+}
+
+HeliacalPheno heliacalPhenoUt(
+  Pointer<Void> handle,
+  double tjdUt,
+  double geolon,
+  double geolat,
+  double geoalt,
+  double pressure,
+  double temperature,
+  double humidity,
+  double extinction,
+  double age,
+  double snellenRatio,
+  double opticType,
+  double aperture,
+  double magnification,
+  double transmission,
+  String objectName,
+  int eventType,
+  int helflag,
+) {
+  return using((arena) {
+    final dgeo = arena<Double>(3);
+    final datm = arena<Double>(4);
+    final dobs = arena<Double>(6);
+    final darr = arena<Double>(50);
+    final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
+    final objName = objectName.toNativeUtf8(allocator: arena);
+    _fillHeliacal(
+      arena,
+      dgeo,
+      geolon,
+      geolat,
+      geoalt,
+      datm,
+      pressure,
+      temperature,
+      humidity,
+      extinction,
+      dobs,
+      age,
+      snellenRatio,
+      opticType,
+      aperture,
+      magnification,
+      transmission,
+    );
+    final code = swissephHeliacalPhenoUt(
+      handle,
+      tjdUt,
+      dgeo,
+      datm,
+      dobs,
+      objName,
+      eventType,
+      helflag,
+      darr,
+      errBuf,
+      _errBufSize,
+    );
+    _checkResult(code, errBuf);
+    return HeliacalPheno(
+      tcAltitude: darr[0],
+      tcApparentAltitude: darr[1],
+      gcAltitude: darr[2],
+      azimuthObject: darr[3],
+      tcSunAltitude: darr[4],
+      sunAzimuth: darr[5],
+      tavAct: darr[6],
+      arcvAct: darr[7],
+      dazAct: darr[8],
+      arclAct: darr[9],
+      kact: darr[10],
+      minTav: darr[11],
+      tFirstVr: darr[12],
+      tBestVr: darr[13],
+      tLastVr: darr[14],
+      tBestYallop: darr[15],
+      wMoon: darr[16],
+      qYallop: darr[17],
+      qCrit: darr[18],
+      parO: darr[19],
+      magnO: darr[20],
+      riseO: darr[21],
+      riseS: darr[22],
+      lag: darr[23],
+      tVisVr: darr[24],
+      lMoon: darr[25],
+      elongation: darr[26],
+      illumination: darr[27],
+    );
+  });
+}
+
+VisLimitMagResult visLimitMag(
+  Pointer<Void> handle,
+  double tjdUt,
+  double geolon,
+  double geolat,
+  double geoalt,
+  double pressure,
+  double temperature,
+  double humidity,
+  double extinction,
+  double age,
+  double snellenRatio,
+  double opticType,
+  double aperture,
+  double magnification,
+  double transmission,
+  String objectName,
+  int helflag,
+) {
+  return using((arena) {
+    final dgeo = arena<Double>(3);
+    final datm = arena<Double>(4);
+    final dobs = arena<Double>(6);
+    final dret = arena<Double>(8);
+    final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
+    final objName = objectName.toNativeUtf8(allocator: arena);
+    _fillHeliacal(
+      arena,
+      dgeo,
+      geolon,
+      geolat,
+      geoalt,
+      datm,
+      pressure,
+      temperature,
+      humidity,
+      extinction,
+      dobs,
+      age,
+      snellenRatio,
+      opticType,
+      aperture,
+      magnification,
+      transmission,
+    );
+    final code = swissephVisLimitMag(
+      handle,
+      tjdUt,
+      dgeo,
+      datm,
+      dobs,
+      objName,
+      helflag,
+      dret,
+      errBuf,
+      _errBufSize,
+    );
+    final belowHorizon = code == -2;
+    if (code < 0 && !belowHorizon) {
+      _checkResult(code, errBuf);
+    }
+    return VisLimitMagResult(
+      limitingMagnitude: dret[0],
+      altitudeObject: dret[1],
+      azimuthObject: dret[2],
+      altitudeSun: dret[3],
+      azimuthSun: dret[4],
+      altitudeMoon: dret[5],
+      azimuthMoon: dret[6],
+      magnitudeObject: dret[7],
+      vision: belowHorizon ? VisLimFlags.none : VisLimFlags(code),
+      belowHorizon: belowHorizon,
+    );
+  });
+}
+
+HeliacalAngleResult heliacalAngle(
+  Pointer<Void> handle,
+  double tjdUt,
+  double geolon,
+  double geolat,
+  double geoalt,
+  double pressure,
+  double temperature,
+  double humidity,
+  double extinction,
+  double age,
+  double snellenRatio,
+  double opticType,
+  double aperture,
+  double magnification,
+  double transmission,
+  int helflag,
+  double mag,
+  double aziObj,
+  double aziSun,
+  double aziMoon,
+  double altMoon,
+) {
+  return using((arena) {
+    final dgeo = arena<Double>(3);
+    final datm = arena<Double>(4);
+    final dobs = arena<Double>(6);
+    final dret = arena<Double>(3);
+    final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
+    _fillHeliacal(
+      arena,
+      dgeo,
+      geolon,
+      geolat,
+      geoalt,
+      datm,
+      pressure,
+      temperature,
+      humidity,
+      extinction,
+      dobs,
+      age,
+      snellenRatio,
+      opticType,
+      aperture,
+      magnification,
+      transmission,
+    );
+    final code = swissephHeliacalAngle(
+      handle,
+      tjdUt,
+      dgeo,
+      datm,
+      dobs,
+      helflag,
+      mag,
+      aziObj,
+      aziSun,
+      aziMoon,
+      altMoon,
+      dret,
+      errBuf,
+      _errBufSize,
+    );
+    _checkResult(code, errBuf);
+    return HeliacalAngleResult(
+      optimalAltitude: dret[0],
+      arcusVisionis: dret[1],
+      sunAltitudeDiff: dret[2],
+    );
+  });
+}
+
+double topoArcusVisionis(
+  Pointer<Void> handle,
+  double tjdUt,
+  double geolon,
+  double geolat,
+  double geoalt,
+  double pressure,
+  double temperature,
+  double humidity,
+  double extinction,
+  double age,
+  double snellenRatio,
+  double opticType,
+  double aperture,
+  double magnification,
+  double transmission,
+  int helflag,
+  double mag,
+  double aziObj,
+  double altObj,
+  double aziSun,
+  double aziMoon,
+  double altMoon,
+) {
+  return using((arena) {
+    final dgeo = arena<Double>(3);
+    final datm = arena<Double>(4);
+    final dobs = arena<Double>(6);
+    final dret = arena<Double>(1);
+    final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
+    _fillHeliacal(
+      arena,
+      dgeo,
+      geolon,
+      geolat,
+      geoalt,
+      datm,
+      pressure,
+      temperature,
+      humidity,
+      extinction,
+      dobs,
+      age,
+      snellenRatio,
+      opticType,
+      aperture,
+      magnification,
+      transmission,
+    );
+    final code = swissephTopoArcusVisionis(
+      handle,
+      tjdUt,
+      dgeo,
+      datm,
+      dobs,
+      helflag,
+      mag,
+      aziObj,
+      altObj,
+      aziSun,
+      aziMoon,
+      altMoon,
+      dret,
+      errBuf,
+      _errBufSize,
+    );
+    _checkResult(code, errBuf);
+    return dret[0];
   });
 }

@@ -72,4 +72,32 @@ const oracleMap = <String, OracleEntry>{
   'Ephemeris.lunOccultWhere': OracleEntry.direct(),
   'Ephemeris.lunOccultWhenGlob': OracleEntry.direct(),
   'Ephemeris.lunOccultWhenLoc': OracleEntry.direct(),
+  // Rise/set & crossings (task /32)
+  'Ephemeris.riseTrans': OracleEntry.direct(),
+  'Ephemeris.riseTransTrueHor': OracleEntry.direct(),
+  'Ephemeris.solcross': OracleEntry.direct(),
+  'Ephemeris.solcrossUt': OracleEntry.direct(),
+  'Ephemeris.mooncross': OracleEntry.direct(),
+  'Ephemeris.mooncrossUt': OracleEntry.direct(),
+  'Ephemeris.mooncrossNode': OracleEntry.direct(),
+  'Ephemeris.mooncrossNodeUt': OracleEntry.direct(),
+  'Ephemeris.helioCross': OracleEntry.direct(),
+  'Ephemeris.helioCrossUt': OracleEntry.direct(),
+  // Phenomena, orbital, nodes/apsides (task /33)
+  'Ephemeris.phenoUt': OracleEntry.direct(),
+  'Ephemeris.pheno': OracleEntry.direct(),
+  'Ephemeris.nodApsUt': OracleEntry.direct(),
+  'Ephemeris.nodAps': OracleEntry.direct(),
+  'Ephemeris.getOrbitalElements': OracleEntry.direct(),
+  'Ephemeris.orbitMaxMinTrueDistance': OracleEntry.direct(),
+  // Fixed stars (task /33)
+  'Ephemeris.fixstar2': OracleEntry.direct(),
+  'Ephemeris.fixstar2Ut': OracleEntry.direct(),
+  'Ephemeris.fixstar2Mag': OracleEntry.direct(),
+  // Heliacal (task /33)
+  'Ephemeris.heliacalUt': OracleEntry.direct(),
+  'Ephemeris.heliacalPhenoUt': OracleEntry.direct(),
+  'Ephemeris.visLimitMag': OracleEntry.direct(),
+  'Ephemeris.heliacalAngle': OracleEntry.direct(),
+  'Ephemeris.topoArcusVisionis': OracleEntry.direct(),
 };
