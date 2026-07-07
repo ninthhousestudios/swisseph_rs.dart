@@ -18,7 +18,9 @@ const oracleMap = <String, OracleEntry>{
   'Ephemeris.calcUtWithConfig': OracleEntry.composite(),
   'Ephemeris.calc': OracleEntry.direct(),
   'Ephemeris.calcWithConfig': OracleEntry.composite(),
-  'Ephemeris.calcPctr': OracleEntry.direct(),
+  'Ephemeris.calcPctr': OracleEntry.engineTrusted(
+    'requires Swiss/JPL ephemeris files; rejection tested on Moshier',
+  ),
   'Ephemeris.close': OracleEntry.engineTrusted(
     'lifecycle; no oracle equivalent',
   ),

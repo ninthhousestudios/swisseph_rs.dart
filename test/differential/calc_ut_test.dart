@@ -244,6 +244,57 @@ void main() {
       final expected = oracle.calcUt(jd.value, swe.seEclNut, 0);
       _calcUtSpec.compare(actual, expected);
     });
+
+    test('speed3 (explicit)', () {
+      final actual = eph.calcUt(jd, body, CalcFlags.speed3);
+      final expected = oracle.calcUt(jd.value, oracleBody, swe.seFlgSpeed3);
+      // SPEED3 uses 3-point numeric differentiation — boundary class for speeds
+      _topoSpec.compare(actual, expected);
+    });
+
+    test('icrs', () {
+      final flags = CalcFlags.speed | CalcFlags.icrs;
+      final actual = eph.calcUt(jd, body, flags);
+      final expected = oracle.calcUt(
+        jd.value,
+        oracleBody,
+        swe.seFlgSpeed | swe.seFlgIcrs,
+      );
+      _calcUtSpec.compare(actual, expected);
+    });
+
+    test('dpsideps1980 (JPL Horizons mode)', () {
+      final flags = CalcFlags.speed | CalcFlags.dpsideps1980;
+      final actual = eph.calcUt(jd, body, flags);
+      final expected = oracle.calcUt(
+        jd.value,
+        oracleBody,
+        swe.seFlgSpeed | swe.seFlgJplHor,
+      );
+      _calcUtSpec.compare(actual, expected);
+    });
+
+    test('jplHorApprox', () {
+      final flags = CalcFlags.speed | CalcFlags.jplHorApprox;
+      final actual = eph.calcUt(jd, body, flags);
+      final expected = oracle.calcUt(
+        jd.value,
+        oracleBody,
+        swe.seFlgSpeed | swe.seFlgJplHorApprox,
+      );
+      _calcUtSpec.compare(actual, expected);
+    });
+
+    test('centerBody', () {
+      final flags = CalcFlags.speed | CalcFlags.centerBody;
+      final actual = eph.calcUt(jd, Body.moon, flags);
+      final expected = oracle.calcUt(
+        jd.value,
+        swe.seMoon,
+        swe.seFlgSpeed | swe.seFlgCenterBody,
+      );
+      _calcUtSpec.compare(actual, expected);
+    });
   });
 
   group('Composite mapping: calcUtWithConfig', () {

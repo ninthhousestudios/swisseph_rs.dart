@@ -250,6 +250,57 @@ void main() {
       final expected = oracle.calc(jd.value, swe.seEclNut, 0);
       _positionalSpec.compare(actual, expected);
     });
+
+    test('speed3 (explicit)', () {
+      final actual = eph.calc(jd, body, CalcFlags.speed3);
+      final expected = oracle.calc(jd.value, oracleBody, swe.seFlgSpeed3);
+      // SPEED3 uses 3-point numeric differentiation — boundary class for speeds
+      _topoSpec.compare(actual, expected);
+    });
+
+    test('icrs', () {
+      final flags = CalcFlags.speed | CalcFlags.icrs;
+      final actual = eph.calc(jd, body, flags);
+      final expected = oracle.calc(
+        jd.value,
+        oracleBody,
+        swe.seFlgSpeed | swe.seFlgIcrs,
+      );
+      _positionalSpec.compare(actual, expected);
+    });
+
+    test('dpsideps1980 (JPL Horizons mode)', () {
+      final flags = CalcFlags.speed | CalcFlags.dpsideps1980;
+      final actual = eph.calc(jd, body, flags);
+      final expected = oracle.calc(
+        jd.value,
+        oracleBody,
+        swe.seFlgSpeed | swe.seFlgJplHor,
+      );
+      _positionalSpec.compare(actual, expected);
+    });
+
+    test('jplHorApprox', () {
+      final flags = CalcFlags.speed | CalcFlags.jplHorApprox;
+      final actual = eph.calc(jd, body, flags);
+      final expected = oracle.calc(
+        jd.value,
+        oracleBody,
+        swe.seFlgSpeed | swe.seFlgJplHorApprox,
+      );
+      _positionalSpec.compare(actual, expected);
+    });
+
+    test('centerBody', () {
+      final flags = CalcFlags.speed | CalcFlags.centerBody;
+      final actual = eph.calc(jd, Body.moon, flags);
+      final expected = oracle.calc(
+        jd.value,
+        swe.seMoon,
+        swe.seFlgSpeed | swe.seFlgCenterBody,
+      );
+      _positionalSpec.compare(actual, expected);
+    });
   });
 
   // -----------------------------------------------------------------------
@@ -284,6 +335,11 @@ void main() {
         swe.seFlgSpeed | swe.seFlgSwiEph,
       );
       _positionalSpec.compare(actual, expected);
+      expect(
+        actual.flagsUsed.contains(CalcFlags.mosEph),
+        isTrue,
+        reason: 'flagsUsed should show Moshier fallback',
+      );
     });
 
     test('JPLEPH on Moshier config falls back to Moshier', () {
@@ -295,6 +351,11 @@ void main() {
         swe.seFlgSpeed | swe.seFlgJplEph,
       );
       _positionalSpec.compare(actual, expected);
+      expect(
+        actual.flagsUsed.contains(CalcFlags.mosEph),
+        isTrue,
+        reason: 'flagsUsed should show Moshier fallback',
+      );
     });
   });
 
@@ -421,7 +482,7 @@ void main() {
   // -----------------------------------------------------------------------
 
   group('Asteroid config', () {
-    test('undeclared asteroid throws', () {
+    test('undeclared asteroid throws EphemerisNotAvailableException', () {
       const jd = JdTt(2451545.0);
       expect(
         () => eph.calc(
@@ -429,7 +490,7 @@ void main() {
           const Body.asteroid(AsteroidId(99942)),
           CalcFlags.speed,
         ),
-        throwsA(isA<SweException>()),
+        throwsA(isA<EphemerisNotAvailableException>()),
       );
     });
   });
