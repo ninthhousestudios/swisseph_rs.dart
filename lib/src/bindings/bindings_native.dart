@@ -143,3 +143,55 @@ external int swissephCalcUt(
   Pointer<Utf8> errBuf,
   int errCap,
 );
+
+@Native<
+  Int32 Function(
+    Pointer<Void>,
+    Double,
+    Int32,
+    Int32,
+    Pointer<Double>,
+    Pointer<SweSidMode>,
+    Pointer<Double>,
+    Pointer<Int32>,
+    Pointer<Utf8>,
+    Size,
+  )
+>(symbol: 'swisseph_calc')
+external int swissephCalc(
+  Pointer<Void> handle,
+  double tjdEt,
+  int ipl,
+  int iflag,
+  Pointer<Double> geopos,
+  Pointer<SweSidMode> sidMode,
+  Pointer<Double> xx,
+  Pointer<Int32> flagsUsed,
+  Pointer<Utf8> errBuf,
+  int errCap,
+);
+
+@Native<
+  Int32 Function(
+    Pointer<Void>,
+    Double,
+    Int32,
+    Int32,
+    Int32,
+    Pointer<Double>,
+    Pointer<Int32>,
+    Pointer<Utf8>,
+    Size,
+  )
+>(symbol: 'swisseph_calc_pctr')
+external int swissephCalcPctr(
+  Pointer<Void> handle,
+  double tjdEt,
+  int ipl,
+  int iplctr,
+  int iflag,
+  Pointer<Double> xx,
+  Pointer<Int32> flagsUsed,
+  Pointer<Utf8> errBuf,
+  int errCap,
+);

@@ -27,3 +27,28 @@ int swissephCalcUt(
   dynamic errBuf,
   int errCap,
 ) => _unsupported();
+
+int swissephCalc(
+  dynamic handle,
+  double tjdEt,
+  int ipl,
+  int iflag,
+  dynamic geopos,
+  dynamic sidMode,
+  dynamic xx,
+  dynamic flagsUsed,
+  dynamic errBuf,
+  int errCap,
+) => _unsupported();
+
+int swissephCalcPctr(
+  dynamic handle,
+  double tjdEt,
+  int ipl,
+  int iplctr,
+  int iflag,
+  dynamic xx,
+  dynamic flagsUsed,
+  dynamic errBuf,
+  int errCap,
+) => _unsupported();

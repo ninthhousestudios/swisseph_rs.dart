@@ -16,6 +16,9 @@ const oracleMap = <String, OracleEntry>{
   'Ephemeris.new': OracleEntry.direct(),
   'Ephemeris.calcUt': OracleEntry.direct(),
   'Ephemeris.calcUtWithConfig': OracleEntry.composite(),
+  'Ephemeris.calc': OracleEntry.direct(),
+  'Ephemeris.calcWithConfig': OracleEntry.composite(),
+  'Ephemeris.calcPctr': OracleEntry.direct(),
   'Ephemeris.close': OracleEntry.engineTrusted(
     'lifecycle; no oracle equivalent',
   ),

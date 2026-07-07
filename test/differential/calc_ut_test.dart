@@ -53,6 +53,54 @@ final _calcUtSpec = ComparisonSpec<CalcResult, OracleCalcResult>([
   ),
 ], _calcResultFields);
 
+/// Topocentric calcs use SPEED3 internally (3-point speed differentiation),
+/// which produces larger deltas than the analytic speed path.
+final _topoSpec = ComparisonSpec<CalcResult, OracleCalcResult>([
+  FieldPairSpec(
+    'longitude',
+    (r) => r.longitude,
+    (o) => o.longitude,
+    AgreementClass.positional,
+  ),
+  FieldPairSpec(
+    'latitude',
+    (r) => r.latitude,
+    (o) => o.latitude,
+    AgreementClass.positional,
+  ),
+  FieldPairSpec(
+    'distance',
+    (r) => r.distance,
+    (o) => o.distance,
+    AgreementClass.positional,
+  ),
+  FieldPairSpec(
+    'longitudeSpeed',
+    (r) => r.longitudeSpeed,
+    (o) => o.longitudeSpeed,
+    AgreementClass.boundary,
+    tolerance: 1e-7,
+    // SPEED3 auto-set when SPEED+TOPOCTR+!NOABERR
+    boundaryArtifact: 'SPEED3 topocentric 3-point differentiation',
+  ),
+  FieldPairSpec(
+    'latitudeSpeed',
+    (r) => r.latitudeSpeed,
+    (o) => o.latitudeSpeed,
+    AgreementClass.boundary,
+    tolerance: 1e-7,
+    boundaryArtifact: 'SPEED3 topocentric 3-point differentiation',
+  ),
+  FieldPairSpec(
+    'distanceSpeed',
+    (r) => r.distanceSpeed,
+    (o) => o.distanceSpeed,
+    AgreementClass.boundary,
+    tolerance: 1e-7,
+    boundaryArtifact: 'SPEED3 topocentric 3-point differentiation',
+  ),
+], _calcResultFields);
+
 void main() {
   late Ephemeris eph;
   late Oracle oracle;
@@ -86,6 +134,114 @@ void main() {
       const jd = JdUt1(2460000.5);
       final actual = eph.calcUt(jd, Body.mars, CalcFlags.speed);
       final expected = oracle.calcUt(jd.value, swe.seMars, swe.seFlgSpeed);
+      _calcUtSpec.compare(actual, expected);
+    });
+  });
+
+  group('Flag matrix: calcUt', () {
+    const jd = JdUt1(2451545.0);
+    const body = Body.sun;
+    const oracleBody = swe.seSun;
+
+    test('equatorial', () {
+      final flags = CalcFlags.speed | CalcFlags.equatorial;
+      final actual = eph.calcUt(jd, body, flags);
+      final expected = oracle.calcUt(
+        jd.value,
+        oracleBody,
+        swe.seFlgSpeed | swe.seFlgEquatorial,
+      );
+      _calcUtSpec.compare(actual, expected);
+    });
+
+    test('xyz', () {
+      final flags = CalcFlags.speed | CalcFlags.xyz;
+      final actual = eph.calcUt(jd, body, flags);
+      final expected = oracle.calcUt(
+        jd.value,
+        oracleBody,
+        swe.seFlgSpeed | swe.seFlgXyz,
+      );
+      _calcUtSpec.compare(actual, expected);
+    });
+
+    test('radians', () {
+      final flags = CalcFlags.speed | CalcFlags.radians;
+      final actual = eph.calcUt(jd, body, flags);
+      final expected = oracle.calcUt(
+        jd.value,
+        oracleBody,
+        swe.seFlgSpeed | swe.seFlgRadians,
+      );
+      _calcUtSpec.compare(actual, expected);
+    });
+
+    test('heliocentric', () {
+      final flags = CalcFlags.speed | CalcFlags.helctr;
+      final actual = eph.calcUt(jd, Body.mars, flags);
+      final expected = oracle.calcUt(
+        jd.value,
+        swe.seMars,
+        swe.seFlgSpeed | swe.seFlgHelCtr,
+      );
+      _calcUtSpec.compare(actual, expected);
+    });
+
+    test('barycentric rejects Moshier', () {
+      final flags = CalcFlags.speed | CalcFlags.baryctr;
+      expect(
+        () => eph.calcUt(jd, body, flags),
+        throwsA(isA<UnsupportedFlagsException>()),
+      );
+    });
+
+    test('J2000', () {
+      final flags = CalcFlags.speed | CalcFlags.j2000;
+      final actual = eph.calcUt(jd, body, flags);
+      final expected = oracle.calcUt(
+        jd.value,
+        oracleBody,
+        swe.seFlgSpeed | swe.seFlgJ2000,
+      );
+      _calcUtSpec.compare(actual, expected);
+    });
+
+    test('noNut', () {
+      final flags = CalcFlags.speed | CalcFlags.noNut;
+      final actual = eph.calcUt(jd, body, flags);
+      final expected = oracle.calcUt(
+        jd.value,
+        oracleBody,
+        swe.seFlgSpeed | swe.seFlgNoNut,
+      );
+      _calcUtSpec.compare(actual, expected);
+    });
+
+    test('truePos', () {
+      final flags = CalcFlags.speed | CalcFlags.truePos;
+      final actual = eph.calcUt(jd, body, flags);
+      final expected = oracle.calcUt(
+        jd.value,
+        oracleBody,
+        swe.seFlgSpeed | swe.seFlgTruePos,
+      );
+      _calcUtSpec.compare(actual, expected);
+    });
+
+    test('astrometric (noAberr | noGdefl)', () {
+      final flags = CalcFlags.speed | CalcFlags.astrometric;
+      final actual = eph.calcUt(jd, body, flags);
+      final expected = oracle.calcUt(
+        jd.value,
+        oracleBody,
+        swe.seFlgSpeed | swe.seFlgNoAberr | swe.seFlgNoGdefl,
+      );
+      _calcUtSpec.compare(actual, expected);
+    });
+
+    test('EclipticNutation pseudo-body', () {
+      final actual = eph.calcUt(jd, Body.eclipticNutation, CalcFlags.none);
+      final expected = oracle.calcUt(jd.value, swe.seEclNut, 0);
       _calcUtSpec.compare(actual, expected);
     });
   });
@@ -129,6 +285,34 @@ void main() {
       );
 
       _calcUtSpec.compare(actual, expected);
+    });
+
+    test('topocentric Moon (Moshier)', () {
+      const jd = JdUt1(2451545.0);
+
+      final actual = eph.calcUtWithConfig(
+        jd,
+        Body.moon,
+        CalcFlags.speed | CalcFlags.topoctr,
+        const EphemerisConfig(
+          topographic: TopoPosition(
+            longitude: 13.41,
+            latitude: 52.52,
+            altitude: 34,
+          ),
+        ),
+      );
+
+      final expected = oracle.calcUtTopo(
+        jd.value,
+        swe.seMoon,
+        swe.seFlgSpeed,
+        13.41,
+        52.52,
+        34,
+      );
+
+      _topoSpec.compare(actual, expected);
     });
   });
 

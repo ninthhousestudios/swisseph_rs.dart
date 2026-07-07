@@ -212,6 +212,105 @@ CalcResult calcUtWithConfig(
   });
 }
 
+/// Call `swisseph_calc` and return a typed [CalcResult].
+CalcResult calc(Pointer<Void> handle, double tjdEt, int ipl, int iflag) {
+  return using((arena) {
+    final xx = arena<Double>(6);
+    final flagsUsed = arena<Int32>();
+    final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
+    final code = swissephCalc(
+      handle,
+      tjdEt,
+      ipl,
+      iflag,
+      nullptr,
+      nullptr,
+      xx,
+      flagsUsed,
+      errBuf,
+      _errBufSize,
+    );
+    _checkResult(code, errBuf);
+    return unmarshalCalcResult(xx, flagsUsed.value);
+  });
+}
+
+/// Call `swisseph_calc` with per-call config overrides.
+CalcResult calcWithConfig(
+  Pointer<Void> handle,
+  double tjdEt,
+  int ipl,
+  int iflag,
+  EphemerisConfig config,
+) {
+  return using((arena) {
+    final xx = arena<Double>(6);
+    final flagsUsed = arena<Int32>();
+    final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
+
+    Pointer<Double> geopos = nullptr;
+    if (config.topographic case final topo?) {
+      geopos = arena<Double>(3);
+      geopos[0] = topo.longitude;
+      geopos[1] = topo.latitude;
+      geopos[2] = topo.altitude;
+    }
+
+    Pointer<SweSidMode> sidMode = nullptr;
+    if (config.siderealMode != null) {
+      sidMode = arena<SweSidMode>();
+      var bits = config.siderealBits.value;
+      if (config.siderealT0IsUt) bits |= SiderealBits.userUt.value;
+      sidMode.ref.sidMode = config.siderealMode!.value | bits;
+      sidMode.ref.t0 = config.siderealT0;
+      sidMode.ref.ayanT0 = config.siderealAyanT0;
+    }
+
+    final code = swissephCalc(
+      handle,
+      tjdEt,
+      ipl,
+      iflag,
+      geopos,
+      sidMode,
+      xx,
+      flagsUsed,
+      errBuf,
+      _errBufSize,
+    );
+    _checkResult(code, errBuf);
+    return unmarshalCalcResult(xx, flagsUsed.value);
+  });
+}
+
+/// Call `swisseph_calc_pctr` and return a typed [CalcResult].
+CalcResult calcPctr(
+  Pointer<Void> handle,
+  double tjdEt,
+  int ipl,
+  int iplctr,
+  int iflag,
+) {
+  return using((arena) {
+    final xx = arena<Double>(6);
+    final flagsUsed = arena<Int32>();
+    final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
+    final code = swissephCalcPctr(
+      handle,
+      tjdEt,
+      ipl,
+      iplctr,
+      iflag,
+      xx,
+      flagsUsed,
+      errBuf,
+      _errBufSize,
+    );
+    _checkResult(code, errBuf);
+    return unmarshalCalcResult(xx, flagsUsed.value);
+  });
+}
+
 /// Read the engine version string from the native library.
 String engineVersion() {
   return swissephVersion().toDartString();

@@ -44,6 +44,41 @@ final class Ephemeris implements Finalizable {
     );
   }
 
+  /// Counterpart: swisseph::Ephemeris::calc
+  CalcResult calc(JdTt jd, Body body, CalcFlags flags) {
+    _checkOpen();
+    return marshal.calc(_handle, jd.value, body.rawValue, flags.value);
+  }
+
+  /// Counterpart: swisseph::Ephemeris::calc_with_config
+  CalcResult calcWithConfig(
+    JdTt jd,
+    Body body,
+    CalcFlags flags,
+    EphemerisConfig config,
+  ) {
+    _checkOpen();
+    return marshal.calcWithConfig(
+      _handle,
+      jd.value,
+      body.rawValue,
+      flags.value,
+      config,
+    );
+  }
+
+  /// Counterpart: swisseph::Ephemeris::calc_pctr
+  CalcResult calcPctr(JdTt jd, Body body, Body center, CalcFlags flags) {
+    _checkOpen();
+    return marshal.calcPctr(
+      _handle,
+      jd.value,
+      body.rawValue,
+      center.rawValue,
+      flags.value,
+    );
+  }
+
   /// Counterpart: swisseph_ffi::swisseph_free
   ///
   /// Release the native handle. Idempotent; use-after-close throws
