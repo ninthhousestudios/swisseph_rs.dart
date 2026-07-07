@@ -24,6 +24,16 @@ the Rust source under this rule, **update `api-surface.md`** with whatever
 was missing or wrong before moving on, so the next session doesn't need to
 make the same trip.
 
+## Binding implementation guide
+
+`docs/binding-patterns.md` — layer sequence, agreement classes, oracle
+statefulness, Moshier limitations, config marshaling duplication threshold,
+and oracle flag naming gotchas. Read this before implementing any binding
+task (/28–/34).
+
+Ephemeris files: `ephe/` symlink → `../swisseph-rs/ephe`. Run Swiss-file
+tests with `SWE_EPHE_PATH=ephe dart test`.
+
 ## Invariants (enforcement-ledger bucket c — reviewed, not machine-checked)
 
 ### API discipline
