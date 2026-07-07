@@ -107,3 +107,29 @@ final class UnknownSweException extends SweException {
   final int code;
   const UnknownSweException(this.code, super.message);
 }
+
+/// Construct a typed [SweException] from an FFI error code and message.
+///
+/// Codes match `swisseph-ffi/src/error.rs::SweErrorCode`.
+SweException exceptionFromCode(int code, String message) => switch (code) {
+  -1 => InvalidBodyException(message),
+  -2 => UnsupportedFlagsException(message),
+  -3 => InvalidHouseSystemException(message),
+  -4 => InvalidSiderealModeException(message),
+  -5 => InvalidCalendarTypeException(message),
+  -6 => InvalidDateException(message),
+  -7 => EphemerisNotAvailableException(message),
+  -8 => BeyondEphemerisLimitsException(message),
+  -9 => FileNotFoundException(message),
+  -10 => FileFormatException(message),
+  -11 => CircumpolarBodyException(message),
+  -12 => InvalidTimeException(message),
+  -13 => InvalidLeapSecondException(message),
+  -14 => UnsupportedEphemerisException(message),
+  -15 => SiderealModeRequiresFixedStarsException(message),
+  -16 => CErrorException(message),
+  -90 => EnginePanicException(message),
+  -91 => InvalidArgException(message),
+  -99 => InternalException(message),
+  _ => UnknownSweException(code, message),
+};
