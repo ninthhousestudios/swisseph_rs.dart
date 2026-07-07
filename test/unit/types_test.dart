@@ -271,6 +271,16 @@ void main() {
       expect(dt2.day, 15);
     });
 
+    test('pre-Gregorian date round-trips (proleptic Gregorian)', () {
+      final dt = DateTime.utc(1500, 1, 1, 12, 0, 0);
+      final jd = dt.toJdUt1();
+      final dt2 = jd.toDateTime();
+      expect(dt2.year, 1500);
+      expect(dt2.month, 1);
+      expect(dt2.day, 1);
+      expect(dt2.hour, 12);
+    });
+
     test('midnight vs noon', () {
       final midnight = DateTime.utc(2000, 1, 1, 0, 0, 0);
       final noon = DateTime.utc(2000, 1, 1, 12, 0, 0);

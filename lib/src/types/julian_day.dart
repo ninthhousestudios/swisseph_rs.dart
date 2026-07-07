@@ -23,13 +23,9 @@ extension type const JdUt1(double value) {
     final z = (value + 0.5).floor();
     final f = value + 0.5 - z;
 
-    int a;
-    if (z < 2299161) {
-      a = z;
-    } else {
-      final alpha = ((z - 1867216.25) / 36524.25).floor();
-      a = z + 1 + alpha - (alpha ~/ 4);
-    }
+    // Proleptic Gregorian — matches DateTime.toJdUt1() which is always Gregorian.
+    final alpha = ((z - 1867216.25) / 36524.25).floor();
+    final a = z + 1 + alpha - (alpha ~/ 4);
 
     final b = a + 1524;
     final c = ((b - 122.1) / 365.25).floor();
