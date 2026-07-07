@@ -179,16 +179,37 @@ enum SiderealMode {
 
 /// Counterpart: swisseph::types::PrecessionModel
 enum PrecessionModel {
+  /// Counterpart: swisseph::types::PrecessionModel::IAU1976
   iau1976(1),
+
+  /// Counterpart: swisseph::types::PrecessionModel::Laskar1986
   laskar1986(2),
+
+  /// Counterpart: swisseph::types::PrecessionModel::WillEpsLask
   willEpsLask(3),
+
+  /// Counterpart: swisseph::types::PrecessionModel::Williams1994
   williams1994(4),
+
+  /// Counterpart: swisseph::types::PrecessionModel::Simon1994
   simon1994(5),
+
+  /// Counterpart: swisseph::types::PrecessionModel::IAU2000
   iau2000(6),
+
+  /// Counterpart: swisseph::types::PrecessionModel::Bretagnon2003
   bretagnon2003(7),
+
+  /// Counterpart: swisseph::types::PrecessionModel::IAU2006
   iau2006(8),
+
+  /// Counterpart: swisseph::types::PrecessionModel::Vondrak2011
   vondrak2011(9),
+
+  /// Counterpart: swisseph::types::PrecessionModel::Owen1990
   owen1990(10),
+
+  /// Counterpart: swisseph::types::PrecessionModel::Newcomb
   newcomb(11);
 
   final int value;
@@ -197,10 +218,19 @@ enum PrecessionModel {
 
 /// Counterpart: swisseph::types::NutationModel
 enum NutationModel {
+  /// Counterpart: swisseph::types::NutationModel::IAU1980
   iau1980(1),
+
+  /// Counterpart: swisseph::types::NutationModel::IAUCorr1987
   iauCorr1987(2),
+
+  /// Counterpart: swisseph::types::NutationModel::IAU2000A
   iau2000A(3),
+
+  /// Counterpart: swisseph::types::NutationModel::IAU2000B
   iau2000B(4),
+
+  /// Counterpart: swisseph::types::NutationModel::Woolard
   woolard(5);
 
   final int value;
@@ -209,10 +239,19 @@ enum NutationModel {
 
 /// Counterpart: swisseph::types::DeltaTModel
 enum DeltaTModel {
+  /// Counterpart: swisseph::types::DeltaTModel::StephensonMorrison1984
   stephensonMorrison1984(1),
+
+  /// Counterpart: swisseph::types::DeltaTModel::Stephenson1997
   stephenson1997(2),
+
+  /// Counterpart: swisseph::types::DeltaTModel::StephensonMorrison2004
   stephensonMorrison2004(3),
+
+  /// Counterpart: swisseph::types::DeltaTModel::EspenakMeeus2006
   espenakMeeus2006(4),
+
+  /// Counterpart: swisseph::types::DeltaTModel::StephensonEtc2016
   stephensonEtc2016(5);
 
   final int value;
@@ -221,9 +260,16 @@ enum DeltaTModel {
 
 /// Counterpart: swisseph::types::SiderealTimeModel
 enum SiderealTimeModel {
+  /// Counterpart: swisseph::types::SiderealTimeModel::IAU1976
   iau1976(1),
+
+  /// Counterpart: swisseph::types::SiderealTimeModel::IAU2006
   iau2006(2),
+
+  /// Counterpart: swisseph::types::SiderealTimeModel::IersConv2010
   iersConv2010(3),
+
+  /// Counterpart: swisseph::types::SiderealTimeModel::Longterm
   longterm(4);
 
   final int value;
@@ -232,8 +278,13 @@ enum SiderealTimeModel {
 
 /// Counterpart: swisseph::types::BiasModel
 enum BiasModel {
+  /// Counterpart: swisseph::types::BiasModel::None
   none(1),
+
+  /// Counterpart: swisseph::types::BiasModel::IAU2000
   iau2000(2),
+
+  /// Counterpart: swisseph::types::BiasModel::IAU2006
   iau2006(3);
 
   final int value;
@@ -242,6 +293,7 @@ enum BiasModel {
 
 /// Counterpart: swisseph::types::JplHorMode
 enum JplHorMode {
+  /// Counterpart: swisseph::types::JplHorMode::LongAgreement
   longAgreement(1);
 
   final int value;
@@ -250,8 +302,13 @@ enum JplHorMode {
 
 /// Counterpart: swisseph::types::JplHoraMode
 enum JplHoraMode {
+  /// Counterpart: swisseph::types::JplHoraMode::V1
   v1(1),
+
+  /// Counterpart: swisseph::types::JplHoraMode::V2
   v2(2),
+
+  /// Counterpart: swisseph::types::JplHoraMode::V3
   v3(3);
 
   final int value;

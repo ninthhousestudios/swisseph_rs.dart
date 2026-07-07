@@ -92,12 +92,12 @@ final class EnginePanicException extends SweException {
   const EnginePanicException(super.message);
 }
 
-/// SweErrorCode::InvalidArg (FFI-layer validation)
+/// Counterpart: swisseph_ffi::SweErrorCode::InvalidArg
 final class InvalidArgException extends SweException {
   const InvalidArgException(super.message);
 }
 
-/// SweErrorCode::Internal (FFI-layer internal error)
+/// Counterpart: swisseph_ffi::SweErrorCode::Internal
 final class InternalException extends SweException {
   const InternalException(super.message);
 }
@@ -108,8 +108,9 @@ final class UnknownSweException extends SweException {
   const UnknownSweException(this.code, super.message);
 }
 
-/// Construct a typed [SweException] from an FFI error code and message.
+/// Counterpart: swisseph_ffi::SweErrorCode (dispatch)
 ///
+/// Construct a typed [SweException] from an FFI error code and message.
 /// Codes match `swisseph-ffi/src/error.rs::SweErrorCode`.
 SweException exceptionFromCode(int code, String message) => switch (code) {
   -1 => InvalidBodyException(message),

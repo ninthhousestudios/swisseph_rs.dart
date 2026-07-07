@@ -44,6 +44,8 @@ final class Ephemeris implements Finalizable {
     );
   }
 
+  /// Counterpart: swisseph_ffi::swisseph_free
+  ///
   /// Release the native handle. Idempotent; use-after-close throws
   /// [StateError]. A [NativeFinalizer] backstop ensures cleanup if this
   /// method is never called.

@@ -25,4 +25,7 @@ const oracleMap = <String, OracleEntry>{
   'engineVersion': OracleEntry.engineTrusted(
     'reports Rust engine version; no oracle comparison',
   ),
+  'exceptionFromCode': OracleEntry.engineTrusted(
+    'error-code dispatch; tested by unit tests',
+  ),
 };

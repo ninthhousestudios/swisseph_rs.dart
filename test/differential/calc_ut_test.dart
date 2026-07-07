@@ -1,0 +1,144 @@
+import 'package:swisseph/swisseph.dart' as swe;
+import 'package:swisseph_rs/swisseph_rs.dart';
+import 'package:test/test.dart';
+
+import 'src/agreement.dart';
+import 'src/oracle.dart';
+
+const _calcResultFields = {
+  'longitude',
+  'latitude',
+  'distance',
+  'longitudeSpeed',
+  'latitudeSpeed',
+  'distanceSpeed',
+};
+
+final _calcUtSpec = ComparisonSpec<CalcResult, OracleCalcResult>([
+  FieldPairSpec(
+    'longitude',
+    (r) => r.longitude,
+    (o) => o.longitude,
+    AgreementClass.positional,
+  ),
+  FieldPairSpec(
+    'latitude',
+    (r) => r.latitude,
+    (o) => o.latitude,
+    AgreementClass.positional,
+  ),
+  FieldPairSpec(
+    'distance',
+    (r) => r.distance,
+    (o) => o.distance,
+    AgreementClass.positional,
+  ),
+  FieldPairSpec(
+    'longitudeSpeed',
+    (r) => r.longitudeSpeed,
+    (o) => o.longitudeSpeed,
+    AgreementClass.positional,
+  ),
+  FieldPairSpec(
+    'latitudeSpeed',
+    (r) => r.latitudeSpeed,
+    (o) => o.latitudeSpeed,
+    AgreementClass.positional,
+  ),
+  FieldPairSpec(
+    'distanceSpeed',
+    (r) => r.distanceSpeed,
+    (o) => o.distanceSpeed,
+    AgreementClass.positional,
+  ),
+], _calcResultFields);
+
+void main() {
+  late Ephemeris eph;
+  late Oracle oracle;
+
+  setUpAll(() {
+    eph = Ephemeris(const EphemerisConfig());
+    oracle = Oracle();
+  });
+
+  tearDownAll(() {
+    eph.close();
+    oracle.close();
+  });
+
+  group('Direct mapping: calcUt', () {
+    test('Sun at J2000 epoch (Moshier)', () {
+      const jd = JdUt1(2451545.0);
+      final actual = eph.calcUt(jd, Body.sun, CalcFlags.speed);
+      final expected = oracle.calcUt(jd.value, swe.seSun, swe.seFlgSpeed);
+      _calcUtSpec.compare(actual, expected);
+    });
+
+    test('Moon at J2000 epoch (Moshier)', () {
+      const jd = JdUt1(2451545.0);
+      final actual = eph.calcUt(jd, Body.moon, CalcFlags.speed);
+      final expected = oracle.calcUt(jd.value, swe.seMoon, swe.seFlgSpeed);
+      _calcUtSpec.compare(actual, expected);
+    });
+
+    test('Mars at arbitrary date (Moshier)', () {
+      const jd = JdUt1(2460000.5);
+      final actual = eph.calcUt(jd, Body.mars, CalcFlags.speed);
+      final expected = oracle.calcUt(jd.value, swe.seMars, swe.seFlgSpeed);
+      _calcUtSpec.compare(actual, expected);
+    });
+  });
+
+  group('Composite mapping: calcUtWithConfig', () {
+    test('sidereal Lahiri Sun at J2000 (Moshier)', () {
+      const jd = JdUt1(2451545.0);
+
+      final actual = eph.calcUtWithConfig(
+        jd,
+        Body.sun,
+        CalcFlags.speed | CalcFlags.sidereal,
+        const EphemerisConfig(siderealMode: SiderealMode.lahiri),
+      );
+
+      final expected = oracle.calcUtSidereal(
+        jd.value,
+        swe.seSun,
+        swe.seFlgSpeed,
+        swe.seSidmLahiri,
+      );
+
+      _calcUtSpec.compare(actual, expected);
+    });
+
+    test('sidereal FaganBradley Moon at arbitrary date (Moshier)', () {
+      const jd = JdUt1(2460000.5);
+
+      final actual = eph.calcUtWithConfig(
+        jd,
+        Body.moon,
+        CalcFlags.speed | CalcFlags.sidereal,
+        const EphemerisConfig(siderealMode: SiderealMode.faganBradley),
+      );
+
+      final expected = oracle.calcUtSidereal(
+        jd.value,
+        swe.seMoon,
+        swe.seFlgSpeed,
+        swe.seSidmFaganBradley,
+      );
+
+      _calcUtSpec.compare(actual, expected);
+    });
+  });
+
+  group('Agreement-class enforcement', () {
+    test('unclassified field throws StateError', () {
+      final spec = ComparisonSpec<double, double>(
+        [FieldPairSpec('a', (v) => v, (v) => v, AgreementClass.positional)],
+        {'a', 'b'},
+      );
+      expect(() => spec.compare(1.0, 1.0), throwsStateError);
+    });
+  });
+}

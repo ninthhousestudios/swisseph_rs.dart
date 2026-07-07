@@ -15,10 +15,10 @@ extension type const JdUt1(double value) {
   JdUt1 operator +(double days) => JdUt1(value + days);
   JdUt1 operator -(double days) => JdUt1(value - days);
 
-  /// Difference in days between two Julian Day values.
+  /// Counterpart: swisseph::JdUt1 (Sub, Output = f64)
   double difference(JdUt1 other) => value - other.value;
 
-  /// Convert to a UTC [DateTime] (Gregorian calendar, treats UT1 as UTC).
+  /// Counterpart: (systematic divergence: additive DateTime helper)
   DateTime toDateTime() {
     final z = (value + 0.5).floor();
     final f = value + 0.5 - z;
@@ -54,7 +54,7 @@ extension type const JdTt(double value) {
   JdTt operator +(double days) => JdTt(value + days);
   JdTt operator -(double days) => JdTt(value - days);
 
-  /// Difference in days between two Julian Day values.
+  /// Counterpart: swisseph::JdTt (Sub, Output = f64)
   double difference(JdTt other) => value - other.value;
 }
 

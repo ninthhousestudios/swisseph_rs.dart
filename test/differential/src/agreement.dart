@@ -52,31 +52,31 @@ void expectAgreement(
   }
 }
 
-typedef FieldExtractor<T> = double Function(T);
-
-class FieldSpec<T> {
+class FieldPairSpec<A, E> {
   final String name;
-  final FieldExtractor<T> extract;
+  final double Function(A) extractActual;
+  final double Function(E) extractExpected;
   final AgreementClass cls;
   final double? tolerance;
   final String? boundaryArtifact;
 
-  const FieldSpec(
+  const FieldPairSpec(
     this.name,
-    this.extract,
+    this.extractActual,
+    this.extractExpected,
     this.cls, {
     this.tolerance,
     this.boundaryArtifact,
   });
 }
 
-class ComparisonSpec<T> {
-  final List<FieldSpec<T>> _fields;
+class ComparisonSpec<A, E> {
+  final List<FieldPairSpec<A, E>> _fields;
   final Set<String> _allFieldNames;
 
-  ComparisonSpec(this._fields, this._allFieldNames);
+  const ComparisonSpec(this._fields, this._allFieldNames);
 
-  void compare(T actual, T expected) {
+  void compare(A actual, E expected) {
     final classified = {for (final f in _fields) f.name};
     final unclassified = _allFieldNames.difference(classified);
     if (unclassified.isNotEmpty) {
@@ -85,8 +85,8 @@ class ComparisonSpec<T> {
     for (final field in _fields) {
       expectAgreement(
         field.name,
-        field.extract(actual),
-        field.extract(expected),
+        field.extractActual(actual),
+        field.extractExpected(expected),
         field.cls,
         tolerance: field.tolerance,
         boundaryArtifact: field.boundaryArtifact,
