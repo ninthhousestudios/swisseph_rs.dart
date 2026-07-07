@@ -34,7 +34,7 @@ test-asserted, pointed at its implementing task.
 | 15 | "every compared value in exactly one agreement class; unclassified comparisons… fail by design" | Testing Decisions | (d) | Harness self-check | test (/26) |
 | 16 | No silent tolerance loosening — every boundary-class use names its documented artifact | Testing Decisions | (c) | CLAUDE.md invariant; R2 review focus | routed → CLAUDE.md |
 | 17 | No import cycles in package source | skill default | (a) | `no_cycles` on lib/src | **live** (bound /21) |
-| 18 | Fan-in guardrail on lib/src | skill default | (b) | `max_fan_in`, threshold from observed data | deferred (at R1 tend, /25; revisit at R2 tend, /35) |
+| 18 | Fan-in guardrail on lib/src | skill default | (a) | `max_fan_in` threshold=8 (observed max=5, ~60% headroom) | **live** (bound /25; revisit threshold at R2 tend, /35) |
 | 19 | "same public API compiles and runs on web; only the loader seam differs" | Impl./Testing | (d) | Web test leg | test (/37) |
 | 20 | "peak RSS bounded consistent with ONE loaded engine" | Testing Decisions | (d) | Stress test | test (/38) |
 | 21 | libaditya 545-value dataset green | Testing Decisions | (d) | Dataset runner in standard test invocation | test (/39) |
@@ -66,6 +66,14 @@ Live constraints: **6** (rows 3, 6, 7, 17). All globs bind ≥1 file, 0
 violations. Platform-seam constraint (row 7) is expressible in sutra's Dart
 import resolution — no fallback to bucket (c) needed. Remaining deferred:
 row 18 (fan-in, at R1 tend /25).
+
+## R1 tend verification (2026-07-07, /25)
+
+Live constraints: **7** (rows 3, 6, 7, 17, 18). All globs bind, 0
+violations. Row 18 (fan-in) fired: threshold=8 from observed max=5.
+Stated-vs-actual diff: all verifiable claims confirmed, no drift.
+Convention triage: 6 pending proposals dismissed (Dart language tautologies).
+No new emergent-structure constraints needed at this codebase size.
 
 ## Maintenance
 

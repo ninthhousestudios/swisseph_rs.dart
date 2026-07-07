@@ -74,20 +74,17 @@ severity = "blocking"
 provenance = "skill default (vidhi-sutra-seed)"
 
 # =============================================================================
-# TRIGGER: at R1 review / vidhi-sutra-tend (swisseph-rs-dart/25) — module
-# interiors exist; run initial convention triage (FCA has data), constrain
-# interiors while small, and set the max_fan_in threshold from observed
-# fan-in. Ledger row 18. Revisit the threshold at the R2 tend
-# (swisseph-rs-dart/35) when the full 63-method surface gives real data.
+# Bound at R1 tend (swisseph-rs-dart/25). Ledger row 18.
 # =============================================================================
 
-# Ledger row 18 — skill default: fan-in guardrail. Threshold intentionally
-# unset at seed time; needs observed data. Fill N at the R1 tend.
-#
-# [[constraint]]
-# kind = "max_fan_in"
-# name = "fan-in-guardrail"
-# scope = "lib/src/"
-# threshold = 0  # SET AT TEND — placeholder, do not uncomment with 0
-# severity = "blocking"
-# provenance = "skill default (vidhi-sutra-seed)"
+# Ledger row 18 — skill default: fan-in guardrail. Threshold set from
+# observed data at R1 tend: max observed fan-in = 5 (flags.dart), threshold
+# = 8 (~60% headroom). Revisit at R2 tend (/35) with full-surface data.
+
+[[constraint]]
+kind = "max_fan_in"
+name = "fan-in-guardrail"
+target = "lib/src/**"
+threshold = 8
+severity = "blocking"
+provenance = "skill default (vidhi-sutra-seed), bound checkpoint:swisseph-rs-dart/25"
