@@ -16,8 +16,14 @@ dependencies:
   code_assets: ^1.2.0
 
 dev_dependencies:
+  analyzer: ^14.0.0
   lints: ^6.0.0
+  swisseph:
+    path: ../swisseph.dart
   test: ^1.25.6
+
+dependency_overrides:
+  hooks: ^2.0.2
 
 hook:
   build:

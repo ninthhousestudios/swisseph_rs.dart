@@ -179,6 +179,55 @@ CalcResult calcUt(Pointer<Void> handle, double tjdUt, int ipl, int iflag) {
   });
 }
 
+/// Call `swisseph_calc_ut` with per-call config overrides.
+CalcResult calcUtWithConfig(
+  Pointer<Void> handle,
+  double tjdUt,
+  int ipl,
+  int iflag,
+  EphemerisConfig config,
+) {
+  final b = _ensureBindings();
+  return using((arena) {
+    final xx = arena<Double>(6);
+    final flagsUsed = arena<Int32>();
+    final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
+
+    Pointer<Double> geopos = nullptr;
+    if (config.topographic case final topo?) {
+      geopos = arena<Double>(3);
+      geopos[0] = topo.longitude;
+      geopos[1] = topo.latitude;
+      geopos[2] = topo.altitude;
+    }
+
+    Pointer<SweSidMode> sidMode = nullptr;
+    if (config.siderealMode != null) {
+      sidMode = arena<SweSidMode>();
+      var bits = config.siderealBits.value;
+      if (config.siderealT0IsUt) bits |= SiderealBits.userUt.value;
+      sidMode.ref.sidMode = config.siderealMode!.value | bits;
+      sidMode.ref.t0 = config.siderealT0;
+      sidMode.ref.ayanT0 = config.siderealAyanT0;
+    }
+
+    final code = b.swissephCalcUt(
+      handle,
+      tjdUt,
+      ipl,
+      iflag,
+      geopos,
+      sidMode,
+      xx,
+      flagsUsed,
+      errBuf,
+      _errBufSize,
+    );
+    _checkResult(code, errBuf);
+    return unmarshalCalcResult(xx, flagsUsed.value);
+  });
+}
+
 /// Read the engine version string from the native library.
 String engineVersion() {
   final ptr = _ensureBindings().swissephVersion();

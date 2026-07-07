@@ -27,6 +27,23 @@ final class Ephemeris implements Finalizable {
     return marshal.calcUt(_handle, jd.value, body.rawValue, flags.value);
   }
 
+  /// Counterpart: swisseph::Ephemeris::calc_ut_with_config
+  CalcResult calcUtWithConfig(
+    JdUt1 jd,
+    Body body,
+    CalcFlags flags,
+    EphemerisConfig config,
+  ) {
+    _checkOpen();
+    return marshal.calcUtWithConfig(
+      _handle,
+      jd.value,
+      body.rawValue,
+      flags.value,
+      config,
+    );
+  }
+
   /// Release the native handle. Idempotent; use-after-close throws
   /// [StateError]. A [NativeFinalizer] backstop ensures cleanup if this
   /// method is never called.
