@@ -195,12 +195,14 @@ final class Ephemeris implements Finalizable {
     double geoalt, {
     double atpress = 0,
     double attemp = 0,
+    String? starname,
   }) {
     _checkOpen();
     return marshal.gauquelinSector(
       _handle,
       jd.value,
       body.rawValue,
+      starname,
       flags.value,
       method,
       geolon,
@@ -208,6 +210,32 @@ final class Ephemeris implements Finalizable {
       geoalt,
       atpress,
       attemp,
+    );
+  }
+
+  /// Counterpart: swisseph::Ephemeris::gauquelin_sector_geometric
+  double gauquelinSectorGeometric(
+    JdUt1 jd,
+    Body body,
+    CalcFlags flags,
+    int method,
+    double geolon,
+    double geolat, {
+    String? starname,
+  }) {
+    _checkOpen();
+    return marshal.gauquelinSector(
+      _handle,
+      jd.value,
+      body.rawValue,
+      starname,
+      flags.value,
+      method,
+      geolon,
+      geolat,
+      0,
+      0,
+      0,
     );
   }
 
@@ -320,9 +348,16 @@ HouseResult housesArmc(
   double armc,
   double geolat,
   double eps,
-  HouseSystem hsys,
-) {
-  return marshal.housesArmcEx2(armc, geolat, eps, hsys.charCode);
+  HouseSystem hsys, {
+  double? sundec,
+}) {
+  return marshal.housesArmcEx2(
+    armc,
+    geolat,
+    eps,
+    hsys.charCode,
+    sundec: sundec,
+  );
 }
 
 /// Counterpart: swisseph::houses::house_pos
@@ -332,9 +367,18 @@ double housePos(
   double eps,
   HouseSystem hsys,
   double bodyLon,
-  double bodyLat,
-) {
-  return marshal.housePos(armc, geolat, eps, hsys.charCode, bodyLon, bodyLat);
+  double bodyLat, {
+  double? sundec,
+}) {
+  return marshal.housePos(
+    armc,
+    geolat,
+    eps,
+    hsys.charCode,
+    bodyLon,
+    bodyLat,
+    sundec: sundec,
+  );
 }
 
 /// Counterpart: swisseph::types::HouseSystem::name

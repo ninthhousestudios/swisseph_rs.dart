@@ -481,7 +481,11 @@ UtcComponents jdut1ToUtc(Pointer<Void> handle, double tjdUt, int gregflag) {
 
 /// Call `swisseph_deltat`.
 double deltaT(Pointer<Void> handle, double tjdUt) {
-  return swissephDeltat(handle, tjdUt);
+  final result = swissephDeltat(handle, tjdUt);
+  if (result.isNaN) {
+    throw exceptionFromCode(-1, 'swisseph_deltat returned NaN');
+  }
+  return result;
 }
 
 /// Call `swisseph_time_equ`.
@@ -633,19 +637,28 @@ HouseResult housesEx2(
 }
 
 /// Call `swisseph_houses_armc_ex2` (handle-free) and return a [HouseResult].
-HouseResult housesArmcEx2(double armc, double geolat, double eps, int hsys) {
+HouseResult housesArmcEx2(
+  double armc,
+  double geolat,
+  double eps,
+  int hsys, {
+  double? sundec,
+}) {
   return using((arena) {
     final cusps = arena<Double>(37);
     final ascmc = arena<Double>(10);
     final cuspSpeed = arena<Double>(37);
     final ascmcSpeed = arena<Double>(10);
+    final Pointer<Double> sundecPtr = sundec != null
+        ? (arena<Double>()..value = sundec)
+        : nullptr;
     final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
     final code = swissephHousesArmcEx2(
       armc,
       geolat,
       eps,
       hsys,
-      nullptr, // sundec
+      sundecPtr,
       cusps,
       ascmc,
       cuspSpeed,
@@ -670,12 +683,16 @@ double housePos(
   double eps,
   int hsys,
   double bodyLon,
-  double bodyLat,
-) {
+  double bodyLat, {
+  double? sundec,
+}) {
   return using((arena) {
     final xpin = arena<Double>(2);
     xpin[0] = bodyLon;
     xpin[1] = bodyLat;
+    final Pointer<Double> sundecPtr = sundec != null
+        ? (arena<Double>()..value = sundec)
+        : nullptr;
     final hpos = arena<Double>();
     final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
     final code = swissephHousePos(
@@ -684,7 +701,7 @@ double housePos(
       eps,
       hsys,
       xpin,
-      nullptr, // sundec
+      sundecPtr,
       hpos,
       errBuf,
       _errBufSize,
@@ -710,6 +727,7 @@ double gauquelinSector(
   Pointer<Void> handle,
   double tjdUt,
   int ipl,
+  String? starname,
   int iflag,
   int imeth,
   double geolon,
@@ -723,13 +741,16 @@ double gauquelinSector(
     geopos[0] = geolon;
     geopos[1] = geolat;
     geopos[2] = geoalt;
+    final Pointer<Utf8> starnamePtr = starname != null
+        ? starname.toNativeUtf8(allocator: arena)
+        : nullptr;
     final dgsect = arena<Double>();
     final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
     final code = swissephGauquelinSector(
       handle,
       tjdUt,
       ipl,
-      nullptr, // starname (null for planets)
+      starnamePtr,
       iflag,
       imeth,
       geopos,

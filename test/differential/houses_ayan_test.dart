@@ -91,12 +91,7 @@ void main() {
   // -----------------------------------------------------------------------
 
   group('houses', () {
-    for (final hsys in [
-      HouseSystem.placidus,
-      HouseSystem.koch,
-      HouseSystem.wholeSign,
-      HouseSystem.equal,
-    ]) {
+    for (final hsys in HouseSystem.values) {
       test('${hsys.name} at Berlin', () {
         final actual = eph.houses(j2000Ut, berlinLat, berlinLon, hsys);
         final expected = oracle.houses(
@@ -120,10 +115,20 @@ void main() {
       });
     }
 
-    // Polar-latitude tests only for systems that don't fall back to Porphyry.
-    // Placidus and Koch trigger a polar-circle fallback that the oracle
-    // library treats as a fatal error (return code -1).
-    for (final hsys in [HouseSystem.wholeSign, HouseSystem.equal]) {
+    // Systems that work at all latitudes (no MC/ASC trisection).
+    const polarSafe = {
+      HouseSystem.wholeSign,
+      HouseSystem.equal,
+      HouseSystem.equalMC,
+      HouseSystem.equalAries,
+      HouseSystem.morinus,
+      HouseSystem.vehlow,
+      HouseSystem.meridian,
+      HouseSystem.apc,
+      HouseSystem.porphyry,
+    };
+
+    for (final hsys in polarSafe) {
       test('${hsys.name} at polar latitude', () {
         final actual = eph.houses(j2000Ut, polarLat, polarLon, hsys);
         final expected = oracle.houses(
@@ -144,6 +149,32 @@ void main() {
           'ascmc',
           AgreementClass.positional,
         );
+      });
+    }
+
+    // Systems that fall back to Porphyry at polar latitudes. The oracle
+    // (swisseph.dart) may throw on the fallback (return code -1). Verify
+    // the engine either succeeds or throws a typed exception — never
+    // returns garbage.
+    final polarProblematic = HouseSystem.values
+        .where((h) => !polarSafe.contains(h))
+        .toList();
+
+    for (final hsys in polarProblematic) {
+      test('${hsys.name} at polar latitude (no crash)', () {
+        try {
+          final actual = eph.houses(j2000Ut, polarLat, polarLon, hsys);
+          // Engine succeeded (Porphyry fallback) — cusps should be finite.
+          for (var i = 1; i < actual.cusps.length; i++) {
+            expect(
+              actual.cusps[i].isFinite,
+              isTrue,
+              reason: 'cusp[$i] should be finite',
+            );
+          }
+        } on SweException {
+          // Typed exception is acceptable for documented polar failures.
+        }
       });
     }
   });
@@ -455,6 +486,58 @@ void main() {
       );
       expectAgreement(
         'gauquelinSector',
+        actual,
+        expected,
+        AgreementClass.positional,
+      );
+    });
+  });
+
+  group('gauquelinSectorGeometric', () {
+    test('Sun geometric (method=0) at Berlin', () {
+      final actual = eph.gauquelinSectorGeometric(
+        j2000Ut,
+        Body.sun,
+        CalcFlags.none,
+        0,
+        berlinLon,
+        berlinLat,
+      );
+      final expected = oracle.gauquelinSector(
+        j2000Ut.value,
+        swe.seSun,
+        0,
+        0,
+        geolon: berlinLon,
+        geolat: berlinLat,
+      );
+      expectAgreement(
+        'gauquelinSectorGeometric',
+        actual,
+        expected,
+        AgreementClass.positional,
+      );
+    });
+
+    test('Sun geometric (method=1, no ecliptic lat) at Berlin', () {
+      final actual = eph.gauquelinSectorGeometric(
+        j2000Ut,
+        Body.sun,
+        CalcFlags.none,
+        1,
+        berlinLon,
+        berlinLat,
+      );
+      final expected = oracle.gauquelinSector(
+        j2000Ut.value,
+        swe.seSun,
+        0,
+        1,
+        geolon: berlinLon,
+        geolat: berlinLat,
+      );
+      expectAgreement(
+        'gauquelinSectorGeometric',
         actual,
         expected,
         AgreementClass.positional,

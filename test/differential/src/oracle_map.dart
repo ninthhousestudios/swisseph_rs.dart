@@ -53,6 +53,7 @@ const oracleMap = <String, OracleEntry>{
   'Ephemeris.houses': OracleEntry.direct(),
   'Ephemeris.housesEx2': OracleEntry.direct(),
   'Ephemeris.gauquelinSector': OracleEntry.direct(),
+  'Ephemeris.gauquelinSectorGeometric': OracleEntry.direct(),
   'Ephemeris.getAyanamsaEx': OracleEntry.composite(),
   'Ephemeris.getAyanamsaExWithConfig': OracleEntry.composite(),
   'Ephemeris.getAyanamsaUt': OracleEntry.composite(),
