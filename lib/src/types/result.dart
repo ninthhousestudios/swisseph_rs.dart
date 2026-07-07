@@ -124,3 +124,242 @@ final class HouseResult {
     required this.ascmcSpeeds,
   });
 }
+
+// ---------------------------------------------------------------------------
+// Eclipse & occultation result types
+// ---------------------------------------------------------------------------
+
+/// Counterpart: swisseph::eclipse::EclipseHow
+final class EclipseHow {
+  final double magnitude;
+  final double diameterRatio;
+  final double obscuration;
+  final double coreDiameterKm;
+  final double azimuth;
+  final double trueAltitude;
+  final double apparentAltitude;
+  final double elongation;
+  final double nasaMagnitude;
+  final double sarosSeries;
+  final double sarosMember;
+  final EclipseFlags flags;
+
+  const EclipseHow({
+    required this.magnitude,
+    required this.diameterRatio,
+    required this.obscuration,
+    required this.coreDiameterKm,
+    required this.azimuth,
+    required this.trueAltitude,
+    required this.apparentAltitude,
+    required this.elongation,
+    required this.nasaMagnitude,
+    required this.sarosSeries,
+    required this.sarosMember,
+    required this.flags,
+  });
+}
+
+/// Counterpart: swisseph::eclipse::EclipseWhere
+final class EclipseWhere {
+  final double centralLongitude;
+  final double centralLatitude;
+  final double coreDiameterKm;
+  final double penumbraDiameterKm;
+  final double shadowAxisDistanceKm;
+  final double umbraDiameterFundamentalKm;
+  final double penumbraDiameterFundamentalKm;
+  final double cosUmbraHalfAngle;
+  final double cosPenumbraHalfAngle;
+  final EclipseFlags flags;
+
+  const EclipseWhere({
+    required this.centralLongitude,
+    required this.centralLatitude,
+    required this.coreDiameterKm,
+    required this.penumbraDiameterKm,
+    required this.shadowAxisDistanceKm,
+    required this.umbraDiameterFundamentalKm,
+    required this.penumbraDiameterFundamentalKm,
+    required this.cosUmbraHalfAngle,
+    required this.cosPenumbraHalfAngle,
+    required this.flags,
+  });
+}
+
+/// Counterpart: swisseph::eclipse::SolarEclipseGlobal
+final class SolarEclipseGlobal {
+  final double timeMaximum;
+  final double timeRaConjunction;
+  final double timeBegin;
+  final double timeEnd;
+  final double timeTotalityBegin;
+  final double timeTotalityEnd;
+  final double timeCenterlineBegin;
+  final double timeCenterlineEnd;
+  final EclipseFlags flags;
+
+  const SolarEclipseGlobal({
+    required this.timeMaximum,
+    required this.timeRaConjunction,
+    required this.timeBegin,
+    required this.timeEnd,
+    required this.timeTotalityBegin,
+    required this.timeTotalityEnd,
+    required this.timeCenterlineBegin,
+    required this.timeCenterlineEnd,
+    required this.flags,
+  });
+}
+
+/// Counterpart: swisseph::eclipse::SolarEclipseLocal
+final class SolarEclipseLocal {
+  final double timeMaximum;
+  final double timeFirstContact;
+  final double timeSecondContact;
+  final double timeThirdContact;
+  final double timeFourthContact;
+  final double timeSunrise;
+  final double timeSunset;
+  final EclipseHow attr;
+  final EclipseFlags flags;
+
+  const SolarEclipseLocal({
+    required this.timeMaximum,
+    required this.timeFirstContact,
+    required this.timeSecondContact,
+    required this.timeThirdContact,
+    required this.timeFourthContact,
+    required this.timeSunrise,
+    required this.timeSunset,
+    required this.attr,
+    required this.flags,
+  });
+}
+
+/// Counterpart: swisseph::eclipse::LunarEclipseHow
+final class LunarEclipseHow {
+  final double umbralMagnitude;
+  final double penumbralMagnitude;
+  final double azimuth;
+  final double trueAltitude;
+  final double apparentAltitude;
+  final double distanceFromOpposition;
+  final double sarosSeries;
+  final double sarosMember;
+  final EclipseFlags flags;
+
+  const LunarEclipseHow({
+    required this.umbralMagnitude,
+    required this.penumbralMagnitude,
+    required this.azimuth,
+    required this.trueAltitude,
+    required this.apparentAltitude,
+    required this.distanceFromOpposition,
+    required this.sarosSeries,
+    required this.sarosMember,
+    required this.flags,
+  });
+}
+
+/// Counterpart: swisseph::eclipse::LunarEclipseGlobal
+final class LunarEclipseGlobal {
+  final double timeMaximum;
+  final double timePartialBegin;
+  final double timePartialEnd;
+  final double timeTotalityBegin;
+  final double timeTotalityEnd;
+  final double timePenumbralBegin;
+  final double timePenumbralEnd;
+  final EclipseFlags flags;
+
+  const LunarEclipseGlobal({
+    required this.timeMaximum,
+    required this.timePartialBegin,
+    required this.timePartialEnd,
+    required this.timeTotalityBegin,
+    required this.timeTotalityEnd,
+    required this.timePenumbralBegin,
+    required this.timePenumbralEnd,
+    required this.flags,
+  });
+}
+
+/// Counterpart: swisseph::eclipse::LunarEclipseLocal
+final class LunarEclipseLocal {
+  final double timeMaximum;
+  final double timePartialBegin;
+  final double timePartialEnd;
+  final double timeTotalityBegin;
+  final double timeTotalityEnd;
+  final double timePenumbralBegin;
+  final double timePenumbralEnd;
+  final double timeMoonrise;
+  final double timeMoonset;
+  final LunarEclipseHow attr;
+  final EclipseFlags flags;
+
+  const LunarEclipseLocal({
+    required this.timeMaximum,
+    required this.timePartialBegin,
+    required this.timePartialEnd,
+    required this.timeTotalityBegin,
+    required this.timeTotalityEnd,
+    required this.timePenumbralBegin,
+    required this.timePenumbralEnd,
+    required this.timeMoonrise,
+    required this.timeMoonset,
+    required this.attr,
+    required this.flags,
+  });
+}
+
+/// Counterpart: swisseph::eclipse::OccultGlobal
+final class OccultGlobal {
+  final double timeMaximum;
+  final double timeRaConjunction;
+  final double timeBegin;
+  final double timeEnd;
+  final double timeTotalityBegin;
+  final double timeTotalityEnd;
+  final double timeCenterlineBegin;
+  final double timeCenterlineEnd;
+  final EclipseFlags flags;
+
+  const OccultGlobal({
+    required this.timeMaximum,
+    required this.timeRaConjunction,
+    required this.timeBegin,
+    required this.timeEnd,
+    required this.timeTotalityBegin,
+    required this.timeTotalityEnd,
+    required this.timeCenterlineBegin,
+    required this.timeCenterlineEnd,
+    required this.flags,
+  });
+}
+
+/// Counterpart: swisseph::eclipse::OccultLocal
+final class OccultLocal {
+  final double timeMaximum;
+  final double timeFirstContact;
+  final double timeSecondContact;
+  final double timeThirdContact;
+  final double timeFourthContact;
+  final double timeRise;
+  final double timeSet;
+  final EclipseHow attr;
+  final EclipseFlags flags;
+
+  const OccultLocal({
+    required this.timeMaximum,
+    required this.timeFirstContact,
+    required this.timeSecondContact,
+    required this.timeThirdContact,
+    required this.timeFourthContact,
+    required this.timeRise,
+    required this.timeSet,
+    required this.attr,
+    required this.flags,
+  });
+}

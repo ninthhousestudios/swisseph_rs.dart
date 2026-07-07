@@ -870,3 +870,422 @@ String getAyanamsaName(int sidModeRaw) {
     return buf.toDartString();
   });
 }
+
+// ---------------------------------------------------------------------------
+// Eclipses & occultations
+// ---------------------------------------------------------------------------
+
+EclipseHow _unmarshalEclipseHow(Pointer<Double> attr, EclipseFlags flags) {
+  return EclipseHow(
+    magnitude: attr[0],
+    diameterRatio: attr[1],
+    obscuration: attr[2],
+    coreDiameterKm: attr[3],
+    azimuth: attr[4],
+    trueAltitude: attr[5],
+    apparentAltitude: attr[6],
+    elongation: attr[7],
+    nasaMagnitude: attr[8],
+    sarosSeries: attr[9],
+    sarosMember: attr[10],
+    flags: flags,
+  );
+}
+
+LunarEclipseHow _unmarshalLunarEclipseHow(
+  Pointer<Double> attr,
+  EclipseFlags flags,
+) {
+  return LunarEclipseHow(
+    umbralMagnitude: attr[0],
+    penumbralMagnitude: attr[1],
+    azimuth: attr[4],
+    trueAltitude: attr[5],
+    apparentAltitude: attr[6],
+    distanceFromOpposition: attr[7],
+    sarosSeries: attr[9],
+    sarosMember: attr[10],
+    flags: flags,
+  );
+}
+
+SolarEclipseGlobal solEclipseWhenGlob(
+  Pointer<Void> handle,
+  double tjdStart,
+  int ifl,
+  int ifltype,
+  bool backward,
+) {
+  return using((arena) {
+    final tret = arena<Double>(10);
+    final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
+    final code = swissephSolEclipseWhenGlob(
+      handle,
+      tjdStart,
+      ifl,
+      ifltype,
+      backward ? 1 : 0,
+      tret,
+      errBuf,
+      _errBufSize,
+    );
+    _checkResult(code, errBuf);
+    return SolarEclipseGlobal(
+      timeMaximum: tret[0],
+      timeRaConjunction: tret[1],
+      timeBegin: tret[2],
+      timeEnd: tret[3],
+      timeTotalityBegin: tret[4],
+      timeTotalityEnd: tret[5],
+      timeCenterlineBegin: tret[6],
+      timeCenterlineEnd: tret[7],
+      flags: EclipseFlags(code),
+    );
+  });
+}
+
+SolarEclipseLocal solEclipseWhenLoc(
+  Pointer<Void> handle,
+  double tjdStart,
+  int ifl,
+  double geolon,
+  double geolat,
+  double geoalt,
+  bool backward,
+) {
+  return using((arena) {
+    final geopos = arena<Double>(3);
+    geopos[0] = geolon;
+    geopos[1] = geolat;
+    geopos[2] = geoalt;
+    final tret = arena<Double>(10);
+    final attr = arena<Double>(20);
+    final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
+    final code = swissephSolEclipseWhenLoc(
+      handle,
+      tjdStart,
+      ifl,
+      geopos,
+      backward ? 1 : 0,
+      tret,
+      attr,
+      errBuf,
+      _errBufSize,
+    );
+    _checkResult(code, errBuf);
+    final flags = EclipseFlags(code);
+    return SolarEclipseLocal(
+      timeMaximum: tret[0],
+      timeFirstContact: tret[1],
+      timeSecondContact: tret[2],
+      timeThirdContact: tret[3],
+      timeFourthContact: tret[4],
+      timeSunrise: tret[5],
+      timeSunset: tret[6],
+      attr: _unmarshalEclipseHow(attr, flags),
+      flags: flags,
+    );
+  });
+}
+
+EclipseWhere solEclipseWhere(Pointer<Void> handle, double tjdUt, int ifl) {
+  return using((arena) {
+    final geopos = arena<Double>(10);
+    final attr = arena<Double>(20);
+    final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
+    final code = swissephSolEclipseWhere(
+      handle,
+      tjdUt,
+      ifl,
+      geopos,
+      attr,
+      errBuf,
+      _errBufSize,
+    );
+    _checkResult(code, errBuf);
+    return EclipseWhere(
+      centralLongitude: geopos[0],
+      centralLatitude: geopos[1],
+      coreDiameterKm: geopos[2],
+      penumbraDiameterKm: geopos[3],
+      shadowAxisDistanceKm: geopos[4],
+      umbraDiameterFundamentalKm: geopos[5],
+      penumbraDiameterFundamentalKm: geopos[6],
+      cosUmbraHalfAngle: geopos[7],
+      cosPenumbraHalfAngle: geopos[8],
+      flags: EclipseFlags(code),
+    );
+  });
+}
+
+EclipseHow solEclipseHow(
+  Pointer<Void> handle,
+  double tjdUt,
+  int ifl,
+  double geolon,
+  double geolat,
+  double geoalt,
+) {
+  return using((arena) {
+    final geopos = arena<Double>(3);
+    geopos[0] = geolon;
+    geopos[1] = geolat;
+    geopos[2] = geoalt;
+    final attr = arena<Double>(20);
+    final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
+    final code = swissephSolEclipseHow(
+      handle,
+      tjdUt,
+      ifl,
+      geopos,
+      attr,
+      errBuf,
+      _errBufSize,
+    );
+    _checkResult(code, errBuf);
+    return _unmarshalEclipseHow(attr, EclipseFlags(code));
+  });
+}
+
+LunarEclipseHow lunEclipseHow(
+  Pointer<Void> handle,
+  double tjdUt,
+  int ifl,
+  double geolon,
+  double geolat,
+  double geoalt,
+) {
+  return using((arena) {
+    final geopos = arena<Double>(3);
+    geopos[0] = geolon;
+    geopos[1] = geolat;
+    geopos[2] = geoalt;
+    final attr = arena<Double>(20);
+    final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
+    final code = swissephLunEclipseHow(
+      handle,
+      tjdUt,
+      ifl,
+      geopos,
+      attr,
+      errBuf,
+      _errBufSize,
+    );
+    _checkResult(code, errBuf);
+    return _unmarshalLunarEclipseHow(attr, EclipseFlags(code));
+  });
+}
+
+LunarEclipseGlobal lunEclipseWhen(
+  Pointer<Void> handle,
+  double tjdStart,
+  int ifl,
+  int ifltype,
+  bool backward,
+) {
+  return using((arena) {
+    final tret = arena<Double>(10);
+    final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
+    final code = swissephLunEclipseWhen(
+      handle,
+      tjdStart,
+      ifl,
+      ifltype,
+      backward ? 1 : 0,
+      tret,
+      errBuf,
+      _errBufSize,
+    );
+    _checkResult(code, errBuf);
+    return LunarEclipseGlobal(
+      timeMaximum: tret[0],
+      timePartialBegin: tret[2],
+      timePartialEnd: tret[3],
+      timeTotalityBegin: tret[4],
+      timeTotalityEnd: tret[5],
+      timePenumbralBegin: tret[6],
+      timePenumbralEnd: tret[7],
+      flags: EclipseFlags(code),
+    );
+  });
+}
+
+LunarEclipseLocal lunEclipseWhenLoc(
+  Pointer<Void> handle,
+  double tjdStart,
+  int ifl,
+  double geolon,
+  double geolat,
+  double geoalt,
+  bool backward,
+) {
+  return using((arena) {
+    final geopos = arena<Double>(3);
+    geopos[0] = geolon;
+    geopos[1] = geolat;
+    geopos[2] = geoalt;
+    final tret = arena<Double>(10);
+    final attr = arena<Double>(20);
+    final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
+    final code = swissephLunEclipseWhenLoc(
+      handle,
+      tjdStart,
+      ifl,
+      geopos,
+      backward ? 1 : 0,
+      tret,
+      attr,
+      errBuf,
+      _errBufSize,
+    );
+    _checkResult(code, errBuf);
+    final flags = EclipseFlags(code);
+    return LunarEclipseLocal(
+      timeMaximum: tret[0],
+      timePartialBegin: tret[2],
+      timePartialEnd: tret[3],
+      timeTotalityBegin: tret[4],
+      timeTotalityEnd: tret[5],
+      timePenumbralBegin: tret[6],
+      timePenumbralEnd: tret[7],
+      timeMoonrise: tret[8],
+      timeMoonset: tret[9],
+      attr: _unmarshalLunarEclipseHow(attr, flags),
+      flags: flags,
+    );
+  });
+}
+
+EclipseWhere lunOccultWhere(
+  Pointer<Void> handle,
+  double tjdUt,
+  int ipl,
+  String? starname,
+  int ifl,
+) {
+  return using((arena) {
+    final geopos = arena<Double>(10);
+    final attr = arena<Double>(20);
+    final Pointer<Utf8> starnamePtr = starname != null
+        ? starname.toNativeUtf8(allocator: arena)
+        : nullptr;
+    final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
+    final code = swissephLunOccultWhere(
+      handle,
+      tjdUt,
+      ipl,
+      starnamePtr,
+      ifl,
+      geopos,
+      attr,
+      errBuf,
+      _errBufSize,
+    );
+    _checkResult(code, errBuf);
+    return EclipseWhere(
+      centralLongitude: geopos[0],
+      centralLatitude: geopos[1],
+      coreDiameterKm: geopos[2],
+      penumbraDiameterKm: geopos[3],
+      shadowAxisDistanceKm: geopos[4],
+      umbraDiameterFundamentalKm: geopos[5],
+      penumbraDiameterFundamentalKm: geopos[6],
+      cosUmbraHalfAngle: geopos[7],
+      cosPenumbraHalfAngle: geopos[8],
+      flags: EclipseFlags(code),
+    );
+  });
+}
+
+OccultGlobal lunOccultWhenGlob(
+  Pointer<Void> handle,
+  double tjdStart,
+  int ipl,
+  String? starname,
+  int ifl,
+  int ifltype,
+  bool backward,
+) {
+  return using((arena) {
+    final tret = arena<Double>(10);
+    final Pointer<Utf8> starnamePtr = starname != null
+        ? starname.toNativeUtf8(allocator: arena)
+        : nullptr;
+    final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
+    final code = swissephLunOccultWhenGlob(
+      handle,
+      tjdStart,
+      ipl,
+      starnamePtr,
+      ifl,
+      ifltype,
+      backward ? 1 : 0,
+      tret,
+      errBuf,
+      _errBufSize,
+    );
+    _checkResult(code, errBuf);
+    return OccultGlobal(
+      timeMaximum: tret[0],
+      timeRaConjunction: tret[1],
+      timeBegin: tret[2],
+      timeEnd: tret[3],
+      timeTotalityBegin: tret[4],
+      timeTotalityEnd: tret[5],
+      timeCenterlineBegin: tret[6],
+      timeCenterlineEnd: tret[7],
+      flags: EclipseFlags(code),
+    );
+  });
+}
+
+OccultLocal lunOccultWhenLoc(
+  Pointer<Void> handle,
+  double tjdStart,
+  int ipl,
+  String? starname,
+  int ifl,
+  double geolon,
+  double geolat,
+  double geoalt,
+  bool backward,
+) {
+  return using((arena) {
+    final geopos = arena<Double>(3);
+    geopos[0] = geolon;
+    geopos[1] = geolat;
+    geopos[2] = geoalt;
+    final tret = arena<Double>(10);
+    final attr = arena<Double>(20);
+    final Pointer<Utf8> starnamePtr = starname != null
+        ? starname.toNativeUtf8(allocator: arena)
+        : nullptr;
+    final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
+    final code = swissephLunOccultWhenLoc(
+      handle,
+      tjdStart,
+      ipl,
+      starnamePtr,
+      ifl,
+      geopos,
+      backward ? 1 : 0,
+      tret,
+      attr,
+      errBuf,
+      _errBufSize,
+    );
+    _checkResult(code, errBuf);
+    final flags = EclipseFlags(code);
+    return OccultLocal(
+      timeMaximum: tret[0],
+      timeFirstContact: tret[1],
+      timeSecondContact: tret[2],
+      timeThirdContact: tret[3],
+      timeFourthContact: tret[4],
+      timeRise: tret[5],
+      timeSet: tret[6],
+      attr: _unmarshalEclipseHow(attr, flags),
+      flags: flags,
+    );
+  });
+}

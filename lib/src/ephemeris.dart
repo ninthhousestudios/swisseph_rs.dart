@@ -283,6 +283,193 @@ final class Ephemeris implements Finalizable {
     _checkOpen();
     throw UnimplementedError('share not yet implemented');
   }
+
+  // -----------------------------------------------------------------------
+  // Eclipses & occultations
+  // -----------------------------------------------------------------------
+
+  /// Counterpart: swisseph::Ephemeris::sol_eclipse_when_glob
+  SolarEclipseGlobal solEclipseWhenGlob(
+    JdUt1 jdStart,
+    CalcFlags flags, {
+    EclipseFlags eclType = EclipseFlags.none,
+    bool backward = false,
+  }) {
+    _checkOpen();
+    return marshal.solEclipseWhenGlob(
+      _handle,
+      jdStart.value,
+      flags.value,
+      eclType.value,
+      backward,
+    );
+  }
+
+  /// Counterpart: swisseph::Ephemeris::sol_eclipse_when_loc
+  SolarEclipseLocal solEclipseWhenLoc(
+    JdUt1 jdStart,
+    CalcFlags flags, {
+    required double geolon,
+    required double geolat,
+    double geoalt = 0,
+    bool backward = false,
+  }) {
+    _checkOpen();
+    return marshal.solEclipseWhenLoc(
+      _handle,
+      jdStart.value,
+      flags.value,
+      geolon,
+      geolat,
+      geoalt,
+      backward,
+    );
+  }
+
+  /// Counterpart: swisseph::Ephemeris::sol_eclipse_where
+  EclipseWhere solEclipseWhere(JdUt1 jd, CalcFlags flags) {
+    _checkOpen();
+    return marshal.solEclipseWhere(_handle, jd.value, flags.value);
+  }
+
+  /// Counterpart: swisseph::Ephemeris::sol_eclipse_how
+  EclipseHow solEclipseHow(
+    JdUt1 jd,
+    CalcFlags flags, {
+    required double geolon,
+    required double geolat,
+    double geoalt = 0,
+  }) {
+    _checkOpen();
+    return marshal.solEclipseHow(
+      _handle,
+      jd.value,
+      flags.value,
+      geolon,
+      geolat,
+      geoalt,
+    );
+  }
+
+  /// Counterpart: swisseph::Ephemeris::lun_eclipse_how
+  LunarEclipseHow lunEclipseHow(
+    JdUt1 jd,
+    CalcFlags flags, {
+    required double geolon,
+    required double geolat,
+    double geoalt = 0,
+  }) {
+    _checkOpen();
+    return marshal.lunEclipseHow(
+      _handle,
+      jd.value,
+      flags.value,
+      geolon,
+      geolat,
+      geoalt,
+    );
+  }
+
+  /// Counterpart: swisseph::Ephemeris::lun_eclipse_when
+  LunarEclipseGlobal lunEclipseWhen(
+    JdUt1 jdStart,
+    CalcFlags flags, {
+    EclipseFlags eclType = EclipseFlags.none,
+    bool backward = false,
+  }) {
+    _checkOpen();
+    return marshal.lunEclipseWhen(
+      _handle,
+      jdStart.value,
+      flags.value,
+      eclType.value,
+      backward,
+    );
+  }
+
+  /// Counterpart: swisseph::Ephemeris::lun_eclipse_when_loc
+  LunarEclipseLocal lunEclipseWhenLoc(
+    JdUt1 jdStart,
+    CalcFlags flags, {
+    required double geolon,
+    required double geolat,
+    double geoalt = 0,
+    bool backward = false,
+  }) {
+    _checkOpen();
+    return marshal.lunEclipseWhenLoc(
+      _handle,
+      jdStart.value,
+      flags.value,
+      geolon,
+      geolat,
+      geoalt,
+      backward,
+    );
+  }
+
+  /// Counterpart: swisseph::Ephemeris::lun_occult_where
+  EclipseWhere lunOccultWhere(
+    JdUt1 jd,
+    Body body,
+    CalcFlags flags, {
+    String? starname,
+  }) {
+    _checkOpen();
+    return marshal.lunOccultWhere(
+      _handle,
+      jd.value,
+      body.rawValue,
+      starname,
+      flags.value,
+    );
+  }
+
+  /// Counterpart: swisseph::Ephemeris::lun_occult_when_glob
+  OccultGlobal lunOccultWhenGlob(
+    JdUt1 jdStart,
+    Body body,
+    CalcFlags flags, {
+    String? starname,
+    EclipseFlags eclType = EclipseFlags.none,
+    bool backward = false,
+  }) {
+    _checkOpen();
+    return marshal.lunOccultWhenGlob(
+      _handle,
+      jdStart.value,
+      body.rawValue,
+      starname,
+      flags.value,
+      eclType.value,
+      backward,
+    );
+  }
+
+  /// Counterpart: swisseph::Ephemeris::lun_occult_when_loc
+  OccultLocal lunOccultWhenLoc(
+    JdUt1 jdStart,
+    Body body,
+    CalcFlags flags, {
+    String? starname,
+    required double geolon,
+    required double geolat,
+    double geoalt = 0,
+    bool backward = false,
+  }) {
+    _checkOpen();
+    return marshal.lunOccultWhenLoc(
+      _handle,
+      jdStart.value,
+      body.rawValue,
+      starname,
+      flags.value,
+      geolon,
+      geolat,
+      geoalt,
+      backward,
+    );
+  }
 }
 
 /// Counterpart: swisseph::swisseph_version

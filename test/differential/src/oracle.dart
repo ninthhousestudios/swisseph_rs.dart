@@ -378,5 +378,158 @@ class Oracle {
     return _swe.getAyanamsaName(sidMode);
   }
 
+  // -----------------------------------------------------------------------
+  // Eclipses & occultations
+  // -----------------------------------------------------------------------
+
+  swe.SolarEclipseGlobalResult solEclipseWhenGlob(
+    double jdStart,
+    int flags, {
+    int eclType = 0,
+    bool backward = false,
+  }) {
+    return _swe.solEclipseWhenGlob(
+      jdStart,
+      flags,
+      eclType: eclType,
+      backward: backward,
+    );
+  }
+
+  swe.SolarEclipseLocalResult solEclipseWhenLoc(
+    double jdStart,
+    int flags, {
+    required double geolon,
+    required double geolat,
+    double geoalt = 0,
+    bool backward = false,
+  }) {
+    return _swe.solEclipseWhenLoc(
+      jdStart,
+      flags,
+      geolon: geolon,
+      geolat: geolat,
+      geoalt: geoalt,
+      backward: backward,
+    );
+  }
+
+  swe.SolarEclipseAttrResult solEclipseHow(
+    double jdUt,
+    int flags, {
+    required double geolon,
+    required double geolat,
+    double geoalt = 0,
+  }) {
+    return _swe.solEclipseHow(
+      jdUt,
+      flags,
+      geolon: geolon,
+      geolat: geolat,
+      geoalt: geoalt,
+    );
+  }
+
+  swe.EclipseWhereResult solEclipseWhere(double jdUt, int flags) {
+    return _swe.solEclipseWhere(jdUt, flags);
+  }
+
+  swe.LunarEclipseAttrResult lunEclipseHow(
+    double jdUt,
+    int flags, {
+    required double geolon,
+    required double geolat,
+    double geoalt = 0,
+  }) {
+    return _swe.lunEclipseHow(
+      jdUt,
+      flags,
+      geolon: geolon,
+      geolat: geolat,
+      geoalt: geoalt,
+    );
+  }
+
+  swe.LunarEclipseGlobalResult lunEclipseWhen(
+    double jdStart,
+    int flags, {
+    int eclType = 0,
+    bool backward = false,
+  }) {
+    return _swe.lunEclipseWhen(
+      jdStart,
+      flags,
+      eclType: eclType,
+      backward: backward,
+    );
+  }
+
+  swe.LunarEclipseLocalResult lunEclipseWhenLoc(
+    double jdStart,
+    int flags, {
+    required double geolon,
+    required double geolat,
+    double geoalt = 0,
+    bool backward = false,
+  }) {
+    return _swe.lunEclipseWhenLoc(
+      jdStart,
+      flags,
+      geolon: geolon,
+      geolat: geolat,
+      geoalt: geoalt,
+      backward: backward,
+    );
+  }
+
+  swe.SolarEclipseGlobalResult lunOccultWhenGlob(
+    double jdStart,
+    int body,
+    int flags, {
+    String? starname,
+    int eclType = 0,
+    bool backward = false,
+  }) {
+    return _swe.lunOccultWhenGlob(
+      jdStart,
+      body,
+      flags,
+      starname: starname,
+      eclType: eclType,
+      backward: backward,
+    );
+  }
+
+  swe.SolarEclipseLocalResult lunOccultWhenLoc(
+    double jdStart,
+    int body,
+    int flags, {
+    String? starname,
+    required double geolon,
+    required double geolat,
+    double geoalt = 0,
+    bool backward = false,
+  }) {
+    return _swe.lunOccultWhenLoc(
+      jdStart,
+      body,
+      flags,
+      starname: starname,
+      geolon: geolon,
+      geolat: geolat,
+      geoalt: geoalt,
+      backward: backward,
+    );
+  }
+
+  swe.EclipseWhereResult lunOccultWhere(
+    double jdUt,
+    int body,
+    int flags, {
+    String? starname,
+  }) {
+    return _swe.lunOccultWhere(jdUt, body, flags, starname: starname);
+  }
+
   void close() => _swe.close();
 }

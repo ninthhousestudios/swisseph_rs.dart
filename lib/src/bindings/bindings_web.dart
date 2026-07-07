@@ -287,3 +287,120 @@ int swissephGetAyanamsaName(
   dynamic errBuf,
   int errCap,
 ) => _unsupported();
+
+// Eclipses & occultations
+
+int swissephSolEclipseWhere(
+  dynamic handle,
+  double tjdUt,
+  int ifl,
+  dynamic geopos,
+  dynamic attr,
+  dynamic errBuf,
+  int errCap,
+) => _unsupported();
+
+int swissephSolEclipseHow(
+  dynamic handle,
+  double tjdUt,
+  int ifl,
+  dynamic geopos,
+  dynamic attr,
+  dynamic errBuf,
+  int errCap,
+) => _unsupported();
+
+int swissephSolEclipseWhenGlob(
+  dynamic handle,
+  double tjdStart,
+  int ifl,
+  int ifltype,
+  int backward,
+  dynamic tret,
+  dynamic errBuf,
+  int errCap,
+) => _unsupported();
+
+int swissephSolEclipseWhenLoc(
+  dynamic handle,
+  double tjdStart,
+  int ifl,
+  dynamic geopos,
+  int backward,
+  dynamic tret,
+  dynamic attr,
+  dynamic errBuf,
+  int errCap,
+) => _unsupported();
+
+int swissephLunEclipseHow(
+  dynamic handle,
+  double tjdUt,
+  int ifl,
+  dynamic geopos,
+  dynamic attr,
+  dynamic errBuf,
+  int errCap,
+) => _unsupported();
+
+int swissephLunEclipseWhen(
+  dynamic handle,
+  double tjdStart,
+  int ifl,
+  int ifltype,
+  int backward,
+  dynamic tret,
+  dynamic errBuf,
+  int errCap,
+) => _unsupported();
+
+int swissephLunEclipseWhenLoc(
+  dynamic handle,
+  double tjdStart,
+  int ifl,
+  dynamic geopos,
+  int backward,
+  dynamic tret,
+  dynamic attr,
+  dynamic errBuf,
+  int errCap,
+) => _unsupported();
+
+int swissephLunOccultWhere(
+  dynamic handle,
+  double tjdUt,
+  int ipl,
+  dynamic starname,
+  int ifl,
+  dynamic geopos,
+  dynamic attr,
+  dynamic errBuf,
+  int errCap,
+) => _unsupported();
+
+int swissephLunOccultWhenGlob(
+  dynamic handle,
+  double tjdStart,
+  int ipl,
+  dynamic starname,
+  int ifl,
+  int ifltype,
+  int backward,
+  dynamic tret,
+  dynamic errBuf,
+  int errCap,
+) => _unsupported();
+
+int swissephLunOccultWhenLoc(
+  dynamic handle,
+  double tjdStart,
+  int ipl,
+  dynamic starname,
+  int ifl,
+  dynamic geopos,
+  int backward,
+  dynamic tret,
+  dynamic attr,
+  dynamic errBuf,
+  int errCap,
+) => _unsupported();

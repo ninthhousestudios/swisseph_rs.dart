@@ -662,3 +662,247 @@ external int swissephGetAyanamsaName(
   Pointer<Utf8> errBuf,
   int errCap,
 );
+
+// ---------------------------------------------------------------------------
+// Eclipses & occultations
+// ---------------------------------------------------------------------------
+
+@Native<
+  Int32 Function(
+    Pointer<Void>,
+    Double,
+    Int32,
+    Pointer<Double>,
+    Pointer<Double>,
+    Pointer<Utf8>,
+    Size,
+  )
+>(symbol: 'swisseph_sol_eclipse_where')
+external int swissephSolEclipseWhere(
+  Pointer<Void> handle,
+  double tjdUt,
+  int ifl,
+  Pointer<Double> geopos,
+  Pointer<Double> attr,
+  Pointer<Utf8> errBuf,
+  int errCap,
+);
+
+@Native<
+  Int32 Function(
+    Pointer<Void>,
+    Double,
+    Int32,
+    Pointer<Double>,
+    Pointer<Double>,
+    Pointer<Utf8>,
+    Size,
+  )
+>(symbol: 'swisseph_sol_eclipse_how')
+external int swissephSolEclipseHow(
+  Pointer<Void> handle,
+  double tjdUt,
+  int ifl,
+  Pointer<Double> geopos,
+  Pointer<Double> attr,
+  Pointer<Utf8> errBuf,
+  int errCap,
+);
+
+@Native<
+  Int32 Function(
+    Pointer<Void>,
+    Double,
+    Int32,
+    Int32,
+    Int32,
+    Pointer<Double>,
+    Pointer<Utf8>,
+    Size,
+  )
+>(symbol: 'swisseph_sol_eclipse_when_glob')
+external int swissephSolEclipseWhenGlob(
+  Pointer<Void> handle,
+  double tjdStart,
+  int ifl,
+  int ifltype,
+  int backward,
+  Pointer<Double> tret,
+  Pointer<Utf8> errBuf,
+  int errCap,
+);
+
+@Native<
+  Int32 Function(
+    Pointer<Void>,
+    Double,
+    Int32,
+    Pointer<Double>,
+    Int32,
+    Pointer<Double>,
+    Pointer<Double>,
+    Pointer<Utf8>,
+    Size,
+  )
+>(symbol: 'swisseph_sol_eclipse_when_loc')
+external int swissephSolEclipseWhenLoc(
+  Pointer<Void> handle,
+  double tjdStart,
+  int ifl,
+  Pointer<Double> geopos,
+  int backward,
+  Pointer<Double> tret,
+  Pointer<Double> attr,
+  Pointer<Utf8> errBuf,
+  int errCap,
+);
+
+@Native<
+  Int32 Function(
+    Pointer<Void>,
+    Double,
+    Int32,
+    Pointer<Double>,
+    Pointer<Double>,
+    Pointer<Utf8>,
+    Size,
+  )
+>(symbol: 'swisseph_lun_eclipse_how')
+external int swissephLunEclipseHow(
+  Pointer<Void> handle,
+  double tjdUt,
+  int ifl,
+  Pointer<Double> geopos,
+  Pointer<Double> attr,
+  Pointer<Utf8> errBuf,
+  int errCap,
+);
+
+@Native<
+  Int32 Function(
+    Pointer<Void>,
+    Double,
+    Int32,
+    Int32,
+    Int32,
+    Pointer<Double>,
+    Pointer<Utf8>,
+    Size,
+  )
+>(symbol: 'swisseph_lun_eclipse_when')
+external int swissephLunEclipseWhen(
+  Pointer<Void> handle,
+  double tjdStart,
+  int ifl,
+  int ifltype,
+  int backward,
+  Pointer<Double> tret,
+  Pointer<Utf8> errBuf,
+  int errCap,
+);
+
+@Native<
+  Int32 Function(
+    Pointer<Void>,
+    Double,
+    Int32,
+    Pointer<Double>,
+    Int32,
+    Pointer<Double>,
+    Pointer<Double>,
+    Pointer<Utf8>,
+    Size,
+  )
+>(symbol: 'swisseph_lun_eclipse_when_loc')
+external int swissephLunEclipseWhenLoc(
+  Pointer<Void> handle,
+  double tjdStart,
+  int ifl,
+  Pointer<Double> geopos,
+  int backward,
+  Pointer<Double> tret,
+  Pointer<Double> attr,
+  Pointer<Utf8> errBuf,
+  int errCap,
+);
+
+@Native<
+  Int32 Function(
+    Pointer<Void>,
+    Double,
+    Int32,
+    Pointer<Utf8>,
+    Int32,
+    Pointer<Double>,
+    Pointer<Double>,
+    Pointer<Utf8>,
+    Size,
+  )
+>(symbol: 'swisseph_lun_occult_where')
+external int swissephLunOccultWhere(
+  Pointer<Void> handle,
+  double tjdUt,
+  int ipl,
+  Pointer<Utf8> starname,
+  int ifl,
+  Pointer<Double> geopos,
+  Pointer<Double> attr,
+  Pointer<Utf8> errBuf,
+  int errCap,
+);
+
+@Native<
+  Int32 Function(
+    Pointer<Void>,
+    Double,
+    Int32,
+    Pointer<Utf8>,
+    Int32,
+    Int32,
+    Int32,
+    Pointer<Double>,
+    Pointer<Utf8>,
+    Size,
+  )
+>(symbol: 'swisseph_lun_occult_when_glob')
+external int swissephLunOccultWhenGlob(
+  Pointer<Void> handle,
+  double tjdStart,
+  int ipl,
+  Pointer<Utf8> starname,
+  int ifl,
+  int ifltype,
+  int backward,
+  Pointer<Double> tret,
+  Pointer<Utf8> errBuf,
+  int errCap,
+);
+
+@Native<
+  Int32 Function(
+    Pointer<Void>,
+    Double,
+    Int32,
+    Pointer<Utf8>,
+    Int32,
+    Pointer<Double>,
+    Int32,
+    Pointer<Double>,
+    Pointer<Double>,
+    Pointer<Utf8>,
+    Size,
+  )
+>(symbol: 'swisseph_lun_occult_when_loc')
+external int swissephLunOccultWhenLoc(
+  Pointer<Void> handle,
+  double tjdStart,
+  int ipl,
+  Pointer<Utf8> starname,
+  int ifl,
+  Pointer<Double> geopos,
+  int backward,
+  Pointer<Double> tret,
+  Pointer<Double> attr,
+  Pointer<Utf8> errBuf,
+  int errCap,
+);
