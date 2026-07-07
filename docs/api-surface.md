@@ -1124,7 +1124,7 @@ pub fn vis_limit_mag(
     object_name: &str, epheflag: CalcFlags, helflag: HeliacalFlags,
 ) -> Result<VisLimitResult, Error>;
 // dgeo=[lon(east+),lat(north+),altitude(m)]. datm=[pressure hPa,temp °C,humidity 0-1,extinction].
-// dobs=[age,Snellen ratio,0=naked/1=binocular/2=telescope,aperture,magnification,0].
+// dobs=[age,Snellen ratio,0=naked/1=binocular/2=telescope,magnification,aperture_mm,0].
 
 #[doc(alias = "swe_topo_arcus_visionis")]
 pub fn topo_arcus_visionis(

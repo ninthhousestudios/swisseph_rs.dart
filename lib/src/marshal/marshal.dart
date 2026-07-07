@@ -1918,8 +1918,8 @@ void _fillHeliacal(
   dobs[0] = age;
   dobs[1] = snellenRatio;
   dobs[2] = opticType;
-  dobs[3] = aperture;
-  dobs[4] = magnification;
+  dobs[3] = magnification;
+  dobs[4] = aperture;
   dobs[5] = transmission;
 }
 
