@@ -29,7 +29,9 @@ class OracleCalcResult {
 class Oracle {
   final swe.SwissEph _swe;
 
-  Oracle() : _swe = swe.SwissEph.find();
+  Oracle({String? ephePath}) : _swe = swe.SwissEph.find() {
+    if (ephePath != null) _swe.setEphePath(ephePath);
+  }
 
   OracleCalcResult calcUt(double jdUt, int body, int flags) {
     final result = _swe.calcUt(jdUt, body, flags);
