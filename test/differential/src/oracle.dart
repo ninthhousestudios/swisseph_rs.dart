@@ -36,9 +36,12 @@ class Oracle {
     double ayanT0 = 0,
   }) {
     _swe.setSidMode(sidMode, t0: t0, ayanT0: ayanT0);
-    final result = _swe.calcUt(jdUt, body, flags | swe.seFlgSidereal);
-    _swe.setSidMode(0);
-    return OracleCalcResult._fromSwe(result);
+    try {
+      final result = _swe.calcUt(jdUt, body, flags | swe.seFlgSidereal);
+      return OracleCalcResult._fromSwe(result);
+    } finally {
+      _swe.setSidMode(0);
+    }
   }
 
   void close() => _swe.close();

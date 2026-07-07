@@ -82,6 +82,10 @@ class ComparisonSpec<A, E> {
     if (unclassified.isNotEmpty) {
       throw StateError('Unclassified field(s): ${unclassified.join(', ')}');
     }
+    final extra = classified.difference(_allFieldNames);
+    if (extra.isNotEmpty) {
+      throw StateError('Unknown field(s) in spec: ${extra.join(', ')}');
+    }
     for (final field in _fields) {
       expectAgreement(
         field.name,
