@@ -32,8 +32,12 @@ class PublicSymbol {
 
   const PublicSymbol(this.qualifiedName, this.kind, this.docComment);
 
+  static final _counterpartPattern = RegExp(
+    r'Counterpart:\s+(swisseph::|swisseph_ffi::|\(systematic divergence:)',
+  );
+
   bool get hasCounterpart =>
-      docComment != null && docComment!.contains('Counterpart:');
+      docComment != null && _counterpartPattern.hasMatch(docComment!);
 
   /// Whether this symbol kind requires its own Counterpart declaration.
   ///

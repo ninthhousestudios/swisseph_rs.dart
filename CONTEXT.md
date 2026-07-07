@@ -17,8 +17,12 @@ _Avoid_: "inspired by", "based on" (both imply license to drift)
 **Counterpart**:
 The Rust construct a public Dart symbol mirrors — every public Dart symbol has
 exactly one, declared in a fixed-format dartdoc line
-(`/// Counterpart: swisseph::Ephemeris::calc_ut`). A test walks the public
-API and fails on any symbol missing its declaration.
+(`/// Counterpart: swisseph::Ephemeris::calc_ut`). The namespace is
+`swisseph::` for engine-level symbols or `swisseph_ffi::` for FFI-boundary
+symbols (e.g. `swisseph_ffi::swisseph_free`, `swisseph_ffi::SweErrorCode`).
+Systematic divergences use `(systematic divergence: <name>)` instead of a
+Rust path. A test walks the public API and fails on any symbol missing its
+declaration or using an unrecognized namespace.
 
 **Systematic divergence**:
 A deviation class applied uniformly across the whole surface and documented

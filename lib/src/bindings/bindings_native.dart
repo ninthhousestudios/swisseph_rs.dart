@@ -1,5 +1,7 @@
+@DefaultAsset('package:swisseph_rs/swisseph_rs.dart')
+library;
+
 import 'dart:ffi';
-import 'dart:io' show Platform;
 
 import 'package:ffi/ffi.dart';
 
@@ -78,129 +80,66 @@ final class SweSidMode extends Struct {
 }
 
 // ---------------------------------------------------------------------------
-// FFI typedefs — C signature then Dart signature for each function.
+// @Native bindings — resolved via the native-assets protocol.
 // ---------------------------------------------------------------------------
 
-// swisseph_version() -> *const c_char
-typedef _SwissephVersionC = Pointer<Utf8> Function();
-typedef _SwissephVersionDart = Pointer<Utf8> Function();
+@Native<Pointer<Utf8> Function()>(symbol: 'swisseph_version')
+external Pointer<Utf8> swissephVersion();
 
-// swisseph_config_default(config: *mut SweConfig)
-typedef _SwissephConfigDefaultC = Void Function(Pointer<SweConfig> config);
-typedef _SwissephConfigDefaultDart = void Function(Pointer<SweConfig> config);
+@Native<Void Function(Pointer<SweConfig>)>(symbol: 'swisseph_config_default')
+external void swissephConfigDefault(Pointer<SweConfig> config);
 
-// swisseph_new(config, out, err_buf, err_cap) -> i32
-typedef _SwissephNewC =
-    Int32 Function(
-      Pointer<SweConfig> config,
-      Pointer<Pointer<Void>> out,
-      Pointer<Utf8> errBuf,
-      Size errCap,
-    );
-typedef _SwissephNewDart =
-    int Function(
-      Pointer<SweConfig> config,
-      Pointer<Pointer<Void>> out,
-      Pointer<Utf8> errBuf,
-      int errCap,
-    );
+@Native<
+  Int32 Function(
+    Pointer<SweConfig>,
+    Pointer<Pointer<Void>>,
+    Pointer<Utf8>,
+    Size,
+  )
+>(symbol: 'swisseph_new')
+external int swissephNew(
+  Pointer<SweConfig> config,
+  Pointer<Pointer<Void>> out,
+  Pointer<Utf8> errBuf,
+  int errCap,
+);
 
-// swisseph_free(handle)
-typedef _SwissephFreeC = Void Function(Pointer<Void> handle);
-typedef _SwissephFreeDart = void Function(Pointer<Void> handle);
+@Native<Void Function(Pointer<Void>)>(symbol: 'swisseph_free')
+external void swissephFree(Pointer<Void> handle);
 
-// swisseph_share(handle, out, err_buf, err_cap) -> i32
-typedef _SwissephShareC =
-    Int32 Function(
-      Pointer<Void> handle,
-      Pointer<Pointer<Void>> out,
-      Pointer<Utf8> errBuf,
-      Size errCap,
-    );
-typedef _SwissephShareDart =
-    int Function(
-      Pointer<Void> handle,
-      Pointer<Pointer<Void>> out,
-      Pointer<Utf8> errBuf,
-      int errCap,
-    );
+@Native<
+  Int32 Function(Pointer<Void>, Pointer<Pointer<Void>>, Pointer<Utf8>, Size)
+>(symbol: 'swisseph_share')
+external int swissephShare(
+  Pointer<Void> handle,
+  Pointer<Pointer<Void>> out,
+  Pointer<Utf8> errBuf,
+  int errCap,
+);
 
-// swisseph_calc_ut(handle, tjd_ut, ipl, iflag, geopos, sid_mode,
-//                  xx, flags_used, err_buf, err_cap) -> i32
-typedef _SwissephCalcUtC =
-    Int32 Function(
-      Pointer<Void> handle,
-      Double tjdUt,
-      Int32 ipl,
-      Int32 iflag,
-      Pointer<Double> geopos,
-      Pointer<SweSidMode> sidMode,
-      Pointer<Double> xx,
-      Pointer<Int32> flagsUsed,
-      Pointer<Utf8> errBuf,
-      Size errCap,
-    );
-typedef _SwissephCalcUtDart =
-    int Function(
-      Pointer<Void> handle,
-      double tjdUt,
-      int ipl,
-      int iflag,
-      Pointer<Double> geopos,
-      Pointer<SweSidMode> sidMode,
-      Pointer<Double> xx,
-      Pointer<Int32> flagsUsed,
-      Pointer<Utf8> errBuf,
-      int errCap,
-    );
-
-// ---------------------------------------------------------------------------
-// Bindings class — typed lookups, zero logic.
-// ---------------------------------------------------------------------------
-
-/// Native FFI bindings to swisseph-ffi. Declarations only — no logic.
-final class SwissephBindings {
-  final DynamicLibrary _lib;
-
-  SwissephBindings(this._lib);
-
-  late final swissephVersion = _lib
-      .lookupFunction<_SwissephVersionC, _SwissephVersionDart>(
-        'swisseph_version',
-      );
-
-  late final swissephConfigDefault = _lib
-      .lookupFunction<_SwissephConfigDefaultC, _SwissephConfigDefaultDart>(
-        'swisseph_config_default',
-      );
-
-  late final swissephNew = _lib.lookupFunction<_SwissephNewC, _SwissephNewDart>(
-    'swisseph_new',
-  );
-
-  late final swissephFree = _lib
-      .lookupFunction<_SwissephFreeC, _SwissephFreeDart>('swisseph_free');
-
-  late final swissephShare = _lib
-      .lookupFunction<_SwissephShareC, _SwissephShareDart>('swisseph_share');
-
-  late final swissephCalcUt = _lib
-      .lookupFunction<_SwissephCalcUtC, _SwissephCalcUtDart>(
-        'swisseph_calc_ut',
-      );
-
-  /// Raw native function pointer for [NativeFinalizer].
-  late final swissephFreeFnPtr = _lib
-      .lookup<NativeFunction<Void Function(Pointer<Void>)>>('swisseph_free');
-}
-
-/// Load the native swisseph_rs library.
-SwissephBindings loadBindings() {
-  final name = Platform.isLinux
-      ? 'libswisseph_rs_dart.so'
-      : Platform.isMacOS
-      ? 'libswisseph_rs_dart.dylib'
-      : 'swisseph_rs_dart.dll';
-  final lib = DynamicLibrary.open(name);
-  return SwissephBindings(lib);
-}
+@Native<
+  Int32 Function(
+    Pointer<Void>,
+    Double,
+    Int32,
+    Int32,
+    Pointer<Double>,
+    Pointer<SweSidMode>,
+    Pointer<Double>,
+    Pointer<Int32>,
+    Pointer<Utf8>,
+    Size,
+  )
+>(symbol: 'swisseph_calc_ut')
+external int swissephCalcUt(
+  Pointer<Void> handle,
+  double tjdUt,
+  int ipl,
+  int iflag,
+  Pointer<Double> geopos,
+  Pointer<SweSidMode> sidMode,
+  Pointer<Double> xx,
+  Pointer<Int32> flagsUsed,
+  Pointer<Utf8> errBuf,
+  int errCap,
+);

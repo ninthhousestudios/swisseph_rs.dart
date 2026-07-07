@@ -5,24 +5,11 @@ import 'package:ffi/ffi.dart';
 import '../bindings/bindings.dart';
 import '../types/types.dart';
 
-// ---------------------------------------------------------------------------
-// Singleton bindings — loaded once, shared across all Ephemeris instances.
-// ---------------------------------------------------------------------------
-
-late final SwissephBindings _bindings;
-var _bindingsLoaded = false;
-
-SwissephBindings _ensureBindings() {
-  if (!_bindingsLoaded) {
-    _bindings = loadBindings();
-    _bindingsLoaded = true;
-  }
-  return _bindings;
-}
-
 /// Native function pointer for [NativeFinalizer] registration.
 Pointer<NativeFinalizerFunction> get swissephFreeFnPtr =>
-    _ensureBindings().swissephFreeFnPtr.cast();
+    Native.addressOf<NativeFunction<Void Function(Pointer<Void>)>>(
+      swissephFree,
+    );
 
 // ---------------------------------------------------------------------------
 // Error handling
@@ -139,12 +126,11 @@ CalcResult unmarshalCalcResult(Pointer<Double> xx, int flagsUsed) {
 
 /// Create an ephemeris handle from config. Throws [SweException] on failure.
 Pointer<Void> createHandle(EphemerisConfig config) {
-  final b = _ensureBindings();
   return using((arena) {
     final sweConfig = marshalConfig(arena, config);
     final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
     final out = arena<Pointer<Void>>();
-    final code = b.swissephNew(sweConfig, out, errBuf, _errBufSize);
+    final code = swissephNew(sweConfig, out, errBuf, _errBufSize);
     _checkResult(code, errBuf);
     return out.value;
   });
@@ -152,23 +138,22 @@ Pointer<Void> createHandle(EphemerisConfig config) {
 
 /// Release an ephemeris handle. Null-safe on the native side.
 void freeHandle(Pointer<Void> handle) {
-  _ensureBindings().swissephFree(handle);
+  swissephFree(handle);
 }
 
 /// Call `swisseph_calc_ut` and return a typed [CalcResult].
 CalcResult calcUt(Pointer<Void> handle, double tjdUt, int ipl, int iflag) {
-  final b = _ensureBindings();
   return using((arena) {
     final xx = arena<Double>(6);
     final flagsUsed = arena<Int32>();
     final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
-    final code = b.swissephCalcUt(
+    final code = swissephCalcUt(
       handle,
       tjdUt,
       ipl,
       iflag,
-      nullptr, // geopos — no per-call topocentric override
-      nullptr, // sid_mode — tropical
+      nullptr,
+      nullptr,
       xx,
       flagsUsed,
       errBuf,
@@ -187,7 +172,6 @@ CalcResult calcUtWithConfig(
   int iflag,
   EphemerisConfig config,
 ) {
-  final b = _ensureBindings();
   return using((arena) {
     final xx = arena<Double>(6);
     final flagsUsed = arena<Int32>();
@@ -211,7 +195,7 @@ CalcResult calcUtWithConfig(
       sidMode.ref.ayanT0 = config.siderealAyanT0;
     }
 
-    final code = b.swissephCalcUt(
+    final code = swissephCalcUt(
       handle,
       tjdUt,
       ipl,
@@ -230,6 +214,5 @@ CalcResult calcUtWithConfig(
 
 /// Read the engine version string from the native library.
 String engineVersion() {
-  final ptr = _ensureBindings().swissephVersion();
-  return ptr.toDartString();
+  return swissephVersion().toDartString();
 }
