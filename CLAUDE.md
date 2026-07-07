@@ -11,11 +11,18 @@ project `swisseph-rs-dart`.
 
 `docs/api-surface.md` is the sole source of truth for the swisseph-rs public
 API and swisseph-ffi C ABI surface (pinned to the same rev as `rust/Cargo.toml`).
-**Never explore or read `../swisseph-rs` source code.** Read the relevant
-section of `api-surface.md` instead — it is organized by task (/22–/34) and
-contains every type, method signature, and FFI function needed for
-transliteration. If the map is missing something, flag it rather than
-reading the Rust source directly.
+**Do not explore or read `../swisseph-rs` source code** for transliteration
+work. Read the relevant section of `api-surface.md` instead — it is organized
+by task (/22–/34) and contains every type, method signature, and FFI function
+needed.
+
+**Escape hatch**: reading `../swisseph-rs` source is permitted only when a
+**runtime failure** (test failure, FFI crash, type mismatch at the C boundary)
+cannot be diagnosed from the map. "I want to understand the semantics" or
+"I want more context" is not a trigger — a failing test is. When you do read
+the Rust source under this rule, **update `api-surface.md`** with whatever
+was missing or wrong before moving on, so the next session doesn't need to
+make the same trip.
 
 ## Invariants (enforcement-ledger bucket c — reviewed, not machine-checked)
 
