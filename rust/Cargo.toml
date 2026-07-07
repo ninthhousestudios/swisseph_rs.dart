@@ -1,0 +1,10 @@
+[package]
+name = "swisseph-rs-dart"
+version = "0.0.1"
+edition = "2024"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+swisseph-ffi = { git = "ssh://git@github.com/ninthhousestudios/swisseph-rs", rev = "14a1df683525dfbecff213e546c64f5d54331ba3" }

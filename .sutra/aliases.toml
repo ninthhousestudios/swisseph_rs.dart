@@ -1,6 +1,6 @@
 # Component aliases from PRD v2 vocabulary (yojana:swisseph-rs-dart/20
-# §implementation-decisions). Paths are the planned scaffold layout — verify
-# at swisseph-rs-dart/21. Symbol aliases come with real code.
+# §implementation-decisions). Verified at scaffold (swisseph-rs-dart/21).
+# Symbol aliases come with real code.
 
 [component]
 types = "lib/src/types/"
@@ -9,6 +9,5 @@ marshal = "lib/src/marshal/"
 ephemeris = "lib/src/ephemeris.dart"
 build-hook = "hook/build.dart"
 rust-shim = "rust/"
-wasm-infra = "wasm/"
 differential-harness = "test/differential/"
 stress-test = "test/stress/"

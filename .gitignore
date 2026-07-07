@@ -11,3 +11,7 @@ pubspec.lock
 
 # Rust shim build output
 rust/target/
+
+# Cargo config (git-fetch-with-cli for private repo SSH)
+!.cargo/
+!.cargo/config.toml
