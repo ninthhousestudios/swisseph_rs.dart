@@ -34,7 +34,7 @@ test-asserted, pointed at its implementing task.
 | 15 | "every compared value in exactly one agreement class; unclassified comparisons… fail by design" | Testing Decisions | (d) | Harness self-check | test (/26) |
 | 16 | No silent tolerance loosening — every boundary-class use names its documented artifact | Testing Decisions | (c) | CLAUDE.md invariant; R2 review focus | routed → CLAUDE.md |
 | 17 | No import cycles in package source | skill default | (a) | `no_cycles` on lib/src | **live** (bound /21) |
-| 18 | Fan-in guardrail on lib/src | skill default | (a) | `max_fan_in` threshold=8 (observed max=5, ~60% headroom) | **live** (bound /25; revisit threshold at R2 tend, /35) |
+| 18 | Fan-in guardrail on lib/src | skill default | (a) | `max_fan_in` threshold=7 (observed max=5, ~40% headroom) | **live** (bound /25; revised /35) |
 | 19 | "same public API compiles and runs on web; only the loader seam differs" | Impl./Testing | (d) | Web test leg | test (/37) |
 | 20 | "peak RSS bounded consistent with ONE loaded engine" | Testing Decisions | (d) | Stress test | test (/38) |
 | 21 | libaditya 545-value dataset green | Testing Decisions | (d) | Dataset runner in standard test invocation | test (/39) |
@@ -74,6 +74,17 @@ violations. Row 18 (fan-in) fired: threshold=8 from observed max=5.
 Stated-vs-actual diff: all verifiable claims confirmed, no drift.
 Convention triage: 6 pending proposals dismissed (Dart language tautologies).
 No new emergent-structure constraints needed at this codebase size.
+
+## R2 tend verification (2026-07-08, /35)
+
+Live constraints: **7** (rows 3, 6, 7, 17, 18). All globs bind, 0
+violations. Row 18 (fan-in) tightened: threshold 8→7 (~40% headroom over
+observed max=5, unchanged from R1). Full API surface landed; no lib/src/
+files expected from remaining tasks (/36–/39 are test-side).
+Convention triage: 26 pending proposals dismissed (Dart language
+tautologies — same class as R1's 6). No new emergent-structure constraints
+needed; 5-component decomposition stable.
+Stated-vs-actual diff: all verifiable claims confirmed, no drift.
 
 ## Maintenance
 

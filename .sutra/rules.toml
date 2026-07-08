@@ -77,14 +77,15 @@ provenance = "skill default (vidhi-sutra-seed)"
 # Bound at R1 tend (swisseph-rs-dart/25). Ledger row 18.
 # =============================================================================
 
-# Ledger row 18 — skill default: fan-in guardrail. Threshold set from
-# observed data at R1 tend: max observed fan-in = 5 (flags.dart), threshold
-# = 8 (~60% headroom). Revisit at R2 tend (/35) with full-surface data.
+# Ledger row 18 — skill default: fan-in guardrail. R1 tend: max=5
+# (flags.dart), threshold=8. R2 tend (/35): full surface landed, max still
+# 5 — tightened to 7 (~40% headroom). No lib/src/ files expected from
+# remaining tasks (/36–/39 are test-side).
 
 [[constraint]]
 kind = "max_fan_in"
 name = "fan-in-guardrail"
 target = "lib/src/**"
-threshold = 8
+threshold = 7
 severity = "blocking"
-provenance = "skill default (vidhi-sutra-seed), bound checkpoint:swisseph-rs-dart/25"
+provenance = "skill default (vidhi-sutra-seed), bound checkpoint:swisseph-rs-dart/25, revised checkpoint:swisseph-rs-dart/35"

@@ -121,7 +121,7 @@ final class Ephemeris implements Finalizable {
     return marshal.getPlanetName(_handle, body.rawValue);
   }
 
-  /// Counterpart: swisseph::Ephemeris::utc_to_jd
+  /// Counterpart: swisseph::date::utc_to_jd
   UtcToJd utcToJd(UtcComponents utc, CalendarType cal) {
     _checkOpen();
     return marshal.utcToJd(
@@ -136,13 +136,13 @@ final class Ephemeris implements Finalizable {
     );
   }
 
-  /// Counterpart: swisseph::Ephemeris::jdet_to_utc
+  /// Counterpart: swisseph::date::jdet_to_utc
   UtcComponents jdetToUtc(JdTt jd, CalendarType cal) {
     _checkOpen();
     return marshal.jdetToUtc(_handle, jd.value, cal.value);
   }
 
-  /// Counterpart: swisseph::Ephemeris::jdut1_to_utc
+  /// Counterpart: swisseph::date::jdut1_to_utc
   UtcComponents jdut1ToUtc(JdUt1 jd, CalendarType cal) {
     _checkOpen();
     return marshal.jdut1ToUtc(_handle, jd.value, cal.value);
@@ -276,7 +276,7 @@ final class Ephemeris implements Finalizable {
     return marshal.getAyanamsa(_handle, jd.value);
   }
 
-  /// Counterpart: swisseph::Ephemeris (share via Arc clone)
+  /// Counterpart: swisseph_ffi::swisseph_share
   ///
   /// Returns a token sendable to another isolate. Native-only.
   Object share() {
@@ -1032,7 +1032,7 @@ final class Ephemeris implements Finalizable {
   }
 }
 
-/// Counterpart: swisseph::swisseph_version
+/// Counterpart: swisseph_ffi::swisseph_version
 String get engineVersion => marshal.engineVersion();
 
 /// Counterpart: swisseph::date::julday
@@ -1133,7 +1133,7 @@ String houseName(HouseSystem hsys) {
   return marshal.houseName(hsys.charCode);
 }
 
-/// Counterpart: swisseph::types::SiderealMode::name
+/// Counterpart: swisseph_ffi::swisseph_get_ayanamsa_name
 String getAyanamsaName(SiderealMode sidMode) {
   return marshal.getAyanamsaName(sidMode.value);
 }

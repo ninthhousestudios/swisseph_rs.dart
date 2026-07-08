@@ -480,7 +480,7 @@ UtcComponents jdut1ToUtc(Pointer<Void> handle, double tjdUt, int gregflag) {
 double deltaT(Pointer<Void> handle, double tjdUt) {
   final result = swissephDeltat(handle, tjdUt);
   if (result.isNaN) {
-    throw exceptionFromCode(-1, 'swisseph_deltat returned NaN');
+    throw const CErrorException('swisseph_deltat returned NaN');
   }
   return result;
 }

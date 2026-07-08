@@ -18,9 +18,7 @@ const oracleMap = <String, OracleEntry>{
   'Ephemeris.calcUtWithConfig': OracleEntry.composite(),
   'Ephemeris.calc': OracleEntry.direct(),
   'Ephemeris.calcWithConfig': OracleEntry.composite(),
-  'Ephemeris.calcPctr': OracleEntry.engineTrusted(
-    'requires Swiss/JPL ephemeris files; rejection tested on Moshier',
-  ),
+  'Ephemeris.calcPctr': OracleEntry.direct(),
   'Ephemeris.close': OracleEntry.engineTrusted(
     'lifecycle; no oracle equivalent',
   ),
@@ -48,7 +46,7 @@ const oracleMap = <String, OracleEntry>{
   'utcTimeZone': OracleEntry.direct(),
   'splitDegrees': OracleEntry.direct(),
   'normalizeDegrees': OracleEntry.engineTrusted(
-    'pure math (x % 360); oracle uses identical algorithm',
+    'pure math (x % 360); oracle does not expose swe_degnorm',
   ),
   'Ephemeris.houses': OracleEntry.direct(),
   'Ephemeris.housesEx2': OracleEntry.direct(),

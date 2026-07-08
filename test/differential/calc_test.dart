@@ -1,3 +1,5 @@
+import 'dart:io' show Platform;
+
 import 'package:swisseph/swisseph.dart' as swe;
 import 'package:swisseph_rs/swisseph_rs.dart';
 import 'package:test/test.dart';
@@ -50,6 +52,57 @@ final _positionalSpec = ComparisonSpec<CalcResult, OracleCalcResult>([
     (r) => r.distanceSpeed,
     (o) => o.distanceSpeed,
     AgreementClass.positional,
+  ),
+], _calcResultFields);
+
+final _pctrSpec = ComparisonSpec<CalcResult, OracleCalcResult>([
+  FieldPairSpec(
+    'longitude',
+    (r) => r.longitude,
+    (o) => o.longitude,
+    AgreementClass.boundary,
+    tolerance: 1e-8,
+    boundaryArtifact: 'planetocentric subtraction amplification',
+  ),
+  FieldPairSpec(
+    'latitude',
+    (r) => r.latitude,
+    (o) => o.latitude,
+    AgreementClass.boundary,
+    tolerance: 1e-8,
+    boundaryArtifact: 'planetocentric subtraction amplification',
+  ),
+  FieldPairSpec(
+    'distance',
+    (r) => r.distance,
+    (o) => o.distance,
+    AgreementClass.boundary,
+    tolerance: 1e-8,
+    boundaryArtifact: 'planetocentric subtraction amplification',
+  ),
+  FieldPairSpec(
+    'longitudeSpeed',
+    (r) => r.longitudeSpeed,
+    (o) => o.longitudeSpeed,
+    AgreementClass.boundary,
+    tolerance: 1e-8,
+    boundaryArtifact: 'planetocentric subtraction amplification',
+  ),
+  FieldPairSpec(
+    'latitudeSpeed',
+    (r) => r.latitudeSpeed,
+    (o) => o.latitudeSpeed,
+    AgreementClass.boundary,
+    tolerance: 1e-8,
+    boundaryArtifact: 'planetocentric subtraction amplification',
+  ),
+  FieldPairSpec(
+    'distanceSpeed',
+    (r) => r.distanceSpeed,
+    (o) => o.distanceSpeed,
+    AgreementClass.boundary,
+    tolerance: 1e-8,
+    boundaryArtifact: 'planetocentric subtraction amplification',
   ),
 ], _calcResultFields);
 
@@ -494,4 +547,51 @@ void main() {
       );
     });
   });
+
+  // -----------------------------------------------------------------------
+  // calcPctr positive test (Swiss files, must run after all Moshier tests)
+  // -----------------------------------------------------------------------
+
+  final ephePath = Platform.environment['SWE_EPHE_PATH'];
+
+  group(
+    'Direct mapping: calcPctr (Swiss)',
+    skip: ephePath == null ? 'SWE_EPHE_PATH not set' : null,
+    () {
+      late Ephemeris swissEph;
+      late Oracle swissOracle;
+
+      setUpAll(() {
+        swissEph = Ephemeris(
+          EphemerisConfig(
+            ephemerisSource: EphemerisSource.swiss,
+            ephePath: ephePath,
+          ),
+        );
+        swissOracle = Oracle(ephePath: ephePath);
+      });
+
+      tearDownAll(() {
+        swissEph.close();
+        swissOracle.close();
+      });
+
+      test('Moon relative to Jupiter', () {
+        const jd = JdTt(2451545.0);
+        final actual = swissEph.calcPctr(
+          jd,
+          Body.moon,
+          Body.jupiter,
+          CalcFlags.speed,
+        );
+        final expected = swissOracle.calcPctr(
+          jd.value,
+          swe.seMoon,
+          swe.seJupiter,
+          swe.seFlgSpeed,
+        );
+        _pctrSpec.compare(actual, expected);
+      });
+    },
+  );
 }

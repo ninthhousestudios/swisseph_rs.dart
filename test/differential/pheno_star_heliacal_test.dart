@@ -143,6 +143,42 @@ void main() {
     });
   });
 
+  group('phenoUtWithConfig', () {
+    test('Venus sidereal phenomena (UT)', () {
+      const config = EphemerisConfig(siderealMode: SiderealMode.lahiri);
+      final actual = eph.phenoUtWithConfig(
+        j2000Ut,
+        Body.venus,
+        CalcFlags.none,
+        config,
+      );
+      final sweOracle = swe.SwissEph.find();
+      sweOracle.setSidMode(swe.seSidmLahiri);
+      try {
+        final expected = sweOracle.phenoUt(
+          j2000Ut.value,
+          swe.seVenus,
+          swe.seFlgSidereal,
+        );
+        expectAgreement(
+          'phaseAngle',
+          actual.phaseAngle,
+          expected.phaseAngle,
+          AgreementClass.positional,
+        );
+        expectAgreement(
+          'elongation',
+          actual.elongation,
+          expected.elongation,
+          AgreementClass.positional,
+        );
+      } finally {
+        sweOracle.setSidMode(0);
+        sweOracle.close();
+      }
+    });
+  });
+
   // -----------------------------------------------------------------------
   // Nodes & apsides (task /33)
   // -----------------------------------------------------------------------

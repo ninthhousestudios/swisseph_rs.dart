@@ -35,6 +35,19 @@ Build bottom-up — each layer depends on the one below:
     when SPEED+TOPOCTR+!NOABERR, or when the SPEED3 flag is set explicitly.
   - Deflection speed: 1e-7° (gravitational light deflection speed term)
   - Moshier osculating node speed: 5e-6°/day
+  - Moshier osculating node position: 5e-5° (True Node), up to 1e-4° for
+    outer planets (Saturn+). Position accumulates more error than speed;
+    tolerance scales with orbital period.
+  - Moshier star precession: 5e-6° (precession model differences between
+    Moshier and Swiss ephemeris for fixed-star positions)
+  - Moshier star parallax distance: 1e-3 AU (parallax distance precision
+    limited by Moshier's simplified stellar distance model)
+  - Moshier visibility model: 5e-6 (heliacal visibility magnitude
+    differences from Moshier's simplified atmospheric model)
+  - Search-derived occultation geometry: 1e-6° (iterative search uncertainty
+    propagates into geometry attributes of occultation events)
+  - Planetocentric subtraction amplification: 1e-8° (calcPctr subtracts two
+    positions, amplifying FP rounding in both the Rust and C paths)
 - **search** — iterative event-finding; tolerance per-algorithm
 
 When a speed field exceeds positional tolerance, check whether the flag
