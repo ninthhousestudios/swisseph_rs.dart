@@ -1,5 +1,12 @@
+import 'bindings/bindings.dart' show swissephFree;
 import 'ffi_types.dart';
 
-void attachCleanup(Finalizable owner, Pointer<Void> handle) {}
+final _finalizer = Finalizer<Pointer<Void>>(swissephFree);
 
-void detachCleanup(Finalizable owner) {}
+void attachCleanup(Finalizable owner, Pointer<Void> handle) {
+  _finalizer.attach(owner, handle, detach: owner);
+}
+
+void detachCleanup(Finalizable owner) {
+  _finalizer.detach(owner);
+}

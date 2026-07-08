@@ -5,6 +5,8 @@ import 'package:wasm_ffi/ffi.dart';
 
 late DynamicLibrary wasmLibrary;
 bool wasmInitialized = false;
+Future<void>? initFuture;
+String? initModulePath;
 
 void ensureInitialized() {
   if (!wasmInitialized) {

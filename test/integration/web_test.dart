@@ -1,8 +1,26 @@
 @TestOn('browser')
 library;
 
+import 'dart:js_interop';
+import 'dart:typed_data';
+
 import 'package:swisseph_rs/swisseph_rs.dart';
 import 'package:test/test.dart';
+
+extension type _Response(JSObject _) implements JSObject {
+  external JSPromise<JSArrayBuffer> arrayBuffer();
+  external bool get ok;
+}
+
+@JS('fetch')
+external JSPromise<_Response> _jsFetch(JSString url);
+
+Future<Uint8List> _fetchBytes(String url) async {
+  final response = await _jsFetch(url.toJS).toDart;
+  if (!response.ok) throw StateError('Fetch failed: $url');
+  final buffer = await response.arrayBuffer().toDart;
+  return buffer.toDart.asUint8List();
+}
 
 void main() {
   setUpAll(() async {
@@ -92,6 +110,40 @@ void main() {
         ),
         throwsA(isA<FileNotFoundException>()),
       );
+    });
+
+    test('loadEpheFile → construct → calc', () async {
+      late final Uint8List bytes;
+      try {
+        bytes = await _fetchBytes('../../ephe/sepl_18.se1');
+      } on StateError {
+        markTestSkipped('sepl_18.se1 not served (ephe/ symlink outside root)');
+        return;
+      }
+      loadEpheFile('sepl_18.se1', bytes);
+      final eph = Ephemeris(
+        const EphemerisConfig(
+          ephemerisSource: EphemerisSource.swiss,
+          ephePath: '/ephe',
+        ),
+      );
+      addTearDown(eph.close);
+      final r = eph.calcUt(const JdUt1(2451545.0), Body.sun, CalcFlags.speed);
+      expect(r.longitude, closeTo(280.369, 0.001));
+      expect(r.distance, closeTo(0.983, 0.001));
+    });
+
+    test('loadEpheFile rejects path traversal', () {
+      expect(
+        () => loadEpheFile('../etc/passwd', Uint8List(0)),
+        throwsArgumentError,
+      );
+      expect(
+        () => loadEpheFile('foo/bar.se1', Uint8List(0)),
+        throwsArgumentError,
+      );
+      expect(() => loadEpheFile('..', Uint8List(0)), throwsArgumentError);
+      expect(() => loadEpheFile('', Uint8List(0)), throwsArgumentError);
     });
   });
 }
