@@ -1843,6 +1843,7 @@ AzaltResult azalt(
   double geoalt,
   double atpress,
   double attemp,
+  double lapseRate,
   double xin0,
   double xin1,
 ) {
@@ -1855,7 +1856,17 @@ AzaltResult azalt(
     xin[0] = xin0;
     xin[1] = xin1;
     final xaz = arena<Double>(3);
-    swissephAzalt(handle, tjdUt, calcFlag, geopos, atpress, attemp, xin, xaz);
+    swissephAzalt(
+      handle,
+      tjdUt,
+      calcFlag,
+      geopos,
+      atpress,
+      attemp,
+      lapseRate,
+      xin,
+      xaz,
+    );
     return AzaltResult(
       azimuth: xaz[0],
       trueAltitude: xaz[1],

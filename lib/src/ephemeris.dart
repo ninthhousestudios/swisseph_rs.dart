@@ -732,6 +732,7 @@ final class Ephemeris implements Finalizable {
     double geoalt = 0,
     double atpress = 1013.25,
     double attemp = 15.0,
+    double lapseRate = 0.0,
     required double xin0,
     required double xin1,
   }) {
@@ -745,6 +746,7 @@ final class Ephemeris implements Finalizable {
       geoalt,
       atpress,
       attemp,
+      lapseRate,
       xin0,
       xin1,
     );

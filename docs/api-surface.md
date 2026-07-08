@@ -2091,7 +2091,9 @@ pub unsafe extern "C" fn swisseph_gauquelin_sector(
 pub unsafe extern "C" fn swisseph_azalt(
     handle: *const SweEphemeris, tjd_ut: f64,
     calc_flag: i32, // 0=SE_ECL2HOR, else SE_EQU2HOR
-    geopos: *const f64, atpress: f64, attemp: f64, xin: *const f64, // 2 values
+    geopos: *const f64, atpress: f64, attemp: f64,
+    lapse_rate: f64, // atmospheric lapse rate (K/m); 0.0 = standard atmosphere (0.0065)
+    xin: *const f64, // 2 values
     xaz: *mut f64, // 3 values: azimuth, true altitude, apparent altitude
 ); // void return, no err_buf; no-op on null args
 

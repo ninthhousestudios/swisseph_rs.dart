@@ -653,6 +653,7 @@ void swissephAzalt(
   dynamic geopos,
   double atpress,
   double attemp,
+  double lapseRate,
   dynamic xin,
   dynamic xaz,
 ) => _unsupported();

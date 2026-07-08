@@ -1329,6 +1329,7 @@ external int swissephOrbitMaxMinTrueDistance(
     Pointer<Double>,
     Double,
     Double,
+    Double,
     Pointer<Double>,
     Pointer<Double>,
   )
@@ -1340,6 +1341,7 @@ external void swissephAzalt(
   Pointer<Double> geopos,
   double atpress,
   double attemp,
+  double lapseRate,
   Pointer<Double> xin,
   Pointer<Double> xaz,
 );
