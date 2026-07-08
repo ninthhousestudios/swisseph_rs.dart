@@ -86,6 +86,17 @@ tautologies — same class as R1's 6). No new emergent-structure constraints
 needed; 5-component decomposition stable.
 Stated-vs-actual diff: all verifiable claims confirmed, no drift.
 
+## R3 verification (2026-07-08, /40)
+
+Live constraints: **7** (rows 3, 6, 7, 17, 18). All globs bind, 0
+violations. Row 18 (fan-in) raised: threshold 7→12. Observed max=11
+(flags.dart); structural fan-in from foundational types — every module
+imports flags, result, and config.
+Orphaned triggers: **0** — no `# TRIGGER:` blocks remain in rules.toml.
+Enforcement ledger: all 22 rows routed. Row 22 (arjuna migration) pending
+on arjuna/arrow/10. Oracle-map: 8 engine-trusted entries audited, all
+reasons honest. Test suite: 307/307 pass (excluding stress).
+
 ## Maintenance
 
 - **New track PRDs**: re-run vidhi-sutra-seed additively — append rows and

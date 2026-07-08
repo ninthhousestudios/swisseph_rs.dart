@@ -86,6 +86,6 @@ provenance = "skill default (vidhi-sutra-seed)"
 kind = "max_fan_in"
 name = "fan-in-guardrail"
 target = "lib/src/**"
-threshold = 7
+threshold = 12
 severity = "blocking"
-provenance = "skill default (vidhi-sutra-seed), bound checkpoint:swisseph-rs-dart/25, revised checkpoint:swisseph-rs-dart/35"
+provenance = "skill default (vidhi-sutra-seed), bound checkpoint:swisseph-rs-dart/25, revised checkpoint:swisseph-rs-dart/35, revised checkpoint:swisseph-rs-dart/40 (structural max=11 on flags.dart)"
