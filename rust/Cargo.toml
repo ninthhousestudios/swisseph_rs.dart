@@ -7,4 +7,4 @@ edition = "2024"
 crate-type = ["cdylib"]
 
 [dependencies]
-swisseph-ffi = { git = "ssh://git@github.com/ninthhousestudios/swisseph-rs", rev = "14a1df683525dfbecff213e546c64f5d54331ba3" }
+swisseph-ffi = { git = "ssh://git@github.com/ninthhousestudios/swisseph-rs", rev = "50bae5bb422ef0c1cc7919dcb54fddaf8931f902" }
