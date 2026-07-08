@@ -13,6 +13,7 @@ analyzer:
     - lib/src/lifecycle_web.dart
     - lib/src/loader_web.dart
     - lib/src/wasm_state.dart
+    - lib/src/marshal/config_pack_web.dart
 
 linter:
   rules:

@@ -1,84 +1,13 @@
 library;
 
 import 'package:wasm_ffi/ffi.dart';
-import 'package:wasm_ffi/ffi_utils.dart';
 
 import '../wasm_state.dart' as wasm;
 
 // ---------------------------------------------------------------------------
-// #[repr(C)] struct mirrors — layout must match swisseph-ffi exactly.
-// ---------------------------------------------------------------------------
-
-final class SweConfig extends Struct {
-  @Int32()
-  external int ephemerisSource;
-
-  external Pointer<Utf8> ephePath;
-  external Pointer<Utf8> jplFilename;
-  external Pointer<Utf8> leapSecondsFile;
-
-  @Bool()
-  external bool hasSidereal;
-  @Int32()
-  external int sidMode;
-  @Double()
-  external double sidT0;
-  @Double()
-  external double sidAyanT0;
-
-  @Bool()
-  external bool hasTopo;
-  @Double()
-  external double geolon;
-  @Double()
-  external double geolat;
-  @Double()
-  external double altitude;
-
-  @Double()
-  external double tidalAcceleration;
-  @Double()
-  external double deltaTUserdef;
-
-  external Pointer<Int32> asteroidNumbers;
-  @Size()
-  external int asteroidNumbersLen;
-  external Pointer<Int32> planetMoonNumbers;
-  @Size()
-  external int planetMoonNumbersLen;
-  external Pointer<Int32> extraLeapSeconds;
-  @Size()
-  external int extraLeapSecondsLen;
-
-  @Int32()
-  external int astroModelPrecLongterm;
-  @Int32()
-  external int astroModelPrecShortterm;
-  @Int32()
-  external int astroModelNutation;
-  @Int32()
-  external int astroModelBias;
-  @Int32()
-  external int astroModelJplhor;
-  @Int32()
-  external int astroModelJplhora;
-  @Int32()
-  external int astroModelSiderealTime;
-  @Int32()
-  external int astroModelDeltaT;
-}
-
-final class SweSidMode extends Struct {
-  @Int32()
-  external int sidMode;
-  @Double()
-  external double t0;
-  @Double()
-  external double ayanT0;
-}
-
-// ---------------------------------------------------------------------------
 // wasm_ffi bindings — resolved from the loaded Emscripten module.
+// Struct pointer params use Pointer<Void> — wasm_ffi has no Struct support;
+// config packing is handled by the config_pack barrel with byte-offset writes.
 // ---------------------------------------------------------------------------
 
 DynamicLibrary get _lib => wasm.wasmLibrary;
@@ -89,25 +18,19 @@ late final swissephVersion = _lib
     );
 
 late final swissephConfigDefault = _lib
-    .lookupFunction<
-      Void Function(Pointer<SweConfig>),
-      void Function(Pointer<SweConfig>)
-    >('swisseph_config_default');
+    .lookupFunction<Void Function(Pointer<Void>), void Function(Pointer<Void>)>(
+      'swisseph_config_default',
+    );
 
 late final swissephNew = _lib
     .lookupFunction<
       Int32 Function(
-        Pointer<SweConfig>,
+        Pointer<Void>,
         Pointer<Pointer<Void>>,
         Pointer<Utf8>,
         Size,
       ),
-      int Function(
-        Pointer<SweConfig>,
-        Pointer<Pointer<Void>>,
-        Pointer<Utf8>,
-        int,
-      )
+      int Function(Pointer<Void>, Pointer<Pointer<Void>>, Pointer<Utf8>, int)
     >('swisseph_new');
 
 late final swissephFree = _lib
@@ -130,7 +53,7 @@ late final swissephCalcUt = _lib
         Int32,
         Int32,
         Pointer<Double>,
-        Pointer<SweSidMode>,
+        Pointer<Void>,
         Pointer<Double>,
         Pointer<Int32>,
         Pointer<Utf8>,
@@ -142,7 +65,7 @@ late final swissephCalcUt = _lib
         int,
         int,
         Pointer<Double>,
-        Pointer<SweSidMode>,
+        Pointer<Void>,
         Pointer<Double>,
         Pointer<Int32>,
         Pointer<Utf8>,
@@ -158,7 +81,7 @@ late final swissephCalc = _lib
         Int32,
         Int32,
         Pointer<Double>,
-        Pointer<SweSidMode>,
+        Pointer<Void>,
         Pointer<Double>,
         Pointer<Int32>,
         Pointer<Utf8>,
@@ -170,7 +93,7 @@ late final swissephCalc = _lib
         int,
         int,
         Pointer<Double>,
-        Pointer<SweSidMode>,
+        Pointer<Void>,
         Pointer<Double>,
         Pointer<Int32>,
         Pointer<Utf8>,
@@ -612,7 +535,7 @@ late final swissephGetAyanamsaEx = _lib
         Pointer<Void>,
         Double,
         Int32,
-        Pointer<SweSidMode>,
+        Pointer<Void>,
         Pointer<Double>,
         Pointer<Int32>,
         Pointer<Utf8>,
@@ -622,7 +545,7 @@ late final swissephGetAyanamsaEx = _lib
         Pointer<Void>,
         double,
         int,
-        Pointer<SweSidMode>,
+        Pointer<Void>,
         Pointer<Double>,
         Pointer<Int32>,
         Pointer<Utf8>,
@@ -636,7 +559,7 @@ late final swissephGetAyanamsaExUt = _lib
         Pointer<Void>,
         Double,
         Int32,
-        Pointer<SweSidMode>,
+        Pointer<Void>,
         Pointer<Double>,
         Pointer<Int32>,
         Pointer<Utf8>,
@@ -646,7 +569,7 @@ late final swissephGetAyanamsaExUt = _lib
         Pointer<Void>,
         double,
         int,
-        Pointer<SweSidMode>,
+        Pointer<Void>,
         Pointer<Double>,
         Pointer<Int32>,
         Pointer<Utf8>,
@@ -656,14 +579,14 @@ late final swissephGetAyanamsaExUt = _lib
 
 late final swissephGetAyanamsa = _lib
     .lookupFunction<
-      Double Function(Pointer<Void>, Double, Pointer<SweSidMode>),
-      double Function(Pointer<Void>, double, Pointer<SweSidMode>)
+      Double Function(Pointer<Void>, Double, Pointer<Void>),
+      double Function(Pointer<Void>, double, Pointer<Void>)
     >('swisseph_get_ayanamsa');
 
 late final swissephGetAyanamsaUt = _lib
     .lookupFunction<
-      Double Function(Pointer<Void>, Double, Pointer<SweSidMode>),
-      double Function(Pointer<Void>, double, Pointer<SweSidMode>)
+      Double Function(Pointer<Void>, Double, Pointer<Void>),
+      double Function(Pointer<Void>, double, Pointer<Void>)
     >('swisseph_get_ayanamsa_ut');
 
 late final swissephGetAyanamsaName = _lib
@@ -1196,7 +1119,7 @@ late final swissephPheno = _lib
         Int32,
         Int32,
         Pointer<Double>,
-        Pointer<SweSidMode>,
+        Pointer<Void>,
         Pointer<Double>,
         Pointer<Int32>,
         Pointer<Utf8>,
@@ -1208,7 +1131,7 @@ late final swissephPheno = _lib
         int,
         int,
         Pointer<Double>,
-        Pointer<SweSidMode>,
+        Pointer<Void>,
         Pointer<Double>,
         Pointer<Int32>,
         Pointer<Utf8>,
@@ -1224,7 +1147,7 @@ late final swissephPhenoUt = _lib
         Int32,
         Int32,
         Pointer<Double>,
-        Pointer<SweSidMode>,
+        Pointer<Void>,
         Pointer<Double>,
         Pointer<Int32>,
         Pointer<Utf8>,
@@ -1236,7 +1159,7 @@ late final swissephPhenoUt = _lib
         int,
         int,
         Pointer<Double>,
-        Pointer<SweSidMode>,
+        Pointer<Void>,
         Pointer<Double>,
         Pointer<Int32>,
         Pointer<Utf8>,
@@ -1444,7 +1367,7 @@ late final swissephFixstar2 = _lib
         Double,
         Int32,
         Pointer<Double>,
-        Pointer<SweSidMode>,
+        Pointer<Void>,
         Pointer<Double>,
         Pointer<Int32>,
         Pointer<Utf8>,
@@ -1458,7 +1381,7 @@ late final swissephFixstar2 = _lib
         double,
         int,
         Pointer<Double>,
-        Pointer<SweSidMode>,
+        Pointer<Void>,
         Pointer<Double>,
         Pointer<Int32>,
         Pointer<Utf8>,
@@ -1476,7 +1399,7 @@ late final swissephFixstar2Ut = _lib
         Double,
         Int32,
         Pointer<Double>,
-        Pointer<SweSidMode>,
+        Pointer<Void>,
         Pointer<Double>,
         Pointer<Int32>,
         Pointer<Utf8>,
@@ -1490,7 +1413,7 @@ late final swissephFixstar2Ut = _lib
         double,
         int,
         Pointer<Double>,
-        Pointer<SweSidMode>,
+        Pointer<Void>,
         Pointer<Double>,
         Pointer<Int32>,
         Pointer<Utf8>,

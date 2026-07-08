@@ -86,19 +86,14 @@ final class SweSidMode extends Struct {
 @Native<Pointer<Utf8> Function()>(symbol: 'swisseph_version')
 external Pointer<Utf8> swissephVersion();
 
-@Native<Void Function(Pointer<SweConfig>)>(symbol: 'swisseph_config_default')
-external void swissephConfigDefault(Pointer<SweConfig> config);
+@Native<Void Function(Pointer<Void>)>(symbol: 'swisseph_config_default')
+external void swissephConfigDefault(Pointer<Void> config);
 
 @Native<
-  Int32 Function(
-    Pointer<SweConfig>,
-    Pointer<Pointer<Void>>,
-    Pointer<Utf8>,
-    Size,
-  )
+  Int32 Function(Pointer<Void>, Pointer<Pointer<Void>>, Pointer<Utf8>, Size)
 >(symbol: 'swisseph_new')
 external int swissephNew(
-  Pointer<SweConfig> config,
+  Pointer<Void> config,
   Pointer<Pointer<Void>> out,
   Pointer<Utf8> errBuf,
   int errCap,
@@ -124,7 +119,7 @@ external int swissephShare(
     Int32,
     Int32,
     Pointer<Double>,
-    Pointer<SweSidMode>,
+    Pointer<Void>,
     Pointer<Double>,
     Pointer<Int32>,
     Pointer<Utf8>,
@@ -137,7 +132,7 @@ external int swissephCalcUt(
   int ipl,
   int iflag,
   Pointer<Double> geopos,
-  Pointer<SweSidMode> sidMode,
+  Pointer<Void> sidMode,
   Pointer<Double> xx,
   Pointer<Int32> flagsUsed,
   Pointer<Utf8> errBuf,
@@ -151,7 +146,7 @@ external int swissephCalcUt(
     Int32,
     Int32,
     Pointer<Double>,
-    Pointer<SweSidMode>,
+    Pointer<Void>,
     Pointer<Double>,
     Pointer<Int32>,
     Pointer<Utf8>,
@@ -164,7 +159,7 @@ external int swissephCalc(
   int ipl,
   int iflag,
   Pointer<Double> geopos,
-  Pointer<SweSidMode> sidMode,
+  Pointer<Void> sidMode,
   Pointer<Double> xx,
   Pointer<Int32> flagsUsed,
   Pointer<Utf8> errBuf,
@@ -593,7 +588,7 @@ external int swissephGauquelinSector(
     Pointer<Void>,
     Double,
     Int32,
-    Pointer<SweSidMode>,
+    Pointer<Void>,
     Pointer<Double>,
     Pointer<Int32>,
     Pointer<Utf8>,
@@ -604,7 +599,7 @@ external int swissephGetAyanamsaEx(
   Pointer<Void> handle,
   double tjdEt,
   int iflag,
-  Pointer<SweSidMode> sidMode,
+  Pointer<Void> sidMode,
   Pointer<Double> daya,
   Pointer<Int32> flagsUsed,
   Pointer<Utf8> errBuf,
@@ -616,7 +611,7 @@ external int swissephGetAyanamsaEx(
     Pointer<Void>,
     Double,
     Int32,
-    Pointer<SweSidMode>,
+    Pointer<Void>,
     Pointer<Double>,
     Pointer<Int32>,
     Pointer<Utf8>,
@@ -627,29 +622,29 @@ external int swissephGetAyanamsaExUt(
   Pointer<Void> handle,
   double tjdUt,
   int iflag,
-  Pointer<SweSidMode> sidMode,
+  Pointer<Void> sidMode,
   Pointer<Double> daya,
   Pointer<Int32> flagsUsed,
   Pointer<Utf8> errBuf,
   int errCap,
 );
 
-@Native<Double Function(Pointer<Void>, Double, Pointer<SweSidMode>)>(
+@Native<Double Function(Pointer<Void>, Double, Pointer<Void>)>(
   symbol: 'swisseph_get_ayanamsa',
 )
 external double swissephGetAyanamsa(
   Pointer<Void> handle,
   double tjdEt,
-  Pointer<SweSidMode> sidMode,
+  Pointer<Void> sidMode,
 );
 
-@Native<Double Function(Pointer<Void>, Double, Pointer<SweSidMode>)>(
+@Native<Double Function(Pointer<Void>, Double, Pointer<Void>)>(
   symbol: 'swisseph_get_ayanamsa_ut',
 )
 external double swissephGetAyanamsaUt(
   Pointer<Void> handle,
   double tjdUt,
-  Pointer<SweSidMode> sidMode,
+  Pointer<Void> sidMode,
 );
 
 @Native<Int32 Function(Int32, Pointer<Utf8>, Size, Pointer<Utf8>, Size)>(
@@ -1166,7 +1161,7 @@ external int swissephHelioCrossUt(
     Int32,
     Int32,
     Pointer<Double>,
-    Pointer<SweSidMode>,
+    Pointer<Void>,
     Pointer<Double>,
     Pointer<Int32>,
     Pointer<Utf8>,
@@ -1179,7 +1174,7 @@ external int swissephPheno(
   int ipl,
   int iflag,
   Pointer<Double> geopos,
-  Pointer<SweSidMode> sidMode,
+  Pointer<Void> sidMode,
   Pointer<Double> attr,
   Pointer<Int32> flagsUsed,
   Pointer<Utf8> errBuf,
@@ -1193,7 +1188,7 @@ external int swissephPheno(
     Int32,
     Int32,
     Pointer<Double>,
-    Pointer<SweSidMode>,
+    Pointer<Void>,
     Pointer<Double>,
     Pointer<Int32>,
     Pointer<Utf8>,
@@ -1206,7 +1201,7 @@ external int swissephPhenoUt(
   int ipl,
   int iflag,
   Pointer<Double> geopos,
-  Pointer<SweSidMode> sidMode,
+  Pointer<Void> sidMode,
   Pointer<Double> attr,
   Pointer<Int32> flagsUsed,
   Pointer<Utf8> errBuf,
@@ -1409,7 +1404,7 @@ external double swissephRefracExtended(
     Double,
     Int32,
     Pointer<Double>,
-    Pointer<SweSidMode>,
+    Pointer<Void>,
     Pointer<Double>,
     Pointer<Int32>,
     Pointer<Utf8>,
@@ -1424,7 +1419,7 @@ external int swissephFixstar2(
   double tjdEt,
   int iflag,
   Pointer<Double> geopos,
-  Pointer<SweSidMode> sidMode,
+  Pointer<Void> sidMode,
   Pointer<Double> xx,
   Pointer<Int32> flagsUsed,
   Pointer<Utf8> errBuf,
@@ -1440,7 +1435,7 @@ external int swissephFixstar2(
     Double,
     Int32,
     Pointer<Double>,
-    Pointer<SweSidMode>,
+    Pointer<Void>,
     Pointer<Double>,
     Pointer<Int32>,
     Pointer<Utf8>,
@@ -1455,7 +1450,7 @@ external int swissephFixstar2Ut(
   double tjdUt,
   int iflag,
   Pointer<Double> geopos,
-  Pointer<SweSidMode> sidMode,
+  Pointer<Void> sidMode,
   Pointer<Double> xx,
   Pointer<Int32> flagsUsed,
   Pointer<Utf8> errBuf,
