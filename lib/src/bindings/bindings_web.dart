@@ -1,763 +1,1687 @@
 library;
 
-/// Web FFI bindings to swisseph-ffi (wasm). Stub — not yet implemented.
-///
-/// This file is selected by the conditional import in bindings.dart when
-/// running on web platforms. The full wasm_ffi integration is a later task.
+import 'package:wasm_ffi/ffi.dart';
+import 'package:wasm_ffi/ffi_utils.dart';
 
-Never _unsupported() =>
-    throw UnsupportedError('swisseph_rs web bindings not yet implemented');
+import '../wasm_state.dart' as wasm;
 
-void swissephVersion() => _unsupported();
-void swissephConfigDefault(dynamic config) => _unsupported();
-int swissephNew(dynamic config, dynamic out, dynamic errBuf, int errCap) =>
-    _unsupported();
-void swissephFree(dynamic handle) => _unsupported();
-int swissephShare(dynamic handle, dynamic out, dynamic errBuf, int errCap) =>
-    _unsupported();
-int swissephCalcUt(
-  dynamic handle,
-  double tjdUt,
-  int ipl,
-  int iflag,
-  dynamic geopos,
-  dynamic sidMode,
-  dynamic xx,
-  dynamic flagsUsed,
-  dynamic errBuf,
+// ---------------------------------------------------------------------------
+// #[repr(C)] struct mirrors — layout must match swisseph-ffi exactly.
+// ---------------------------------------------------------------------------
+
+final class SweConfig extends Struct {
+  @Int32()
+  external int ephemerisSource;
+
+  external Pointer<Utf8> ephePath;
+  external Pointer<Utf8> jplFilename;
+  external Pointer<Utf8> leapSecondsFile;
+
+  @Bool()
+  external bool hasSidereal;
+  @Int32()
+  external int sidMode;
+  @Double()
+  external double sidT0;
+  @Double()
+  external double sidAyanT0;
+
+  @Bool()
+  external bool hasTopo;
+  @Double()
+  external double geolon;
+  @Double()
+  external double geolat;
+  @Double()
+  external double altitude;
+
+  @Double()
+  external double tidalAcceleration;
+  @Double()
+  external double deltaTUserdef;
+
+  external Pointer<Int32> asteroidNumbers;
+  @Size()
+  external int asteroidNumbersLen;
+  external Pointer<Int32> planetMoonNumbers;
+  @Size()
+  external int planetMoonNumbersLen;
+  external Pointer<Int32> extraLeapSeconds;
+  @Size()
+  external int extraLeapSecondsLen;
+
+  @Int32()
+  external int astroModelPrecLongterm;
+  @Int32()
+  external int astroModelPrecShortterm;
+  @Int32()
+  external int astroModelNutation;
+  @Int32()
+  external int astroModelBias;
+  @Int32()
+  external int astroModelJplhor;
+  @Int32()
+  external int astroModelJplhora;
+  @Int32()
+  external int astroModelSiderealTime;
+  @Int32()
+  external int astroModelDeltaT;
+}
+
+final class SweSidMode extends Struct {
+  @Int32()
+  external int sidMode;
+  @Double()
+  external double t0;
+  @Double()
+  external double ayanT0;
+}
+
+// ---------------------------------------------------------------------------
+// wasm_ffi bindings — resolved from the loaded Emscripten module.
+// ---------------------------------------------------------------------------
+
+DynamicLibrary get _lib => wasm.wasmLibrary;
+
+late final swissephVersion = _lib
+    .lookupFunction<Pointer<Utf8> Function(), Pointer<Utf8> Function()>(
+      'swisseph_version',
+    );
+
+late final swissephConfigDefault = _lib
+    .lookupFunction<
+      Void Function(Pointer<SweConfig>),
+      void Function(Pointer<SweConfig>)
+    >('swisseph_config_default');
+
+late final swissephNew = _lib
+    .lookupFunction<
+      Int32 Function(
+        Pointer<SweConfig>,
+        Pointer<Pointer<Void>>,
+        Pointer<Utf8>,
+        Size,
+      ),
+      int Function(
+        Pointer<SweConfig>,
+        Pointer<Pointer<Void>>,
+        Pointer<Utf8>,
+        int,
+      )
+    >('swisseph_new');
+
+late final swissephFree = _lib
+    .lookupFunction<Void Function(Pointer<Void>), void Function(Pointer<Void>)>(
+      'swisseph_free',
+    );
+
+int swissephShare(
+  Pointer<Void> handle,
+  Pointer<Pointer<Void>> out,
+  Pointer<Utf8> errBuf,
   int errCap,
-) => _unsupported();
+) => throw UnsupportedError('share() is not supported on web');
 
-int swissephCalc(
-  dynamic handle,
-  double tjdEt,
-  int ipl,
-  int iflag,
-  dynamic geopos,
-  dynamic sidMode,
-  dynamic xx,
-  dynamic flagsUsed,
-  dynamic errBuf,
-  int errCap,
-) => _unsupported();
+late final swissephCalcUt = _lib
+    .lookupFunction<
+      Int32 Function(
+        Pointer<Void>,
+        Double,
+        Int32,
+        Int32,
+        Pointer<Double>,
+        Pointer<SweSidMode>,
+        Pointer<Double>,
+        Pointer<Int32>,
+        Pointer<Utf8>,
+        Size,
+      ),
+      int Function(
+        Pointer<Void>,
+        double,
+        int,
+        int,
+        Pointer<Double>,
+        Pointer<SweSidMode>,
+        Pointer<Double>,
+        Pointer<Int32>,
+        Pointer<Utf8>,
+        int,
+      )
+    >('swisseph_calc_ut');
 
-int swissephCalcPctr(
-  dynamic handle,
-  double tjdEt,
-  int ipl,
-  int iplctr,
-  int iflag,
-  dynamic xx,
-  dynamic flagsUsed,
-  dynamic errBuf,
-  int errCap,
-) => _unsupported();
+late final swissephCalc = _lib
+    .lookupFunction<
+      Int32 Function(
+        Pointer<Void>,
+        Double,
+        Int32,
+        Int32,
+        Pointer<Double>,
+        Pointer<SweSidMode>,
+        Pointer<Double>,
+        Pointer<Int32>,
+        Pointer<Utf8>,
+        Size,
+      ),
+      int Function(
+        Pointer<Void>,
+        double,
+        int,
+        int,
+        Pointer<Double>,
+        Pointer<SweSidMode>,
+        Pointer<Double>,
+        Pointer<Int32>,
+        Pointer<Utf8>,
+        int,
+      )
+    >('swisseph_calc');
 
-double swissephJulday(
-  int year,
-  int month,
-  int day,
-  double hour,
-  int gregflag,
-) => _unsupported();
+late final swissephCalcPctr = _lib
+    .lookupFunction<
+      Int32 Function(
+        Pointer<Void>,
+        Double,
+        Int32,
+        Int32,
+        Int32,
+        Pointer<Double>,
+        Pointer<Int32>,
+        Pointer<Utf8>,
+        Size,
+      ),
+      int Function(
+        Pointer<Void>,
+        double,
+        int,
+        int,
+        int,
+        Pointer<Double>,
+        Pointer<Int32>,
+        Pointer<Utf8>,
+        int,
+      )
+    >('swisseph_calc_pctr');
 
-void swissephRevjul(
-  double jd,
-  int gregflag,
-  dynamic year,
-  dynamic month,
-  dynamic day,
-  dynamic hour,
-) => _unsupported();
+// ---------------------------------------------------------------------------
+// Date/time functions (handle-free unless noted)
+// ---------------------------------------------------------------------------
 
-int swissephDateConversion(
-  int year,
-  int month,
-  int day,
-  double hour,
-  int cal,
-  dynamic tjd,
-  dynamic errBuf,
-  int errCap,
-) => _unsupported();
+late final swissephJulday = _lib
+    .lookupFunction<
+      Double Function(Int32, Int32, Int32, Double, Int32),
+      double Function(int, int, int, double, int)
+    >('swisseph_julday');
 
-int swissephDayOfWeek(double jd) => _unsupported();
+late final swissephRevjul = _lib
+    .lookupFunction<
+      Void Function(
+        Double,
+        Int32,
+        Pointer<Int32>,
+        Pointer<Int32>,
+        Pointer<Int32>,
+        Pointer<Double>,
+      ),
+      void Function(
+        double,
+        int,
+        Pointer<Int32>,
+        Pointer<Int32>,
+        Pointer<Int32>,
+        Pointer<Double>,
+      )
+    >('swisseph_revjul');
 
-void swissephUtcTimeZone(
-  int iyear,
-  int imonth,
-  int iday,
-  int ihour,
-  int imin,
-  double dsec,
-  double dTimezone,
-  dynamic oyear,
-  dynamic omonth,
-  dynamic oday,
-  dynamic ohour,
-  dynamic omin,
-  dynamic osec,
-) => _unsupported();
+late final swissephDateConversion = _lib
+    .lookupFunction<
+      Int32 Function(
+        Int32,
+        Int32,
+        Int32,
+        Double,
+        Int8,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        Size,
+      ),
+      int Function(
+        int,
+        int,
+        int,
+        double,
+        int,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        int,
+      )
+    >('swisseph_date_conversion');
 
-int swissephUtcToJd(
-  dynamic handle,
-  int year,
-  int month,
-  int day,
-  int hour,
-  int min,
-  double sec,
-  int gregflag,
-  dynamic dret,
-  dynamic errBuf,
-  int errCap,
-) => _unsupported();
+late final swissephDayOfWeek = _lib
+    .lookupFunction<Int32 Function(Double), int Function(double)>(
+      'swisseph_day_of_week',
+    );
 
-void swissephJdetToUtc(
-  dynamic handle,
-  double tjdEt,
-  int gregflag,
-  dynamic year,
-  dynamic month,
-  dynamic day,
-  dynamic hour,
-  dynamic min,
-  dynamic sec,
-) => _unsupported();
+late final swissephUtcTimeZone = _lib
+    .lookupFunction<
+      Void Function(
+        Int32,
+        Int32,
+        Int32,
+        Int32,
+        Int32,
+        Double,
+        Double,
+        Pointer<Int32>,
+        Pointer<Int32>,
+        Pointer<Int32>,
+        Pointer<Int32>,
+        Pointer<Int32>,
+        Pointer<Double>,
+      ),
+      void Function(
+        int,
+        int,
+        int,
+        int,
+        int,
+        double,
+        double,
+        Pointer<Int32>,
+        Pointer<Int32>,
+        Pointer<Int32>,
+        Pointer<Int32>,
+        Pointer<Int32>,
+        Pointer<Double>,
+      )
+    >('swisseph_utc_time_zone');
 
-void swissephJdut1ToUtc(
-  dynamic handle,
-  double tjdUt,
-  int gregflag,
-  dynamic year,
-  dynamic month,
-  dynamic day,
-  dynamic hour,
-  dynamic min,
-  dynamic sec,
-) => _unsupported();
+late final swissephUtcToJd = _lib
+    .lookupFunction<
+      Int32 Function(
+        Pointer<Void>,
+        Int32,
+        Int32,
+        Int32,
+        Int32,
+        Int32,
+        Double,
+        Int32,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        Size,
+      ),
+      int Function(
+        Pointer<Void>,
+        int,
+        int,
+        int,
+        int,
+        int,
+        double,
+        int,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        int,
+      )
+    >('swisseph_utc_to_jd');
 
-double swissephDeltat(dynamic handle, double tjdUt) => _unsupported();
+late final swissephJdetToUtc = _lib
+    .lookupFunction<
+      Void Function(
+        Pointer<Void>,
+        Double,
+        Int32,
+        Pointer<Int32>,
+        Pointer<Int32>,
+        Pointer<Int32>,
+        Pointer<Int32>,
+        Pointer<Int32>,
+        Pointer<Double>,
+      ),
+      void Function(
+        Pointer<Void>,
+        double,
+        int,
+        Pointer<Int32>,
+        Pointer<Int32>,
+        Pointer<Int32>,
+        Pointer<Int32>,
+        Pointer<Int32>,
+        Pointer<Double>,
+      )
+    >('swisseph_jdet_to_utc');
 
-int swissephTimeEqu(
-  dynamic handle,
-  double tjdUt,
-  dynamic e,
-  dynamic errBuf,
-  int errCap,
-) => _unsupported();
+late final swissephJdut1ToUtc = _lib
+    .lookupFunction<
+      Void Function(
+        Pointer<Void>,
+        Double,
+        Int32,
+        Pointer<Int32>,
+        Pointer<Int32>,
+        Pointer<Int32>,
+        Pointer<Int32>,
+        Pointer<Int32>,
+        Pointer<Double>,
+      ),
+      void Function(
+        Pointer<Void>,
+        double,
+        int,
+        Pointer<Int32>,
+        Pointer<Int32>,
+        Pointer<Int32>,
+        Pointer<Int32>,
+        Pointer<Int32>,
+        Pointer<Double>,
+      )
+    >('swisseph_jdut1_to_utc');
 
-int swissephLmtToLat(
-  dynamic handle,
-  double tjdLmt,
-  double geolon,
-  dynamic tjdLat,
-  dynamic errBuf,
-  int errCap,
-) => _unsupported();
+late final swissephDeltat = _lib
+    .lookupFunction<
+      Double Function(Pointer<Void>, Double),
+      double Function(Pointer<Void>, double)
+    >('swisseph_deltat');
 
-int swissephLatToLmt(
-  dynamic handle,
-  double tjdLat,
-  double geolon,
-  dynamic tjdLmt,
-  dynamic errBuf,
-  int errCap,
-) => _unsupported();
+late final swissephTimeEqu = _lib
+    .lookupFunction<
+      Int32 Function(
+        Pointer<Void>,
+        Double,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        Size,
+      ),
+      int Function(Pointer<Void>, double, Pointer<Double>, Pointer<Utf8>, int)
+    >('swisseph_time_equ');
 
-int swissephGetPlanetName(
-  dynamic handle,
-  int ipl,
-  dynamic buf,
-  int cap,
-  dynamic errBuf,
-  int errCap,
-) => _unsupported();
+late final swissephLmtToLat = _lib
+    .lookupFunction<
+      Int32 Function(
+        Pointer<Void>,
+        Double,
+        Double,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        Size,
+      ),
+      int Function(
+        Pointer<Void>,
+        double,
+        double,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        int,
+      )
+    >('swisseph_lmt_to_lat');
 
-void swissephSplitDeg(
-  double ddeg,
-  int roundflag,
-  dynamic deg,
-  dynamic min,
-  dynamic sec,
-  dynamic secfr,
-  dynamic sign,
-) => _unsupported();
+late final swissephLatToLmt = _lib
+    .lookupFunction<
+      Int32 Function(
+        Pointer<Void>,
+        Double,
+        Double,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        Size,
+      ),
+      int Function(
+        Pointer<Void>,
+        double,
+        double,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        int,
+      )
+    >('swisseph_lat_to_lmt');
 
+late final swissephGetPlanetName = _lib
+    .lookupFunction<
+      Int32 Function(
+        Pointer<Void>,
+        Int32,
+        Pointer<Utf8>,
+        Size,
+        Pointer<Utf8>,
+        Size,
+      ),
+      int Function(Pointer<Void>, int, Pointer<Utf8>, int, Pointer<Utf8>, int)
+    >('swisseph_get_planet_name');
+
+late final swissephSplitDeg = _lib
+    .lookupFunction<
+      Void Function(
+        Double,
+        Int32,
+        Pointer<Int32>,
+        Pointer<Int32>,
+        Pointer<Int32>,
+        Pointer<Double>,
+        Pointer<Int32>,
+      ),
+      void Function(
+        double,
+        int,
+        Pointer<Int32>,
+        Pointer<Int32>,
+        Pointer<Int32>,
+        Pointer<Double>,
+        Pointer<Int32>,
+      )
+    >('swisseph_split_deg');
+
+// ---------------------------------------------------------------------------
 // Houses & Gauquelin
+// ---------------------------------------------------------------------------
 
-int swissephHousesEx2(
-  dynamic handle,
-  double tjdUt,
-  int iflag,
-  double geolat,
-  double geolon,
-  int hsys,
-  dynamic cusps,
-  dynamic ascmc,
-  dynamic cuspSpeed,
-  dynamic ascmcSpeed,
-  dynamic errBuf,
-  int errCap,
-) => _unsupported();
+late final swissephHousesEx2 = _lib
+    .lookupFunction<
+      Int32 Function(
+        Pointer<Void>,
+        Double,
+        Int32,
+        Double,
+        Double,
+        Int32,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        Size,
+      ),
+      int Function(
+        Pointer<Void>,
+        double,
+        int,
+        double,
+        double,
+        int,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        int,
+      )
+    >('swisseph_houses_ex2');
 
-int swissephHousesArmcEx2(
-  double armc,
-  double geolat,
-  double eps,
-  int hsys,
-  dynamic sundec,
-  dynamic cusps,
-  dynamic ascmc,
-  dynamic cuspSpeed,
-  dynamic ascmcSpeed,
-  dynamic errBuf,
-  int errCap,
-) => _unsupported();
+late final swissephHousesArmcEx2 = _lib
+    .lookupFunction<
+      Int32 Function(
+        Double,
+        Double,
+        Double,
+        Int32,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        Size,
+      ),
+      int Function(
+        double,
+        double,
+        double,
+        int,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        int,
+      )
+    >('swisseph_houses_armc_ex2');
 
-int swissephHousePos(
-  double armc,
-  double geolat,
-  double eps,
-  int hsys,
-  dynamic xpin,
-  dynamic sundec,
-  dynamic hpos,
-  dynamic errBuf,
-  int errCap,
-) => _unsupported();
+late final swissephHousePos = _lib
+    .lookupFunction<
+      Int32 Function(
+        Double,
+        Double,
+        Double,
+        Int32,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        Size,
+      ),
+      int Function(
+        double,
+        double,
+        double,
+        int,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        int,
+      )
+    >('swisseph_house_pos');
 
-int swissephHouseName(
-  int hsys,
-  dynamic buf,
-  int cap,
-  dynamic errBuf,
-  int errCap,
-) => _unsupported();
+late final swissephHouseName = _lib
+    .lookupFunction<
+      Int32 Function(Int32, Pointer<Utf8>, Size, Pointer<Utf8>, Size),
+      int Function(int, Pointer<Utf8>, int, Pointer<Utf8>, int)
+    >('swisseph_house_name');
 
-int swissephGauquelinSector(
-  dynamic handle,
-  double tjdUt,
-  int ipl,
-  dynamic starname,
-  int iflag,
-  int imeth,
-  dynamic geopos,
-  double atpress,
-  double attemp,
-  dynamic dgsect,
-  dynamic errBuf,
-  int errCap,
-) => _unsupported();
+late final swissephGauquelinSector = _lib
+    .lookupFunction<
+      Int32 Function(
+        Pointer<Void>,
+        Double,
+        Int32,
+        Pointer<Utf8>,
+        Int32,
+        Int32,
+        Pointer<Double>,
+        Double,
+        Double,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        Size,
+      ),
+      int Function(
+        Pointer<Void>,
+        double,
+        int,
+        Pointer<Utf8>,
+        int,
+        int,
+        Pointer<Double>,
+        double,
+        double,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        int,
+      )
+    >('swisseph_gauquelin_sector');
 
+// ---------------------------------------------------------------------------
 // Ayanamsa
+// ---------------------------------------------------------------------------
 
-int swissephGetAyanamsaEx(
-  dynamic handle,
-  double tjdEt,
-  int iflag,
-  dynamic sidMode,
-  dynamic daya,
-  dynamic flagsUsed,
-  dynamic errBuf,
-  int errCap,
-) => _unsupported();
+late final swissephGetAyanamsaEx = _lib
+    .lookupFunction<
+      Int32 Function(
+        Pointer<Void>,
+        Double,
+        Int32,
+        Pointer<SweSidMode>,
+        Pointer<Double>,
+        Pointer<Int32>,
+        Pointer<Utf8>,
+        Size,
+      ),
+      int Function(
+        Pointer<Void>,
+        double,
+        int,
+        Pointer<SweSidMode>,
+        Pointer<Double>,
+        Pointer<Int32>,
+        Pointer<Utf8>,
+        int,
+      )
+    >('swisseph_get_ayanamsa_ex');
 
-int swissephGetAyanamsaExUt(
-  dynamic handle,
-  double tjdUt,
-  int iflag,
-  dynamic sidMode,
-  dynamic daya,
-  dynamic flagsUsed,
-  dynamic errBuf,
-  int errCap,
-) => _unsupported();
+late final swissephGetAyanamsaExUt = _lib
+    .lookupFunction<
+      Int32 Function(
+        Pointer<Void>,
+        Double,
+        Int32,
+        Pointer<SweSidMode>,
+        Pointer<Double>,
+        Pointer<Int32>,
+        Pointer<Utf8>,
+        Size,
+      ),
+      int Function(
+        Pointer<Void>,
+        double,
+        int,
+        Pointer<SweSidMode>,
+        Pointer<Double>,
+        Pointer<Int32>,
+        Pointer<Utf8>,
+        int,
+      )
+    >('swisseph_get_ayanamsa_ex_ut');
 
-double swissephGetAyanamsa(dynamic handle, double tjdEt, dynamic sidMode) =>
-    _unsupported();
+late final swissephGetAyanamsa = _lib
+    .lookupFunction<
+      Double Function(Pointer<Void>, Double, Pointer<SweSidMode>),
+      double Function(Pointer<Void>, double, Pointer<SweSidMode>)
+    >('swisseph_get_ayanamsa');
 
-double swissephGetAyanamsaUt(dynamic handle, double tjdUt, dynamic sidMode) =>
-    _unsupported();
+late final swissephGetAyanamsaUt = _lib
+    .lookupFunction<
+      Double Function(Pointer<Void>, Double, Pointer<SweSidMode>),
+      double Function(Pointer<Void>, double, Pointer<SweSidMode>)
+    >('swisseph_get_ayanamsa_ut');
 
-int swissephGetAyanamsaName(
-  int sidModeRaw,
-  dynamic buf,
-  int cap,
-  dynamic errBuf,
-  int errCap,
-) => _unsupported();
+late final swissephGetAyanamsaName = _lib
+    .lookupFunction<
+      Int32 Function(Int32, Pointer<Utf8>, Size, Pointer<Utf8>, Size),
+      int Function(int, Pointer<Utf8>, int, Pointer<Utf8>, int)
+    >('swisseph_get_ayanamsa_name');
 
+// ---------------------------------------------------------------------------
 // Eclipses & occultations
+// ---------------------------------------------------------------------------
 
-int swissephSolEclipseWhere(
-  dynamic handle,
-  double tjdUt,
-  int ifl,
-  dynamic geopos,
-  dynamic attr,
-  dynamic errBuf,
-  int errCap,
-) => _unsupported();
+late final swissephSolEclipseWhere = _lib
+    .lookupFunction<
+      Int32 Function(
+        Pointer<Void>,
+        Double,
+        Int32,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        Size,
+      ),
+      int Function(
+        Pointer<Void>,
+        double,
+        int,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        int,
+      )
+    >('swisseph_sol_eclipse_where');
 
-int swissephSolEclipseHow(
-  dynamic handle,
-  double tjdUt,
-  int ifl,
-  dynamic geopos,
-  dynamic attr,
-  dynamic errBuf,
-  int errCap,
-) => _unsupported();
+late final swissephSolEclipseHow = _lib
+    .lookupFunction<
+      Int32 Function(
+        Pointer<Void>,
+        Double,
+        Int32,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        Size,
+      ),
+      int Function(
+        Pointer<Void>,
+        double,
+        int,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        int,
+      )
+    >('swisseph_sol_eclipse_how');
 
-int swissephSolEclipseWhenGlob(
-  dynamic handle,
-  double tjdStart,
-  int ifl,
-  int ifltype,
-  int backward,
-  dynamic tret,
-  dynamic errBuf,
-  int errCap,
-) => _unsupported();
+late final swissephSolEclipseWhenGlob = _lib
+    .lookupFunction<
+      Int32 Function(
+        Pointer<Void>,
+        Double,
+        Int32,
+        Int32,
+        Int32,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        Size,
+      ),
+      int Function(
+        Pointer<Void>,
+        double,
+        int,
+        int,
+        int,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        int,
+      )
+    >('swisseph_sol_eclipse_when_glob');
 
-int swissephSolEclipseWhenLoc(
-  dynamic handle,
-  double tjdStart,
-  int ifl,
-  dynamic geopos,
-  int backward,
-  dynamic tret,
-  dynamic attr,
-  dynamic errBuf,
-  int errCap,
-) => _unsupported();
+late final swissephSolEclipseWhenLoc = _lib
+    .lookupFunction<
+      Int32 Function(
+        Pointer<Void>,
+        Double,
+        Int32,
+        Pointer<Double>,
+        Int32,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        Size,
+      ),
+      int Function(
+        Pointer<Void>,
+        double,
+        int,
+        Pointer<Double>,
+        int,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        int,
+      )
+    >('swisseph_sol_eclipse_when_loc');
 
-int swissephLunEclipseHow(
-  dynamic handle,
-  double tjdUt,
-  int ifl,
-  dynamic geopos,
-  dynamic attr,
-  dynamic errBuf,
-  int errCap,
-) => _unsupported();
+late final swissephLunEclipseHow = _lib
+    .lookupFunction<
+      Int32 Function(
+        Pointer<Void>,
+        Double,
+        Int32,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        Size,
+      ),
+      int Function(
+        Pointer<Void>,
+        double,
+        int,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        int,
+      )
+    >('swisseph_lun_eclipse_how');
 
-int swissephLunEclipseWhen(
-  dynamic handle,
-  double tjdStart,
-  int ifl,
-  int ifltype,
-  int backward,
-  dynamic tret,
-  dynamic errBuf,
-  int errCap,
-) => _unsupported();
+late final swissephLunEclipseWhen = _lib
+    .lookupFunction<
+      Int32 Function(
+        Pointer<Void>,
+        Double,
+        Int32,
+        Int32,
+        Int32,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        Size,
+      ),
+      int Function(
+        Pointer<Void>,
+        double,
+        int,
+        int,
+        int,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        int,
+      )
+    >('swisseph_lun_eclipse_when');
 
-int swissephLunEclipseWhenLoc(
-  dynamic handle,
-  double tjdStart,
-  int ifl,
-  dynamic geopos,
-  int backward,
-  dynamic tret,
-  dynamic attr,
-  dynamic errBuf,
-  int errCap,
-) => _unsupported();
+late final swissephLunEclipseWhenLoc = _lib
+    .lookupFunction<
+      Int32 Function(
+        Pointer<Void>,
+        Double,
+        Int32,
+        Pointer<Double>,
+        Int32,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        Size,
+      ),
+      int Function(
+        Pointer<Void>,
+        double,
+        int,
+        Pointer<Double>,
+        int,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        int,
+      )
+    >('swisseph_lun_eclipse_when_loc');
 
-int swissephLunOccultWhere(
-  dynamic handle,
-  double tjdUt,
-  int ipl,
-  dynamic starname,
-  int ifl,
-  dynamic geopos,
-  dynamic attr,
-  dynamic errBuf,
-  int errCap,
-) => _unsupported();
+late final swissephLunOccultWhere = _lib
+    .lookupFunction<
+      Int32 Function(
+        Pointer<Void>,
+        Double,
+        Int32,
+        Pointer<Utf8>,
+        Int32,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        Size,
+      ),
+      int Function(
+        Pointer<Void>,
+        double,
+        int,
+        Pointer<Utf8>,
+        int,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        int,
+      )
+    >('swisseph_lun_occult_where');
 
-int swissephLunOccultWhenGlob(
-  dynamic handle,
-  double tjdStart,
-  int ipl,
-  dynamic starname,
-  int ifl,
-  int ifltype,
-  int backward,
-  dynamic tret,
-  dynamic errBuf,
-  int errCap,
-) => _unsupported();
+late final swissephLunOccultWhenGlob = _lib
+    .lookupFunction<
+      Int32 Function(
+        Pointer<Void>,
+        Double,
+        Int32,
+        Pointer<Utf8>,
+        Int32,
+        Int32,
+        Int32,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        Size,
+      ),
+      int Function(
+        Pointer<Void>,
+        double,
+        int,
+        Pointer<Utf8>,
+        int,
+        int,
+        int,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        int,
+      )
+    >('swisseph_lun_occult_when_glob');
 
-int swissephLunOccultWhenLoc(
-  dynamic handle,
-  double tjdStart,
-  int ipl,
-  dynamic starname,
-  int ifl,
-  dynamic geopos,
-  int backward,
-  dynamic tret,
-  dynamic attr,
-  dynamic errBuf,
-  int errCap,
-) => _unsupported();
+late final swissephLunOccultWhenLoc = _lib
+    .lookupFunction<
+      Int32 Function(
+        Pointer<Void>,
+        Double,
+        Int32,
+        Pointer<Utf8>,
+        Int32,
+        Pointer<Double>,
+        Int32,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        Size,
+      ),
+      int Function(
+        Pointer<Void>,
+        double,
+        int,
+        Pointer<Utf8>,
+        int,
+        Pointer<Double>,
+        int,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        int,
+      )
+    >('swisseph_lun_occult_when_loc');
 
+// ---------------------------------------------------------------------------
 // Rise/set & crossings (task /32)
+// ---------------------------------------------------------------------------
 
-int swissephRiseTrans(
-  dynamic handle,
-  double tjdUt,
-  int ipl,
-  dynamic starname,
-  int epheflag,
-  int rsmi,
-  dynamic geopos,
-  double atpress,
-  double attemp,
-  dynamic tret,
-  dynamic errBuf,
-  int errCap,
-) => _unsupported();
+late final swissephRiseTrans = _lib
+    .lookupFunction<
+      Int32 Function(
+        Pointer<Void>,
+        Double,
+        Int32,
+        Pointer<Utf8>,
+        Int32,
+        Int32,
+        Pointer<Double>,
+        Double,
+        Double,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        Size,
+      ),
+      int Function(
+        Pointer<Void>,
+        double,
+        int,
+        Pointer<Utf8>,
+        int,
+        int,
+        Pointer<Double>,
+        double,
+        double,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        int,
+      )
+    >('swisseph_rise_trans');
 
-int swissephRiseTransTrueHor(
-  dynamic handle,
-  double tjdUt,
-  int ipl,
-  dynamic starname,
-  int epheflag,
-  int rsmi,
-  dynamic geopos,
-  double atpress,
-  double attemp,
-  double horhgt,
-  dynamic tret,
-  dynamic errBuf,
-  int errCap,
-) => _unsupported();
+late final swissephRiseTransTrueHor = _lib
+    .lookupFunction<
+      Int32 Function(
+        Pointer<Void>,
+        Double,
+        Int32,
+        Pointer<Utf8>,
+        Int32,
+        Int32,
+        Pointer<Double>,
+        Double,
+        Double,
+        Double,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        Size,
+      ),
+      int Function(
+        Pointer<Void>,
+        double,
+        int,
+        Pointer<Utf8>,
+        int,
+        int,
+        Pointer<Double>,
+        double,
+        double,
+        double,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        int,
+      )
+    >('swisseph_rise_trans_true_hor');
 
-int swissephSolcross(
-  dynamic handle,
-  double x2cross,
-  double tjdEt,
-  int iflag,
-  dynamic jx,
-  dynamic errBuf,
-  int errCap,
-) => _unsupported();
+late final swissephSolcross = _lib
+    .lookupFunction<
+      Int32 Function(
+        Pointer<Void>,
+        Double,
+        Double,
+        Int32,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        Size,
+      ),
+      int Function(
+        Pointer<Void>,
+        double,
+        double,
+        int,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        int,
+      )
+    >('swisseph_solcross');
 
-int swissephSolcrossUt(
-  dynamic handle,
-  double x2cross,
-  double tjdUt,
-  int iflag,
-  dynamic jx,
-  dynamic errBuf,
-  int errCap,
-) => _unsupported();
+late final swissephSolcrossUt = _lib
+    .lookupFunction<
+      Int32 Function(
+        Pointer<Void>,
+        Double,
+        Double,
+        Int32,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        Size,
+      ),
+      int Function(
+        Pointer<Void>,
+        double,
+        double,
+        int,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        int,
+      )
+    >('swisseph_solcross_ut');
 
-int swissephMooncross(
-  dynamic handle,
-  double x2cross,
-  double tjdEt,
-  int iflag,
-  dynamic jx,
-  dynamic errBuf,
-  int errCap,
-) => _unsupported();
+late final swissephMooncross = _lib
+    .lookupFunction<
+      Int32 Function(
+        Pointer<Void>,
+        Double,
+        Double,
+        Int32,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        Size,
+      ),
+      int Function(
+        Pointer<Void>,
+        double,
+        double,
+        int,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        int,
+      )
+    >('swisseph_mooncross');
 
-int swissephMooncrossUt(
-  dynamic handle,
-  double x2cross,
-  double tjdUt,
-  int iflag,
-  dynamic jx,
-  dynamic errBuf,
-  int errCap,
-) => _unsupported();
+late final swissephMooncrossUt = _lib
+    .lookupFunction<
+      Int32 Function(
+        Pointer<Void>,
+        Double,
+        Double,
+        Int32,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        Size,
+      ),
+      int Function(
+        Pointer<Void>,
+        double,
+        double,
+        int,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        int,
+      )
+    >('swisseph_mooncross_ut');
 
-int swissephMooncrossNode(
-  dynamic handle,
-  double tjdEt,
-  int iflag,
-  dynamic xlon,
-  dynamic xlat,
-  dynamic jx,
-  dynamic errBuf,
-  int errCap,
-) => _unsupported();
+late final swissephMooncrossNode = _lib
+    .lookupFunction<
+      Int32 Function(
+        Pointer<Void>,
+        Double,
+        Int32,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        Size,
+      ),
+      int Function(
+        Pointer<Void>,
+        double,
+        int,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        int,
+      )
+    >('swisseph_mooncross_node');
 
-int swissephMooncrossNodeUt(
-  dynamic handle,
-  double tjdUt,
-  int iflag,
-  dynamic xlon,
-  dynamic xlat,
-  dynamic jx,
-  dynamic errBuf,
-  int errCap,
-) => _unsupported();
+late final swissephMooncrossNodeUt = _lib
+    .lookupFunction<
+      Int32 Function(
+        Pointer<Void>,
+        Double,
+        Int32,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        Size,
+      ),
+      int Function(
+        Pointer<Void>,
+        double,
+        int,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        int,
+      )
+    >('swisseph_mooncross_node_ut');
 
-int swissephHelioCross(
-  dynamic handle,
-  int ipl,
-  double x2cross,
-  double tjdEt,
-  int iflag,
-  int dir,
-  dynamic jx,
-  dynamic errBuf,
-  int errCap,
-) => _unsupported();
+late final swissephHelioCross = _lib
+    .lookupFunction<
+      Int32 Function(
+        Pointer<Void>,
+        Int32,
+        Double,
+        Double,
+        Int32,
+        Int32,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        Size,
+      ),
+      int Function(
+        Pointer<Void>,
+        int,
+        double,
+        double,
+        int,
+        int,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        int,
+      )
+    >('swisseph_helio_cross');
 
-int swissephHelioCrossUt(
-  dynamic handle,
-  int ipl,
-  double x2cross,
-  double tjdUt,
-  int iflag,
-  int dir,
-  dynamic jx,
-  dynamic errBuf,
-  int errCap,
-) => _unsupported();
+late final swissephHelioCrossUt = _lib
+    .lookupFunction<
+      Int32 Function(
+        Pointer<Void>,
+        Int32,
+        Double,
+        Double,
+        Int32,
+        Int32,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        Size,
+      ),
+      int Function(
+        Pointer<Void>,
+        int,
+        double,
+        double,
+        int,
+        int,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        int,
+      )
+    >('swisseph_helio_cross_ut');
 
+// ---------------------------------------------------------------------------
 // Phenomena, orbital, nodes/apsides (task /33)
+// ---------------------------------------------------------------------------
 
-int swissephPheno(
-  dynamic handle,
-  double tjdEt,
-  int ipl,
-  int iflag,
-  dynamic geopos,
-  dynamic sidMode,
-  dynamic attr,
-  dynamic flagsUsed,
-  dynamic errBuf,
-  int errCap,
-) => _unsupported();
+late final swissephPheno = _lib
+    .lookupFunction<
+      Int32 Function(
+        Pointer<Void>,
+        Double,
+        Int32,
+        Int32,
+        Pointer<Double>,
+        Pointer<SweSidMode>,
+        Pointer<Double>,
+        Pointer<Int32>,
+        Pointer<Utf8>,
+        Size,
+      ),
+      int Function(
+        Pointer<Void>,
+        double,
+        int,
+        int,
+        Pointer<Double>,
+        Pointer<SweSidMode>,
+        Pointer<Double>,
+        Pointer<Int32>,
+        Pointer<Utf8>,
+        int,
+      )
+    >('swisseph_pheno');
 
-int swissephPhenoUt(
-  dynamic handle,
-  double tjdUt,
-  int ipl,
-  int iflag,
-  dynamic geopos,
-  dynamic sidMode,
-  dynamic attr,
-  dynamic flagsUsed,
-  dynamic errBuf,
-  int errCap,
-) => _unsupported();
+late final swissephPhenoUt = _lib
+    .lookupFunction<
+      Int32 Function(
+        Pointer<Void>,
+        Double,
+        Int32,
+        Int32,
+        Pointer<Double>,
+        Pointer<SweSidMode>,
+        Pointer<Double>,
+        Pointer<Int32>,
+        Pointer<Utf8>,
+        Size,
+      ),
+      int Function(
+        Pointer<Void>,
+        double,
+        int,
+        int,
+        Pointer<Double>,
+        Pointer<SweSidMode>,
+        Pointer<Double>,
+        Pointer<Int32>,
+        Pointer<Utf8>,
+        int,
+      )
+    >('swisseph_pheno_ut');
 
-int swissephNodAps(
-  dynamic handle,
-  double tjdEt,
-  int ipl,
-  int iflag,
-  int method,
-  dynamic xnasc,
-  dynamic xndsc,
-  dynamic xperi,
-  dynamic xaphe,
-  dynamic errBuf,
-  int errCap,
-) => _unsupported();
+late final swissephNodAps = _lib
+    .lookupFunction<
+      Int32 Function(
+        Pointer<Void>,
+        Double,
+        Int32,
+        Int32,
+        Int32,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        Size,
+      ),
+      int Function(
+        Pointer<Void>,
+        double,
+        int,
+        int,
+        int,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        int,
+      )
+    >('swisseph_nod_aps');
 
-int swissephNodApsUt(
-  dynamic handle,
-  double tjdUt,
-  int ipl,
-  int iflag,
-  int method,
-  dynamic xnasc,
-  dynamic xndsc,
-  dynamic xperi,
-  dynamic xaphe,
-  dynamic errBuf,
-  int errCap,
-) => _unsupported();
+late final swissephNodApsUt = _lib
+    .lookupFunction<
+      Int32 Function(
+        Pointer<Void>,
+        Double,
+        Int32,
+        Int32,
+        Int32,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        Size,
+      ),
+      int Function(
+        Pointer<Void>,
+        double,
+        int,
+        int,
+        int,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        int,
+      )
+    >('swisseph_nod_aps_ut');
 
-int swissephGetOrbitalElements(
-  dynamic handle,
-  double tjdEt,
-  int ipl,
-  int iflag,
-  dynamic dret,
-  dynamic errBuf,
-  int errCap,
-) => _unsupported();
+late final swissephGetOrbitalElements = _lib
+    .lookupFunction<
+      Int32 Function(
+        Pointer<Void>,
+        Double,
+        Int32,
+        Int32,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        Size,
+      ),
+      int Function(
+        Pointer<Void>,
+        double,
+        int,
+        int,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        int,
+      )
+    >('swisseph_get_orbital_elements');
 
-int swissephOrbitMaxMinTrueDistance(
-  dynamic handle,
-  double tjdEt,
-  int ipl,
-  int iflag,
-  dynamic dmax,
-  dynamic dmin,
-  dynamic dtrue,
-  dynamic errBuf,
-  int errCap,
-) => _unsupported();
+late final swissephOrbitMaxMinTrueDistance = _lib
+    .lookupFunction<
+      Int32 Function(
+        Pointer<Void>,
+        Double,
+        Int32,
+        Int32,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        Size,
+      ),
+      int Function(
+        Pointer<Void>,
+        double,
+        int,
+        int,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        int,
+      )
+    >('swisseph_orbit_max_min_true_distance');
 
-// Fixed stars (task /33)
-
-int swissephFixstar2(
-  dynamic handle,
-  dynamic star,
-  dynamic starOut,
-  int starOutCap,
-  double tjdEt,
-  int iflag,
-  dynamic geopos,
-  dynamic sidMode,
-  dynamic xx,
-  dynamic flagsUsed,
-  dynamic errBuf,
-  int errCap,
-) => _unsupported();
-
-int swissephFixstar2Ut(
-  dynamic handle,
-  dynamic star,
-  dynamic starOut,
-  int starOutCap,
-  double tjdUt,
-  int iflag,
-  dynamic geopos,
-  dynamic sidMode,
-  dynamic xx,
-  dynamic flagsUsed,
-  dynamic errBuf,
-  int errCap,
-) => _unsupported();
-
-int swissephFixstar2Mag(
-  dynamic handle,
-  dynamic star,
-  dynamic starOut,
-  int starOutCap,
-  dynamic mag,
-  dynamic errBuf,
-  int errCap,
-) => _unsupported();
-
+// ---------------------------------------------------------------------------
 // Horizon & refraction (task /34)
+// ---------------------------------------------------------------------------
 
-void swissephAzalt(
-  dynamic handle,
-  double tjdUt,
-  int calcFlag,
-  dynamic geopos,
-  double atpress,
-  double attemp,
-  double lapseRate,
-  dynamic xin,
-  dynamic xaz,
-) => _unsupported();
+late final swissephAzalt = _lib
+    .lookupFunction<
+      Void Function(
+        Pointer<Void>,
+        Double,
+        Int32,
+        Pointer<Double>,
+        Double,
+        Double,
+        Double,
+        Pointer<Double>,
+        Pointer<Double>,
+      ),
+      void Function(
+        Pointer<Void>,
+        double,
+        int,
+        Pointer<Double>,
+        double,
+        double,
+        double,
+        Pointer<Double>,
+        Pointer<Double>,
+      )
+    >('swisseph_azalt');
 
-void swissephAzaltRev(
-  dynamic handle,
-  double tjdUt,
-  int calcFlag,
-  dynamic geopos,
-  dynamic xin,
-  dynamic xout,
-) => _unsupported();
+late final swissephAzaltRev = _lib
+    .lookupFunction<
+      Void Function(
+        Pointer<Void>,
+        Double,
+        Int32,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Double>,
+      ),
+      void Function(
+        Pointer<Void>,
+        double,
+        int,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Double>,
+      )
+    >('swisseph_azalt_rev');
 
-double swissephRefrac(
-  double inalt,
-  double atpress,
-  double attemp,
-  int calcFlag,
-) => _unsupported();
+late final swissephRefrac = _lib
+    .lookupFunction<
+      Double Function(Double, Double, Double, Int32),
+      double Function(double, double, double, int)
+    >('swisseph_refrac');
 
-double swissephRefracExtended(
-  double inalt,
-  double geoalt,
-  double atpress,
-  double attemp,
-  double lapseRate,
-  int calcFlag,
-  dynamic dret,
-) => _unsupported();
+late final swissephRefracExtended = _lib
+    .lookupFunction<
+      Double Function(
+        Double,
+        Double,
+        Double,
+        Double,
+        Double,
+        Int32,
+        Pointer<Double>,
+      ),
+      double Function(
+        double,
+        double,
+        double,
+        double,
+        double,
+        int,
+        Pointer<Double>,
+      )
+    >('swisseph_refrac_extended');
 
+// ---------------------------------------------------------------------------
+// Fixed stars (task /33)
+// ---------------------------------------------------------------------------
+
+late final swissephFixstar2 = _lib
+    .lookupFunction<
+      Int32 Function(
+        Pointer<Void>,
+        Pointer<Utf8>,
+        Pointer<Utf8>,
+        Size,
+        Double,
+        Int32,
+        Pointer<Double>,
+        Pointer<SweSidMode>,
+        Pointer<Double>,
+        Pointer<Int32>,
+        Pointer<Utf8>,
+        Size,
+      ),
+      int Function(
+        Pointer<Void>,
+        Pointer<Utf8>,
+        Pointer<Utf8>,
+        int,
+        double,
+        int,
+        Pointer<Double>,
+        Pointer<SweSidMode>,
+        Pointer<Double>,
+        Pointer<Int32>,
+        Pointer<Utf8>,
+        int,
+      )
+    >('swisseph_fixstar2');
+
+late final swissephFixstar2Ut = _lib
+    .lookupFunction<
+      Int32 Function(
+        Pointer<Void>,
+        Pointer<Utf8>,
+        Pointer<Utf8>,
+        Size,
+        Double,
+        Int32,
+        Pointer<Double>,
+        Pointer<SweSidMode>,
+        Pointer<Double>,
+        Pointer<Int32>,
+        Pointer<Utf8>,
+        Size,
+      ),
+      int Function(
+        Pointer<Void>,
+        Pointer<Utf8>,
+        Pointer<Utf8>,
+        int,
+        double,
+        int,
+        Pointer<Double>,
+        Pointer<SweSidMode>,
+        Pointer<Double>,
+        Pointer<Int32>,
+        Pointer<Utf8>,
+        int,
+      )
+    >('swisseph_fixstar2_ut');
+
+late final swissephFixstar2Mag = _lib
+    .lookupFunction<
+      Int32 Function(
+        Pointer<Void>,
+        Pointer<Utf8>,
+        Pointer<Utf8>,
+        Size,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        Size,
+      ),
+      int Function(
+        Pointer<Void>,
+        Pointer<Utf8>,
+        Pointer<Utf8>,
+        int,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        int,
+      )
+    >('swisseph_fixstar2_mag');
+
+// ---------------------------------------------------------------------------
 // Heliacal (task /33)
+// ---------------------------------------------------------------------------
 
-int swissephHeliacalUt(
-  dynamic handle,
-  double tjdStart,
-  dynamic dgeo,
-  dynamic datm,
-  dynamic dobs,
-  dynamic objectName,
-  int eventType,
-  int helflag,
-  dynamic dret,
-  dynamic errBuf,
-  int errCap,
-) => _unsupported();
+late final swissephHeliacalUt = _lib
+    .lookupFunction<
+      Int32 Function(
+        Pointer<Void>,
+        Double,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        Int32,
+        Int32,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        Size,
+      ),
+      int Function(
+        Pointer<Void>,
+        double,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        int,
+        int,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        int,
+      )
+    >('swisseph_heliacal_ut');
 
-int swissephHeliacalPhenoUt(
-  dynamic handle,
-  double tjdUt,
-  dynamic dgeo,
-  dynamic datm,
-  dynamic dobs,
-  dynamic objectName,
-  int eventType,
-  int helflag,
-  dynamic darr,
-  dynamic errBuf,
-  int errCap,
-) => _unsupported();
+late final swissephHeliacalPhenoUt = _lib
+    .lookupFunction<
+      Int32 Function(
+        Pointer<Void>,
+        Double,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        Int32,
+        Int32,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        Size,
+      ),
+      int Function(
+        Pointer<Void>,
+        double,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        int,
+        int,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        int,
+      )
+    >('swisseph_heliacal_pheno_ut');
 
-int swissephVisLimitMag(
-  dynamic handle,
-  double tjdUt,
-  dynamic dgeo,
-  dynamic datm,
-  dynamic dobs,
-  dynamic objectName,
-  int helflag,
-  dynamic dret,
-  dynamic errBuf,
-  int errCap,
-) => _unsupported();
+late final swissephVisLimitMag = _lib
+    .lookupFunction<
+      Int32 Function(
+        Pointer<Void>,
+        Double,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        Int32,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        Size,
+      ),
+      int Function(
+        Pointer<Void>,
+        double,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        int,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        int,
+      )
+    >('swisseph_vis_limit_mag');
 
-int swissephHeliacalAngle(
-  dynamic handle,
-  double tjdUt,
-  dynamic dgeo,
-  dynamic datm,
-  dynamic dobs,
-  int helflag,
-  double mag,
-  double aziObj,
-  double aziSun,
-  double aziMoon,
-  double altMoon,
-  dynamic dret,
-  dynamic errBuf,
-  int errCap,
-) => _unsupported();
+late final swissephHeliacalAngle = _lib
+    .lookupFunction<
+      Int32 Function(
+        Pointer<Void>,
+        Double,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Double>,
+        Int32,
+        Double,
+        Double,
+        Double,
+        Double,
+        Double,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        Size,
+      ),
+      int Function(
+        Pointer<Void>,
+        double,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Double>,
+        int,
+        double,
+        double,
+        double,
+        double,
+        double,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        int,
+      )
+    >('swisseph_heliacal_angle');
 
-int swissephTopoArcusVisionis(
-  dynamic handle,
-  double tjdUt,
-  dynamic dgeo,
-  dynamic datm,
-  dynamic dobs,
-  int helflag,
-  double mag,
-  double aziObj,
-  double altObj,
-  double aziSun,
-  double aziMoon,
-  double altMoon,
-  dynamic dret,
-  dynamic errBuf,
-  int errCap,
-) => _unsupported();
+late final swissephTopoArcusVisionis = _lib
+    .lookupFunction<
+      Int32 Function(
+        Pointer<Void>,
+        Double,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Double>,
+        Int32,
+        Double,
+        Double,
+        Double,
+        Double,
+        Double,
+        Double,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        Size,
+      ),
+      int Function(
+        Pointer<Void>,
+        double,
+        Pointer<Double>,
+        Pointer<Double>,
+        Pointer<Double>,
+        int,
+        double,
+        double,
+        double,
+        double,
+        double,
+        double,
+        Pointer<Double>,
+        Pointer<Utf8>,
+        int,
+      )
+    >('swisseph_topo_arcus_visionis');

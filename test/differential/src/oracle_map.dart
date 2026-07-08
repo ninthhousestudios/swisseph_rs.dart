@@ -108,4 +108,11 @@ const oracleMap = <String, OracleEntry>{
   'Ephemeris.visLimitMag': OracleEntry.direct(),
   'Ephemeris.heliacalAngle': OracleEntry.direct(),
   'Ephemeris.topoArcusVisionis': OracleEntry.direct(),
+  // Web loader seam (task /37)
+  'initializeWasm': OracleEntry.engineTrusted(
+    'web-only loader seam; throws UnsupportedError on native',
+  ),
+  'loadEpheFile': OracleEntry.engineTrusted(
+    'web-only MEMFS staging; throws UnsupportedError on native',
+  ),
 };

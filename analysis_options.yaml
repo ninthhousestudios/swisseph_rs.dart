@@ -7,6 +7,12 @@ analyzer:
     strict-raw-types: true
   errors:
     todo: ignore
+  exclude:
+    - lib/src/bindings/bindings_web.dart
+    - lib/src/ffi_types_web.dart
+    - lib/src/lifecycle_web.dart
+    - lib/src/loader_web.dart
+    - lib/src/wasm_state.dart
 
 linter:
   rules:

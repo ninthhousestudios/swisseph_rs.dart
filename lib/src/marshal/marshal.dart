@@ -1,15 +1,7 @@
-import 'dart:ffi';
-
-import 'package:ffi/ffi.dart';
+import '../ffi_types.dart';
 
 import '../bindings/bindings.dart';
 import '../types/types.dart';
-
-/// Native function pointer for [NativeFinalizer] registration.
-Pointer<NativeFinalizerFunction> get swissephFreeFnPtr =>
-    Native.addressOf<NativeFunction<Void Function(Pointer<Void>)>>(
-      swissephFree,
-    );
 
 // ---------------------------------------------------------------------------
 // Error handling

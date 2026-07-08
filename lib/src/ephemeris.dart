@@ -1,4 +1,5 @@
-import 'dart:ffi';
+import 'ffi_types.dart';
+import 'lifecycle.dart' as lifecycle;
 
 import 'marshal/marshal.dart' as marshal;
 import 'types/types.dart';
@@ -8,11 +9,9 @@ final class Ephemeris implements Finalizable {
   final Pointer<Void> _handle;
   bool _closed = false;
 
-  static final _finalizer = NativeFinalizer(marshal.swissephFreeFnPtr);
-
   /// Counterpart: swisseph::Ephemeris::new
   Ephemeris(EphemerisConfig config) : _handle = marshal.createHandle(config) {
-    _finalizer.attach(this, _handle, detach: this);
+    lifecycle.attachCleanup(this, _handle);
   }
 
   /// Counterpart: swisseph_ffi::swisseph_share
@@ -23,7 +22,7 @@ final class Ephemeris implements Finalizable {
   /// engine. Close order is irrelevant.
   Ephemeris.fromShareToken(int token)
     : _handle = Pointer<Void>.fromAddress(token) {
-    _finalizer.attach(this, _handle, detach: this);
+    lifecycle.attachCleanup(this, _handle);
   }
 
   void _checkOpen() {
@@ -98,7 +97,7 @@ final class Ephemeris implements Finalizable {
   void close() {
     if (_closed) return;
     _closed = true;
-    _finalizer.detach(this);
+    lifecycle.detachCleanup(this);
     marshal.freeHandle(_handle);
   }
 
