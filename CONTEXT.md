@@ -105,3 +105,7 @@ Native-only; throws `UnsupportedError` on web.
 - Alignment with swisseph.dart *names* is coincidence, not contract: many
   camelCased Rust names land near swisseph.dart's (`calcUt`, `riseTrans`),
   which eases migration, but the counterpart is always the Rust symbol.
+- JPL ephemeris files on web are out of scope (PRD "Out of Scope"). MEMFS
+  supports them mechanically but the file sizes (300 MB+) make web delivery
+  impractical. Attempting to use JPL source on web throws the same
+  `FileNotFoundException` as any missing ephemeris file.

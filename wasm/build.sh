@@ -1,0 +1,83 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Build swisseph-ffi as an Emscripten wasm module.
+#
+# Requirements:
+#   - Rust toolchain with wasm32-unknown-emscripten target
+#   - Emscripten SDK (emcc on PATH)
+#   - swisseph-rs repo at ../swisseph-rs (relative to project root)
+#
+# Output: swisseph_ffi.js + swisseph_ffi.wasm in this directory.
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
+FFI_DIR="$(realpath "$PROJECT_DIR/../swisseph-rs")"
+
+if [ ! -d "$FFI_DIR/crates/swisseph-ffi" ]; then
+  echo "ERROR: swisseph-rs not found at $FFI_DIR" >&2
+  exit 1
+fi
+
+echo "Building swisseph-ffi for wasm32-unknown-emscripten..."
+RUSTFLAGS="-C panic=abort" cargo build \
+  --target wasm32-unknown-emscripten \
+  --manifest-path "$FFI_DIR/crates/swisseph-ffi/Cargo.toml" \
+  --release
+
+LIB="$FFI_DIR/target/wasm32-unknown-emscripten/release/libswisseph_ffi.a"
+if [ ! -f "$LIB" ]; then
+  echo "ERROR: Expected static lib not found: $LIB" >&2
+  exit 1
+fi
+
+EXPORTS='[
+  "_swisseph_version","_swisseph_config_default",
+  "_swisseph_new","_swisseph_free","_swisseph_share",
+  "_swisseph_calc_ut","_swisseph_calc","_swisseph_calc_pctr",
+  "_swisseph_julday","_swisseph_revjul","_swisseph_date_conversion",
+  "_swisseph_day_of_week","_swisseph_utc_time_zone",
+  "_swisseph_utc_to_jd","_swisseph_jdet_to_utc","_swisseph_jdut1_to_utc",
+  "_swisseph_deltat","_swisseph_time_equ",
+  "_swisseph_lmt_to_lat","_swisseph_lat_to_lmt",
+  "_swisseph_get_planet_name","_swisseph_split_deg",
+  "_swisseph_houses_ex2","_swisseph_houses_armc_ex2",
+  "_swisseph_house_pos","_swisseph_house_name",
+  "_swisseph_gauquelin_sector",
+  "_swisseph_get_ayanamsa_ex","_swisseph_get_ayanamsa_ex_ut",
+  "_swisseph_get_ayanamsa","_swisseph_get_ayanamsa_ut",
+  "_swisseph_get_ayanamsa_name",
+  "_swisseph_sol_eclipse_where","_swisseph_sol_eclipse_how",
+  "_swisseph_sol_eclipse_when_glob","_swisseph_sol_eclipse_when_loc",
+  "_swisseph_lun_eclipse_how","_swisseph_lun_eclipse_when",
+  "_swisseph_lun_eclipse_when_loc",
+  "_swisseph_lun_occult_where","_swisseph_lun_occult_when_glob",
+  "_swisseph_lun_occult_when_loc",
+  "_swisseph_rise_trans","_swisseph_rise_trans_true_hor",
+  "_swisseph_solcross","_swisseph_solcross_ut",
+  "_swisseph_mooncross","_swisseph_mooncross_ut",
+  "_swisseph_mooncross_node","_swisseph_mooncross_node_ut",
+  "_swisseph_helio_cross","_swisseph_helio_cross_ut",
+  "_swisseph_pheno","_swisseph_pheno_ut",
+  "_swisseph_nod_aps","_swisseph_nod_aps_ut",
+  "_swisseph_get_orbital_elements","_swisseph_orbit_max_min_true_distance",
+  "_swisseph_azalt","_swisseph_azalt_rev",
+  "_swisseph_refrac","_swisseph_refrac_extended",
+  "_swisseph_fixstar2","_swisseph_fixstar2_ut","_swisseph_fixstar2_mag",
+  "_swisseph_heliacal_ut","_swisseph_heliacal_pheno_ut",
+  "_swisseph_vis_limit_mag","_swisseph_heliacal_angle",
+  "_swisseph_topo_arcus_visionis",
+  "_malloc","_free"
+]'
+
+echo "Linking with emcc..."
+emcc "$LIB" -o "$SCRIPT_DIR/swisseph_ffi.js" \
+  -s MODULARIZE=1 \
+  -s ALLOW_MEMORY_GROWTH=1 \
+  -s FORCE_FILESYSTEM=1 \
+  -s EXPORTED_FUNCTIONS="$EXPORTS" \
+  -s "EXPORTED_RUNTIME_METHODS=['FS','HEAPU8','HEAPF64']" \
+  -O2
+
+echo "Built: $SCRIPT_DIR/swisseph_ffi.js + swisseph_ffi.wasm"
+ls -lh "$SCRIPT_DIR/swisseph_ffi.js" "$SCRIPT_DIR/swisseph_ffi.wasm"
