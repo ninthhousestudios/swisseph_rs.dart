@@ -1318,6 +1318,83 @@ external int swissephOrbitMaxMinTrueDistance(
 );
 
 // ---------------------------------------------------------------------------
+// Horizon & refraction (task /34)
+// ---------------------------------------------------------------------------
+
+@Native<
+  Void Function(
+    Pointer<Void>,
+    Double,
+    Int32,
+    Pointer<Double>,
+    Double,
+    Double,
+    Pointer<Double>,
+    Pointer<Double>,
+  )
+>(symbol: 'swisseph_azalt')
+external void swissephAzalt(
+  Pointer<Void> handle,
+  double tjdUt,
+  int calcFlag,
+  Pointer<Double> geopos,
+  double atpress,
+  double attemp,
+  Pointer<Double> xin,
+  Pointer<Double> xaz,
+);
+
+@Native<
+  Void Function(
+    Pointer<Void>,
+    Double,
+    Int32,
+    Pointer<Double>,
+    Pointer<Double>,
+    Pointer<Double>,
+  )
+>(symbol: 'swisseph_azalt_rev')
+external void swissephAzaltRev(
+  Pointer<Void> handle,
+  double tjdUt,
+  int calcFlag,
+  Pointer<Double> geopos,
+  Pointer<Double> xin,
+  Pointer<Double> xout,
+);
+
+@Native<Double Function(Double, Double, Double, Int32)>(
+  symbol: 'swisseph_refrac',
+)
+external double swissephRefrac(
+  double inalt,
+  double atpress,
+  double attemp,
+  int calcFlag,
+);
+
+@Native<
+  Double Function(
+    Double,
+    Double,
+    Double,
+    Double,
+    Double,
+    Int32,
+    Pointer<Double>,
+  )
+>(symbol: 'swisseph_refrac_extended')
+external double swissephRefracExtended(
+  double inalt,
+  double geoalt,
+  double atpress,
+  double attemp,
+  double lapseRate,
+  int calcFlag,
+  Pointer<Double> dret,
+);
+
+// ---------------------------------------------------------------------------
 // Fixed stars (task /33)
 // ---------------------------------------------------------------------------
 

@@ -104,6 +104,46 @@ void main() {
   });
 
   // -----------------------------------------------------------------------
+  // Phenomena withConfig (task /34)
+  // -----------------------------------------------------------------------
+
+  group('phenoWithConfig', () {
+    test('Venus sidereal phenomena', () {
+      const config = EphemerisConfig(siderealMode: SiderealMode.lahiri);
+      final actual = eph.phenoWithConfig(
+        j2000Et,
+        Body.venus,
+        CalcFlags.none,
+        config,
+      );
+      final sweOracle = swe.SwissEph.find();
+      sweOracle.setSidMode(swe.seSidmLahiri);
+      try {
+        final expected = sweOracle.pheno(
+          j2000Et.value,
+          swe.seVenus,
+          swe.seFlgSidereal,
+        );
+        expectAgreement(
+          'phaseAngle',
+          actual.phaseAngle,
+          expected.phaseAngle,
+          AgreementClass.positional,
+        );
+        expectAgreement(
+          'elongation',
+          actual.elongation,
+          expected.elongation,
+          AgreementClass.positional,
+        );
+      } finally {
+        sweOracle.setSidMode(0);
+        sweOracle.close();
+      }
+    });
+  });
+
+  // -----------------------------------------------------------------------
   // Nodes & apsides (task /33)
   // -----------------------------------------------------------------------
 
@@ -247,6 +287,322 @@ void main() {
         actual.trueDist,
         expected.trueDist,
         AgreementClass.positional,
+      );
+    });
+  });
+
+  // -----------------------------------------------------------------------
+  // Additional nodAps body coverage (task /34)
+  // -----------------------------------------------------------------------
+
+  group('nodApsUt body coverage', () {
+    test('Moon mean nodes & apsides', () {
+      final actual = eph.nodApsUt(
+        j2000Ut,
+        Body.moon,
+        CalcFlags.none,
+        NodApsMethod.mean,
+      );
+      final expected = oracle.nodApsUt(j2000Ut.value, Body.moon.rawValue, 0, 1);
+      expectAgreement(
+        'ascending lon',
+        actual.ascending[0],
+        expected.ascending.longitude,
+        AgreementClass.positional,
+      );
+      expectAgreement(
+        'perihelion lon',
+        actual.perihelion[0],
+        expected.perihelion.longitude,
+        AgreementClass.positional,
+      );
+    });
+
+    test('Saturn osculating nodes', () {
+      final actual = eph.nodAps(
+        j2000Et,
+        Body.saturn,
+        CalcFlags.none,
+        NodApsMethod.oscu,
+      );
+      final expected = oracle.nodAps(j2000Et.value, Body.saturn.rawValue, 0, 2);
+      // Outer planets have wider Moshier osculating node divergence
+      expectAgreement(
+        'ascending lon',
+        actual.ascending[0],
+        expected.ascending.longitude,
+        AgreementClass.boundary,
+        tolerance: 1e-4,
+        boundaryArtifact: 'Moshier osculating node',
+      );
+    });
+
+    test('Venus mean nodes with speed', () {
+      final actual = eph.nodApsUt(
+        j2000Ut,
+        Body.venus,
+        CalcFlags.speed,
+        NodApsMethod.mean,
+      );
+      final expected = oracle.nodApsUt(
+        j2000Ut.value,
+        Body.venus.rawValue,
+        swe.seFlgSpeed,
+        1,
+      );
+      expectAgreement(
+        'ascending lon',
+        actual.ascending[0],
+        expected.ascending.longitude,
+        AgreementClass.positional,
+      );
+      expectAgreement(
+        'ascending speed',
+        actual.ascending[3],
+        expected.ascending.longitudeSpeed,
+        AgreementClass.positional,
+      );
+    });
+  });
+
+  // -----------------------------------------------------------------------
+  // Horizon & refraction (task /34)
+  // -----------------------------------------------------------------------
+
+  group('azalt', () {
+    test('ecliptic to horizon', () {
+      final actual = eph.azalt(
+        j2000Ut,
+        AzAltDir.eclToHor,
+        geolon: 13.41,
+        geolat: 52.52,
+        xin0: 280.0,
+        xin1: -1.0,
+      );
+      final expected = oracle.azalt(
+        j2000Ut.value,
+        0,
+        geolon: 13.41,
+        geolat: 52.52,
+        xin0: 280.0,
+        xin1: -1.0,
+      );
+      expectAgreement(
+        'azimuth',
+        actual.azimuth,
+        expected.azimuth,
+        AgreementClass.positional,
+      );
+      expectAgreement(
+        'trueAltitude',
+        actual.trueAltitude,
+        expected.trueAltitude,
+        AgreementClass.positional,
+      );
+      expectAgreement(
+        'apparentAltitude',
+        actual.apparentAltitude,
+        expected.apparentAltitude,
+        AgreementClass.positional,
+      );
+    });
+
+    test('equatorial to horizon', () {
+      final actual = eph.azalt(
+        j2000Ut,
+        AzAltDir.equToHor,
+        geolon: -73.97,
+        geolat: 40.78,
+        xin0: 45.0,
+        xin1: 20.0,
+      );
+      final expected = oracle.azalt(
+        j2000Ut.value,
+        1,
+        geolon: -73.97,
+        geolat: 40.78,
+        xin0: 45.0,
+        xin1: 20.0,
+      );
+      expectAgreement(
+        'azimuth',
+        actual.azimuth,
+        expected.azimuth,
+        AgreementClass.positional,
+      );
+      expectAgreement(
+        'trueAltitude',
+        actual.trueAltitude,
+        expected.trueAltitude,
+        AgreementClass.positional,
+      );
+    });
+  });
+
+  group('azaltRev', () {
+    test('horizon to ecliptic', () {
+      final actual = eph.azaltRev(
+        j2000Ut,
+        HorDir.horToEcl,
+        geolon: 13.41,
+        geolat: 52.52,
+        azimuth: 180.0,
+        trueAltitude: 30.0,
+      );
+      final expected = oracle.azaltRev(
+        j2000Ut.value,
+        0,
+        geolon: 13.41,
+        geolat: 52.52,
+        azimuth: 180.0,
+        altitude: 30.0,
+      );
+      expectAgreement(
+        'lon',
+        actual.lon,
+        expected.lon,
+        AgreementClass.positional,
+      );
+      expectAgreement(
+        'lat',
+        actual.lat,
+        expected.lat,
+        AgreementClass.positional,
+      );
+    });
+
+    test('horizon to equatorial', () {
+      final actual = eph.azaltRev(
+        j2000Ut,
+        HorDir.horToEqu,
+        geolon: -73.97,
+        geolat: 40.78,
+        azimuth: 90.0,
+        trueAltitude: 45.0,
+      );
+      final expected = oracle.azaltRev(
+        j2000Ut.value,
+        1,
+        geolon: -73.97,
+        geolat: 40.78,
+        azimuth: 90.0,
+        altitude: 45.0,
+      );
+      expectAgreement(
+        'lon',
+        actual.lon,
+        expected.lon,
+        AgreementClass.positional,
+      );
+      expectAgreement(
+        'lat',
+        actual.lat,
+        expected.lat,
+        AgreementClass.positional,
+      );
+    });
+  });
+
+  group('azalt round-trip', () {
+    test('ecl -> hor -> ecl', () {
+      const lon = 120.0;
+      const lat = 5.0;
+      final hor = eph.azalt(
+        j2000Ut,
+        AzAltDir.eclToHor,
+        geolon: 13.41,
+        geolat: 52.52,
+        xin0: lon,
+        xin1: lat,
+      );
+      final back = eph.azaltRev(
+        j2000Ut,
+        HorDir.horToEcl,
+        geolon: 13.41,
+        geolat: 52.52,
+        azimuth: hor.azimuth,
+        trueAltitude: hor.trueAltitude,
+      );
+      expectAgreement(
+        'lon round-trip',
+        back.lon,
+        lon,
+        AgreementClass.positional,
+      );
+      expectAgreement(
+        'lat round-trip',
+        back.lat,
+        lat,
+        AgreementClass.positional,
+      );
+    });
+  });
+
+  group('refrac', () {
+    test('true to apparent', () {
+      final actual = refrac(15.0, 1013.25, 15.0, RefracDir.trueToApp);
+      final expected = oracle.refrac(15.0, 1013.25, 15.0, 0);
+      expectAgreement(
+        'refracted altitude',
+        actual,
+        expected,
+        AgreementClass.bitwise,
+      );
+    });
+
+    test('apparent to true', () {
+      final actual = refrac(15.0, 1013.25, 15.0, RefracDir.appToTrue);
+      final expected = oracle.refrac(15.0, 1013.25, 15.0, 1);
+      expectAgreement(
+        'refracted altitude',
+        actual,
+        expected,
+        AgreementClass.bitwise,
+      );
+    });
+  });
+
+  group('refracExtended', () {
+    test('true to apparent with dret', () {
+      final actual = refracExtended(
+        10.0,
+        500.0,
+        1013.25,
+        15.0,
+        0.0065,
+        RefracDir.trueToApp,
+      );
+      final expected = oracle.refracExtended(
+        10.0,
+        500.0,
+        1013.25,
+        15.0,
+        0.0065,
+        0,
+      );
+      expectAgreement(
+        'trueAltitude',
+        actual.trueAltitude,
+        expected.trueAltitude,
+        AgreementClass.bitwise,
+      );
+      expectAgreement(
+        'apparentAltitude',
+        actual.apparentAltitude,
+        expected.apparentAltitude,
+        AgreementClass.bitwise,
+      );
+      expectAgreement(
+        'refraction',
+        actual.refraction,
+        expected.refraction,
+        AgreementClass.bitwise,
+      );
+      expectAgreement(
+        'horizonDip',
+        actual.horizonDip,
+        expected.horizonDip,
+        AgreementClass.bitwise,
       );
     });
   });

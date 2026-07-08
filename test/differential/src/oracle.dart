@@ -823,5 +823,75 @@ class Oracle {
     );
   }
 
+  // -----------------------------------------------------------------------
+  // Horizon & refraction (task /34)
+  // -----------------------------------------------------------------------
+
+  swe.AzAltResult azalt(
+    double jdUt,
+    int calcFlag, {
+    required double geolon,
+    required double geolat,
+    double geoalt = 0,
+    double atpress = 1013.25,
+    double attemp = 15.0,
+    required double xin0,
+    required double xin1,
+  }) {
+    return _swe.azAlt(
+      jdUt,
+      calcFlag,
+      geolon: geolon,
+      geolat: geolat,
+      geoalt: geoalt,
+      atpress: atpress,
+      attemp: attemp,
+      bodyLon: xin0,
+      bodyLat: xin1,
+    );
+  }
+
+  swe.AzAltRevResult azaltRev(
+    double jdUt,
+    int calcFlag, {
+    required double geolon,
+    required double geolat,
+    double geoalt = 0,
+    required double azimuth,
+    required double altitude,
+  }) {
+    return _swe.azAltRev(
+      jdUt,
+      calcFlag,
+      geolon: geolon,
+      geolat: geolat,
+      geoalt: geoalt,
+      azimuth: azimuth,
+      altitude: altitude,
+    );
+  }
+
+  double refrac(double altitude, double atpress, double attemp, int calcFlag) {
+    return _swe.refrac(altitude, atpress, attemp, calcFlag);
+  }
+
+  swe.RefracResult refracExtended(
+    double altitude,
+    double geoalt,
+    double atpress,
+    double attemp,
+    double lapseRate,
+    int calcFlag,
+  ) {
+    return _swe.refracExtended(
+      altitude,
+      geoalt,
+      atpress,
+      attemp,
+      lapseRate,
+      calcFlag,
+    );
+  }
+
   void close() => _swe.close();
 }

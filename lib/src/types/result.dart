@@ -483,6 +483,40 @@ final class OrbitDistances {
 }
 
 // ---------------------------------------------------------------------------
+// Horizon & refraction result types (task /34)
+// ---------------------------------------------------------------------------
+
+/// Counterpart: swisseph::Ephemeris::azalt (return value)
+final class AzaltResult {
+  final double azimuth;
+  final double trueAltitude;
+  final double apparentAltitude;
+
+  const AzaltResult({
+    required this.azimuth,
+    required this.trueAltitude,
+    required this.apparentAltitude,
+  });
+}
+
+/// Counterpart: swisseph::azalt::refrac_extended (dret out-param)
+final class RefracExtendedResult {
+  final double returnValue;
+  final double trueAltitude;
+  final double apparentAltitude;
+  final double refraction;
+  final double horizonDip;
+
+  const RefracExtendedResult({
+    required this.returnValue,
+    required this.trueAltitude,
+    required this.apparentAltitude,
+    required this.refraction,
+    required this.horizonDip,
+  });
+}
+
+// ---------------------------------------------------------------------------
 // Fixed star result types (task /33)
 // ---------------------------------------------------------------------------
 

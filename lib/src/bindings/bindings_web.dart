@@ -644,6 +644,45 @@ int swissephFixstar2Mag(
   int errCap,
 ) => _unsupported();
 
+// Horizon & refraction (task /34)
+
+void swissephAzalt(
+  dynamic handle,
+  double tjdUt,
+  int calcFlag,
+  dynamic geopos,
+  double atpress,
+  double attemp,
+  dynamic xin,
+  dynamic xaz,
+) => _unsupported();
+
+void swissephAzaltRev(
+  dynamic handle,
+  double tjdUt,
+  int calcFlag,
+  dynamic geopos,
+  dynamic xin,
+  dynamic xout,
+) => _unsupported();
+
+double swissephRefrac(
+  double inalt,
+  double atpress,
+  double attemp,
+  int calcFlag,
+) => _unsupported();
+
+double swissephRefracExtended(
+  double inalt,
+  double geoalt,
+  double atpress,
+  double attemp,
+  double lapseRate,
+  int calcFlag,
+  dynamic dret,
+) => _unsupported();
+
 // Heliacal (task /33)
 
 int swissephHeliacalUt(

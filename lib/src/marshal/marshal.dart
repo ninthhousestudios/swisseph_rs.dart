@@ -112,6 +112,30 @@ Pointer<SweConfig> marshalConfig(Arena arena, EphemerisConfig config) {
   return c;
 }
 
+/// Marshal per-call config overrides (geopos + sidMode) from [EphemerisConfig].
+({Pointer<Double> geopos, Pointer<SweSidMode> sidMode})
+_marshalPerCallOverrides(Arena arena, EphemerisConfig config) {
+  Pointer<Double> geopos = nullptr;
+  if (config.topographic case final topo?) {
+    geopos = arena<Double>(3);
+    geopos[0] = topo.longitude;
+    geopos[1] = topo.latitude;
+    geopos[2] = topo.altitude;
+  }
+
+  Pointer<SweSidMode> sidMode = nullptr;
+  if (config.siderealMode != null) {
+    sidMode = arena<SweSidMode>();
+    var bits = config.siderealBits.value;
+    if (config.siderealT0IsUt) bits |= SiderealBits.userUt.value;
+    sidMode.ref.sidMode = config.siderealMode!.value | bits;
+    sidMode.ref.t0 = config.siderealT0;
+    sidMode.ref.ayanT0 = config.siderealAyanT0;
+  }
+
+  return (geopos: geopos, sidMode: sidMode);
+}
+
 // ---------------------------------------------------------------------------
 // Result unmarshaling
 // ---------------------------------------------------------------------------
@@ -185,25 +209,7 @@ CalcResult calcUtWithConfig(
     final xx = arena<Double>(6);
     final flagsUsed = arena<Int32>();
     final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
-
-    Pointer<Double> geopos = nullptr;
-    if (config.topographic case final topo?) {
-      geopos = arena<Double>(3);
-      geopos[0] = topo.longitude;
-      geopos[1] = topo.latitude;
-      geopos[2] = topo.altitude;
-    }
-
-    Pointer<SweSidMode> sidMode = nullptr;
-    if (config.siderealMode != null) {
-      sidMode = arena<SweSidMode>();
-      var bits = config.siderealBits.value;
-      if (config.siderealT0IsUt) bits |= SiderealBits.userUt.value;
-      sidMode.ref.sidMode = config.siderealMode!.value | bits;
-      sidMode.ref.t0 = config.siderealT0;
-      sidMode.ref.ayanT0 = config.siderealAyanT0;
-    }
-
+    final (:geopos, :sidMode) = _marshalPerCallOverrides(arena, config);
     final code = swissephCalcUt(
       handle,
       tjdUt,
@@ -256,25 +262,7 @@ CalcResult calcWithConfig(
     final xx = arena<Double>(6);
     final flagsUsed = arena<Int32>();
     final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
-
-    Pointer<Double> geopos = nullptr;
-    if (config.topographic case final topo?) {
-      geopos = arena<Double>(3);
-      geopos[0] = topo.longitude;
-      geopos[1] = topo.latitude;
-      geopos[2] = topo.altitude;
-    }
-
-    Pointer<SweSidMode> sidMode = nullptr;
-    if (config.siderealMode != null) {
-      sidMode = arena<SweSidMode>();
-      var bits = config.siderealBits.value;
-      if (config.siderealT0IsUt) bits |= SiderealBits.userUt.value;
-      sidMode.ref.sidMode = config.siderealMode!.value | bits;
-      sidMode.ref.t0 = config.siderealT0;
-      sidMode.ref.ayanT0 = config.siderealAyanT0;
-    }
-
+    final (:geopos, :sidMode) = _marshalPerCallOverrides(arena, config);
     final code = swissephCalc(
       handle,
       tjdEt,
@@ -808,17 +796,9 @@ double getAyanamsaExWithConfig(
   return using((arena) {
     final daya = arena<Double>();
     final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
-
-    Pointer<SweSidMode> sidMode = nullptr;
-    if (config.siderealMode != null) {
-      sidMode = arena<SweSidMode>();
-      var bits = config.siderealBits.value;
-      if (config.siderealT0IsUt) bits |= SiderealBits.userUt.value;
-      sidMode.ref.sidMode = config.siderealMode!.value | bits;
-      sidMode.ref.t0 = config.siderealT0;
-      sidMode.ref.ayanT0 = config.siderealAyanT0;
-    }
-
+    final (:geopos, :sidMode) = _marshalPerCallOverrides(arena, config);
+    // geopos unused — ayanamsa only needs sidereal mode override
+    final _ = geopos;
     final code = swissephGetAyanamsaEx(
       handle,
       tjdEt,
@@ -1773,6 +1753,171 @@ OrbitDistances orbitMaxMinTrueDistance(
     );
     _checkResult(code, errBuf);
     return OrbitDistances(max: dmax[0], min: dmin[0], trueDist: dtrue[0]);
+  });
+}
+
+Phenomena phenoWithConfig(
+  Pointer<Void> handle,
+  double tjdEt,
+  int ipl,
+  int iflag,
+  EphemerisConfig config,
+) {
+  return using((arena) {
+    final attr = arena<Double>(20);
+    final flagsUsed = arena<Int32>(1);
+    final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
+    final (:geopos, :sidMode) = _marshalPerCallOverrides(arena, config);
+    final code = swissephPheno(
+      handle,
+      tjdEt,
+      ipl,
+      iflag,
+      geopos,
+      sidMode,
+      attr,
+      flagsUsed,
+      errBuf,
+      _errBufSize,
+    );
+    _checkResult(code, errBuf);
+    return Phenomena(
+      phaseAngle: attr[0],
+      phase: attr[1],
+      elongation: attr[2],
+      apparentDiameter: attr[3],
+      apparentMagnitude: attr[4],
+      horizontalParallax: attr[5],
+      flagsUsed: CalcFlags(flagsUsed[0]),
+    );
+  });
+}
+
+Phenomena phenoUtWithConfig(
+  Pointer<Void> handle,
+  double tjdUt,
+  int ipl,
+  int iflag,
+  EphemerisConfig config,
+) {
+  return using((arena) {
+    final attr = arena<Double>(20);
+    final flagsUsed = arena<Int32>(1);
+    final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
+    final (:geopos, :sidMode) = _marshalPerCallOverrides(arena, config);
+    final code = swissephPhenoUt(
+      handle,
+      tjdUt,
+      ipl,
+      iflag,
+      geopos,
+      sidMode,
+      attr,
+      flagsUsed,
+      errBuf,
+      _errBufSize,
+    );
+    _checkResult(code, errBuf);
+    return Phenomena(
+      phaseAngle: attr[0],
+      phase: attr[1],
+      elongation: attr[2],
+      apparentDiameter: attr[3],
+      apparentMagnitude: attr[4],
+      horizontalParallax: attr[5],
+      flagsUsed: CalcFlags(flagsUsed[0]),
+    );
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Horizon & refraction (task /34)
+// ---------------------------------------------------------------------------
+
+AzaltResult azalt(
+  Pointer<Void> handle,
+  double tjdUt,
+  int calcFlag,
+  double geolon,
+  double geolat,
+  double geoalt,
+  double atpress,
+  double attemp,
+  double xin0,
+  double xin1,
+) {
+  return using((arena) {
+    final geopos = arena<Double>(3);
+    geopos[0] = geolon;
+    geopos[1] = geolat;
+    geopos[2] = geoalt;
+    final xin = arena<Double>(2);
+    xin[0] = xin0;
+    xin[1] = xin1;
+    final xaz = arena<Double>(3);
+    swissephAzalt(handle, tjdUt, calcFlag, geopos, atpress, attemp, xin, xaz);
+    return AzaltResult(
+      azimuth: xaz[0],
+      trueAltitude: xaz[1],
+      apparentAltitude: xaz[2],
+    );
+  });
+}
+
+({double lon, double lat}) azaltRev(
+  Pointer<Void> handle,
+  double tjdUt,
+  int calcFlag,
+  double geolon,
+  double geolat,
+  double geoalt,
+  double azimuth,
+  double trueAltitude,
+) {
+  return using((arena) {
+    final geopos = arena<Double>(3);
+    geopos[0] = geolon;
+    geopos[1] = geolat;
+    geopos[2] = geoalt;
+    final xin = arena<Double>(2);
+    xin[0] = azimuth;
+    xin[1] = trueAltitude;
+    final xout = arena<Double>(2);
+    swissephAzaltRev(handle, tjdUt, calcFlag, geopos, xin, xout);
+    return (lon: xout[0], lat: xout[1]);
+  });
+}
+
+double refrac(double inalt, double atpress, double attemp, int calcFlag) {
+  return swissephRefrac(inalt, atpress, attemp, calcFlag);
+}
+
+RefracExtendedResult refracExtended(
+  double inalt,
+  double geoalt,
+  double atpress,
+  double attemp,
+  double lapseRate,
+  int calcFlag,
+) {
+  return using((arena) {
+    final dret = arena<Double>(4);
+    final result = swissephRefracExtended(
+      inalt,
+      geoalt,
+      atpress,
+      attemp,
+      lapseRate,
+      calcFlag,
+      dret,
+    );
+    return RefracExtendedResult(
+      returnValue: result,
+      trueAltitude: dret[0],
+      apparentAltitude: dret[1],
+      refraction: dret[2],
+      horizonDip: dret[3],
+    );
   });
 }
 

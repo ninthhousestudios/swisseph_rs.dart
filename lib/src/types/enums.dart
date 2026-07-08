@@ -112,6 +112,42 @@ enum HeliacalEventType {
   const HeliacalEventType(this.value);
 }
 
+/// Counterpart: swisseph::azalt::RefracDir
+enum RefracDir {
+  /// Counterpart: swisseph::azalt::RefracDir::TrueToApp
+  trueToApp(0),
+
+  /// Counterpart: swisseph::azalt::RefracDir::AppToTrue
+  appToTrue(1);
+
+  final int value;
+  const RefracDir(this.value);
+}
+
+/// Counterpart: swisseph::azalt::AzAltDir
+enum AzAltDir {
+  /// Counterpart: swisseph::azalt::AzAltDir::EclToHor
+  eclToHor(0),
+
+  /// Counterpart: swisseph::azalt::AzAltDir::EquToHor
+  equToHor(1);
+
+  final int value;
+  const AzAltDir(this.value);
+}
+
+/// Counterpart: swisseph::azalt::HorDir
+enum HorDir {
+  /// Counterpart: swisseph::azalt::HorDir::HorToEcl
+  horToEcl(0),
+
+  /// Counterpart: swisseph::azalt::HorDir::HorToEqu
+  horToEqu(1);
+
+  final int value;
+  const HorDir(this.value);
+}
+
 /// Counterpart: swisseph::types::FileDataKind
 enum FileDataKind {
   /// Counterpart: swisseph::types::FileDataKind::Planet

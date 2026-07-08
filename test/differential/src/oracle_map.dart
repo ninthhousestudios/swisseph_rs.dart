@@ -90,6 +90,13 @@ const oracleMap = <String, OracleEntry>{
   'Ephemeris.nodAps': OracleEntry.direct(),
   'Ephemeris.getOrbitalElements': OracleEntry.direct(),
   'Ephemeris.orbitMaxMinTrueDistance': OracleEntry.direct(),
+  'Ephemeris.phenoWithConfig': OracleEntry.composite(),
+  'Ephemeris.phenoUtWithConfig': OracleEntry.composite(),
+  // Horizon & refraction (task /34)
+  'Ephemeris.azalt': OracleEntry.direct(),
+  'Ephemeris.azaltRev': OracleEntry.direct(),
+  'refrac': OracleEntry.direct(),
+  'refracExtended': OracleEntry.direct(),
   // Fixed stars (task /33)
   'Ephemeris.fixstar2': OracleEntry.direct(),
   'Ephemeris.fixstar2Ut': OracleEntry.direct(),

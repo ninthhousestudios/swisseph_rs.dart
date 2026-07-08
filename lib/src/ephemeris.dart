@@ -685,6 +685,94 @@ final class Ephemeris implements Finalizable {
     );
   }
 
+  /// Counterpart: swisseph::Ephemeris::pheno_with_config
+  Phenomena phenoWithConfig(
+    JdTt jdEt,
+    Body body,
+    CalcFlags flags,
+    EphemerisConfig config,
+  ) {
+    _checkOpen();
+    return marshal.phenoWithConfig(
+      _handle,
+      jdEt.value,
+      body.rawValue,
+      flags.value,
+      config,
+    );
+  }
+
+  /// Counterpart: swisseph::Ephemeris::pheno_ut_with_config
+  Phenomena phenoUtWithConfig(
+    JdUt1 jdUt,
+    Body body,
+    CalcFlags flags,
+    EphemerisConfig config,
+  ) {
+    _checkOpen();
+    return marshal.phenoUtWithConfig(
+      _handle,
+      jdUt.value,
+      body.rawValue,
+      flags.value,
+      config,
+    );
+  }
+
+  // -----------------------------------------------------------------------
+  // Horizon & refraction (task /34)
+  // -----------------------------------------------------------------------
+
+  /// Counterpart: swisseph::Ephemeris::azalt
+  AzaltResult azalt(
+    JdUt1 jdUt,
+    AzAltDir dir, {
+    required double geolon,
+    required double geolat,
+    double geoalt = 0,
+    double atpress = 1013.25,
+    double attemp = 15.0,
+    required double xin0,
+    required double xin1,
+  }) {
+    _checkOpen();
+    return marshal.azalt(
+      _handle,
+      jdUt.value,
+      dir.value,
+      geolon,
+      geolat,
+      geoalt,
+      atpress,
+      attemp,
+      xin0,
+      xin1,
+    );
+  }
+
+  /// Counterpart: swisseph::Ephemeris::azalt_rev
+  ({double lon, double lat}) azaltRev(
+    JdUt1 jdUt,
+    HorDir dir, {
+    required double geolon,
+    required double geolat,
+    double geoalt = 0,
+    required double azimuth,
+    required double trueAltitude,
+  }) {
+    _checkOpen();
+    return marshal.azaltRev(
+      _handle,
+      jdUt.value,
+      dir.value,
+      geolon,
+      geolat,
+      geoalt,
+      azimuth,
+      trueAltitude,
+    );
+  }
+
   // -----------------------------------------------------------------------
   // Fixed stars (task /33)
   // -----------------------------------------------------------------------
@@ -1046,4 +1134,28 @@ String houseName(HouseSystem hsys) {
 /// Counterpart: swisseph::types::SiderealMode::name
 String getAyanamsaName(SiderealMode sidMode) {
   return marshal.getAyanamsaName(sidMode.value);
+}
+
+/// Counterpart: swisseph::azalt::refrac
+double refrac(double inalt, double atpress, double attemp, RefracDir dir) {
+  return marshal.refrac(inalt, atpress, attemp, dir.value);
+}
+
+/// Counterpart: swisseph::azalt::refrac_extended
+RefracExtendedResult refracExtended(
+  double inalt,
+  double geoalt,
+  double atpress,
+  double attemp,
+  double lapseRate,
+  RefracDir dir,
+) {
+  return marshal.refracExtended(
+    inalt,
+    geoalt,
+    atpress,
+    attemp,
+    lapseRate,
+    dir.value,
+  );
 }
