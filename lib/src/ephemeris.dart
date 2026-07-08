@@ -15,6 +15,17 @@ final class Ephemeris implements Finalizable {
     _finalizer.attach(this, _handle, detach: this);
   }
 
+  /// Counterpart: swisseph_ffi::swisseph_share
+  ///
+  /// Materialize a shared engine from a token obtained via [share].
+  /// The resulting instance is a co-equal [Ephemeris] over the same engine —
+  /// not a view. Each instance closes independently; the last close frees the
+  /// engine. Close order is irrelevant.
+  Ephemeris.fromShareToken(int token)
+    : _handle = Pointer<Void>.fromAddress(token) {
+    _finalizer.attach(this, _handle, detach: this);
+  }
+
   void _checkOpen() {
     if (_closed) {
       throw StateError('Ephemeris has been closed');
@@ -278,10 +289,12 @@ final class Ephemeris implements Finalizable {
 
   /// Counterpart: swisseph_ffi::swisseph_share
   ///
-  /// Returns a token sendable to another isolate. Native-only.
-  Object share() {
+  /// Returns an isolate-sendable token representing a shared engine handle.
+  /// Materialize in the receiving isolate via [Ephemeris.fromShareToken].
+  /// Native-only; throws [UnsupportedError] on web.
+  int share() {
     _checkOpen();
-    throw UnimplementedError('share not yet implemented');
+    return marshal.shareHandle(_handle).address;
   }
 
   // -----------------------------------------------------------------------

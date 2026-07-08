@@ -23,7 +23,10 @@ const oracleMap = <String, OracleEntry>{
     'lifecycle; no oracle equivalent',
   ),
   'Ephemeris.share': OracleEntry.engineTrusted(
-    'unimplemented; pending upstream FFI',
+    'refcount clone; no oracle equivalent — swisseph.dart cannot share',
+  ),
+  'Ephemeris.fromShareToken': OracleEntry.engineTrusted(
+    'lifecycle; materializes shared handle — no oracle equivalent',
   ),
   'Ephemeris.deltaT': OracleEntry.direct(),
   'Ephemeris.timeEqu': OracleEntry.direct(),

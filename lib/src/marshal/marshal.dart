@@ -169,6 +169,17 @@ Pointer<Void> createHandle(EphemerisConfig config) {
   });
 }
 
+/// Clone a handle's refcount. Returns a new handle sharing the same engine.
+Pointer<Void> shareHandle(Pointer<Void> handle) {
+  return using((arena) {
+    final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
+    final out = arena<Pointer<Void>>();
+    final code = swissephShare(handle, out, errBuf, _errBufSize);
+    _checkResult(code, errBuf);
+    return out.value;
+  });
+}
+
 /// Release an ephemeris handle. Null-safe on the native side.
 void freeHandle(Pointer<Void> handle) {
   swissephFree(handle);
