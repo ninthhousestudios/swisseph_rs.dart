@@ -92,6 +92,34 @@ void main() {
 | Web | `initializeWasm()` + prebuilt `.wasm` artifact |
 | iOS, Android | Cargo build hook (same as desktop) |
 
+## Testing
+
+```bash
+dart test                         # unit, integration, totality (84 tests)
+SWE_EPHE_PATH=ephe dart test      # includes Swiss Ephemeris file tests
+dart test -t stress               # 100-isolate stress test (~30 min)
+```
+
+### Differential (oracle) tests
+
+The `test_oracle/` directory contains differential tests that compare
+swisseph_rs against [swisseph.dart](https://github.com/ninthhousestudios/swisseph.dart)
+(the C-based Swiss Ephemeris bindings). To run them, add swisseph as a dev
+dependency:
+
+```yaml
+# pubspec.yaml dev_dependencies:
+swisseph:
+  git:
+    url: https://github.com/ninthhousestudios/swisseph.dart
+
+# Also add dependency_overrides if there's a hooks version conflict:
+dependency_overrides:
+  hooks: ^2.0.2
+```
+
+Then: `SWE_EPHE_PATH=ephe dart test test_oracle/`
+
 ## License
 
 AGPL-3.0-or-later. See [LICENSE](LICENSE).
