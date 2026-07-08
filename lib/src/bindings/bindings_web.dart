@@ -1,6 +1,7 @@
 library;
 
 import 'package:wasm_ffi/ffi.dart';
+import 'package:wasm_ffi/ffi_utils.dart';
 
 import '../wasm_state.dart' as wasm;
 

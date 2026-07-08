@@ -47,7 +47,7 @@ void _setU32(Pointer<Uint8> base, int offset, int value) {
 }
 
 void _setF64(Pointer<Uint8> base, int offset, double value) {
-  (base + offset).cast<Double>().value = value;
+  base.cast<Double>().elementAt(offset ~/ 8).value = value;
 }
 
 void _setPtr(Pointer<Uint8> base, int offset, Pointer<Void> value) {

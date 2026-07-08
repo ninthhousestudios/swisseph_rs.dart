@@ -1,35 +1,36 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Build swisseph-ffi as an Emscripten wasm module.
+# Build swisseph-ffi as an Emscripten wasm module via the rust/ shim crate.
 #
 # Requirements:
 #   - Rust toolchain with wasm32-unknown-emscripten target
 #   - Emscripten SDK (emcc on PATH)
-#   - swisseph-rs repo at ../swisseph-rs (relative to project root)
 #
 # Output: swisseph_ffi.js + swisseph_ffi.wasm in this directory.
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
-FFI_DIR="$(realpath "$PROJECT_DIR/../swisseph-rs")"
+RUST_DIR="$PROJECT_DIR/rust"
 
-if [ ! -d "$FFI_DIR/crates/swisseph-ffi" ]; then
-  echo "ERROR: swisseph-rs not found at $FFI_DIR" >&2
+if [ ! -f "$RUST_DIR/Cargo.toml" ]; then
+  echo "ERROR: rust/Cargo.toml not found at $RUST_DIR" >&2
   exit 1
 fi
 
-echo "Building swisseph-ffi for wasm32-unknown-emscripten..."
+echo "Building swisseph-rs-dart for wasm32-unknown-emscripten..."
 RUSTFLAGS="-C panic=abort" cargo build \
   --target wasm32-unknown-emscripten \
-  --manifest-path "$FFI_DIR/crates/swisseph-ffi/Cargo.toml" \
+  --manifest-path "$RUST_DIR/Cargo.toml" \
   --release
 
-LIB="$FFI_DIR/target/wasm32-unknown-emscripten/release/libswisseph_ffi.a"
-if [ ! -f "$LIB" ]; then
-  echo "ERROR: Expected static lib not found: $LIB" >&2
+DEPS_DIR="$RUST_DIR/target/wasm32-unknown-emscripten/release/deps"
+LIB=$(find "$DEPS_DIR" -name 'libswisseph_ffi-*.a' -print -quit)
+if [ -z "$LIB" ]; then
+  echo "ERROR: libswisseph_ffi-*.a not found in $DEPS_DIR" >&2
   exit 1
 fi
+echo "Using: $LIB"
 
 EXPORTS='[
   "_swisseph_version","_swisseph_config_default",
@@ -73,6 +74,7 @@ EXPORTS='[
 echo "Linking with emcc..."
 emcc "$LIB" -o "$SCRIPT_DIR/swisseph_ffi.js" \
   -s MODULARIZE=1 \
+  -s EXPORT_NAME=SwissEphRs \
   -s ALLOW_MEMORY_GROWTH=1 \
   -s FORCE_FILESYSTEM=1 \
   -s EXPORTED_FUNCTIONS="$EXPORTS" \

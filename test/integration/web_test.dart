@@ -6,7 +6,7 @@ import 'package:test/test.dart';
 
 void main() {
   setUpAll(() async {
-    await initializeWasm();
+    await initializeWasm('../../wasm/swisseph_ffi');
   });
 
   group('Moshier (no files)', () {
@@ -38,16 +38,16 @@ void main() {
         8.55,
         HouseSystem.placidus,
       );
-      expect(r.cusps.length, 12);
-      for (final cusp in r.cusps) {
-        expect(cusp, greaterThanOrEqualTo(0));
-        expect(cusp, lessThan(360));
+      expect(r.cusps.length, 13);
+      for (var i = 1; i < r.cusps.length; i++) {
+        expect(r.cusps[i], greaterThanOrEqualTo(0));
+        expect(r.cusps[i], lessThan(360));
       }
     });
 
     test('eclipse search', () {
       final r = eph.solEclipseWhenGlob(const JdUt1(2451545.0), CalcFlags.speed);
-      expect(r.maximum.value, greaterThan(2451545.0));
+      expect(r.timeMaximum, greaterThan(2451545.0));
     });
   });
 
