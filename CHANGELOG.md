@@ -1,3 +1,7 @@
+## 0.1.1
+
+- Added proper copyright notes to LICENSE and source files.
+
 ## 0.0.1-dev
 
 - Initial development release.

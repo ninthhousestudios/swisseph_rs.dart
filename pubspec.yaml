@@ -2,7 +2,7 @@ name: swisseph_rs
 description: >-
   Idiomatic Dart transliteration of the swisseph-rs Rust API —
   typed, stateless, isolate-safe Swiss Ephemeris bindings via FFI.
-version: 0.1.0
+version: 0.1.1
 repository: https://github.com/ninthhousestudios/swisseph_rs.dart
 license: AGPL-3.0-or-later
 
