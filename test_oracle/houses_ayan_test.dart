@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Ninth House Studios LLC
+
 import 'package:swisseph/swisseph.dart' as swe;
 import 'package:swisseph_rs/swisseph_rs.dart';
 import 'package:test/test.dart';
