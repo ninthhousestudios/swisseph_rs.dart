@@ -1,3 +1,8 @@
+## 0.2.0
+
+- Added `fixstar2WithConfig` and `fixstar2UtWithConfig` for per-call sidereal
+  and topocentric overrides on fixed-star computations.
+
 ## 0.1.1
 
 - Added proper copyright notes to LICENSE and source files.

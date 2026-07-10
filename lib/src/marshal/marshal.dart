@@ -1943,6 +1943,98 @@ FixstarResult fixstar2Ut(
   });
 }
 
+/// Call `swisseph_fixstar2` with per-call config overrides.
+FixstarResult fixstar2WithConfig(
+  Pointer<Void> handle,
+  String star,
+  double tjdEt,
+  int iflag,
+  EphemerisConfig config,
+) {
+  return using((arena) {
+    final starIn = star.toNativeUtf8(allocator: arena);
+    final starOut = arena<Uint8>(_starBufSize).cast<Utf8>();
+    final xx = arena<Double>(6);
+    final flagsUsed = arena<Int32>(1);
+    final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
+    final (:geopos, :sidMode) = config_pack.marshalPerCallOverrides(
+      arena,
+      config,
+    );
+    final code = swissephFixstar2(
+      handle,
+      starIn,
+      starOut,
+      _starBufSize,
+      tjdEt,
+      iflag,
+      geopos,
+      sidMode,
+      xx,
+      flagsUsed,
+      errBuf,
+      _errBufSize,
+    );
+    _checkResult(code, errBuf);
+    return FixstarResult(
+      starName: starOut.toDartString(),
+      longitude: xx[0],
+      latitude: xx[1],
+      distance: xx[2],
+      longitudeSpeed: xx[3],
+      latitudeSpeed: xx[4],
+      distanceSpeed: xx[5],
+      flagsUsed: CalcFlags(flagsUsed[0]),
+    );
+  });
+}
+
+/// Call `swisseph_fixstar2_ut` with per-call config overrides.
+FixstarResult fixstar2UtWithConfig(
+  Pointer<Void> handle,
+  String star,
+  double tjdUt,
+  int iflag,
+  EphemerisConfig config,
+) {
+  return using((arena) {
+    final starIn = star.toNativeUtf8(allocator: arena);
+    final starOut = arena<Uint8>(_starBufSize).cast<Utf8>();
+    final xx = arena<Double>(6);
+    final flagsUsed = arena<Int32>(1);
+    final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
+    final (:geopos, :sidMode) = config_pack.marshalPerCallOverrides(
+      arena,
+      config,
+    );
+    final code = swissephFixstar2Ut(
+      handle,
+      starIn,
+      starOut,
+      _starBufSize,
+      tjdUt,
+      iflag,
+      geopos,
+      sidMode,
+      xx,
+      flagsUsed,
+      errBuf,
+      _errBufSize,
+    );
+    _checkResult(code, errBuf);
+    return FixstarResult(
+      starName: starOut.toDartString(),
+      longitude: xx[0],
+      latitude: xx[1],
+      distance: xx[2],
+      longitudeSpeed: xx[3],
+      latitudeSpeed: xx[4],
+      distanceSpeed: xx[5],
+      flagsUsed: CalcFlags(flagsUsed[0]),
+    );
+  });
+}
+
 FixstarMagResult fixstar2Mag(Pointer<Void> handle, String star) {
   return using((arena) {
     final starIn = star.toNativeUtf8(allocator: arena);

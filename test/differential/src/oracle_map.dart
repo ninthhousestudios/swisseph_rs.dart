@@ -104,6 +104,8 @@ const oracleMap = <String, OracleEntry>{
   // Fixed stars (task /33)
   'Ephemeris.fixstar2': OracleEntry.direct(),
   'Ephemeris.fixstar2Ut': OracleEntry.direct(),
+  'Ephemeris.fixstar2WithConfig': OracleEntry.composite(),
+  'Ephemeris.fixstar2UtWithConfig': OracleEntry.composite(),
   'Ephemeris.fixstar2Mag': OracleEntry.direct(),
   // Heliacal (task /33)
   'Ephemeris.heliacalUt': OracleEntry.direct(),

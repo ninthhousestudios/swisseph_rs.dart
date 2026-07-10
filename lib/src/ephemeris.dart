@@ -806,6 +806,40 @@ final class Ephemeris implements Finalizable {
     return marshal.fixstar2Ut(_handle, star, jdUt.value, flags.value);
   }
 
+  /// Counterpart: swisseph::Ephemeris::fixstar2_with_config
+  FixstarResult fixstar2WithConfig(
+    String star,
+    JdTt jdEt,
+    CalcFlags flags,
+    EphemerisConfig config,
+  ) {
+    _checkOpen();
+    return marshal.fixstar2WithConfig(
+      _handle,
+      star,
+      jdEt.value,
+      flags.value,
+      config,
+    );
+  }
+
+  /// Counterpart: swisseph::Ephemeris::fixstar2_ut_with_config
+  FixstarResult fixstar2UtWithConfig(
+    String star,
+    JdUt1 jdUt,
+    CalcFlags flags,
+    EphemerisConfig config,
+  ) {
+    _checkOpen();
+    return marshal.fixstar2UtWithConfig(
+      _handle,
+      star,
+      jdUt.value,
+      flags.value,
+      config,
+    );
+  }
+
   /// Counterpart: swisseph::Ephemeris::fixstar2_mag
   FixstarMagResult fixstar2Mag(String star) {
     _checkOpen();
