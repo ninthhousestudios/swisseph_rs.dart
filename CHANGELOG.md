@@ -1,3 +1,12 @@
+## 0.2.1
+
+- Fixed web: `loadEpheFile` threw "Emscripten module not available" because
+  the raw Emscripten module instance was never stored for `getEmscriptenFS()`.
+  `initializeWasm` now pre-loads the glue script and wraps the factory to
+  capture the module in `__swissephRsModule` before `DynamicLibrary.open`
+  consumes it.
+- Added `web` dependency (used by `loader_web.dart` for script injection).
+
 ## 0.2.0
 
 - Added `fixstar2WithConfig` and `fixstar2UtWithConfig` for per-call sidereal

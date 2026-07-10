@@ -6,6 +6,7 @@ import 'dart:js_interop_unsafe';
 import 'dart:typed_data';
 
 import 'package:wasm_ffi/ffi.dart';
+import 'package:web/web.dart' as web;
 
 import 'wasm_state.dart' as wasm;
 
@@ -40,12 +41,41 @@ Future<void> initializeWasm([String? modulePath]) {
 }
 
 Future<void> _doInit(String path) async {
+  // Load the Emscripten glue script and wrap the factory to capture the
+  // module instance. wasm_ffi's EmscriptenModule wraps the raw JS module
+  // with no public accessor, but getEmscriptenFS() needs it for MEMFS.
+  // Pre-loading + wrapping before DynamicLibrary.open ensures the captured
+  // module is stored in __swissephRsModule. DynamicLibrary.open's
+  // importLibrary call will detect the script as already loaded and skip it.
+  await _loadAndWrapFactory(path);
+
   wasm.wasmLibrary = await DynamicLibrary.open(
     path,
     moduleName: 'SwissEphRs',
     useAsGlobal: GlobalMemory.yes,
   );
   wasm.wasmInitialized = true;
+}
+
+@JS('eval')
+external void _jsEval(String code);
+
+Future<void> _loadAndWrapFactory(String path) async {
+  final script = web.HTMLScriptElement()
+    ..type = 'text/javascript'
+    ..src = path
+    ..async = true;
+  web.document.head!.appendChild(script);
+  await script.onLoad.first;
+  _jsEval(
+    'var __origSwissEphRs = globalThis.SwissEphRs;'
+    'globalThis.SwissEphRs = function(a) {'
+    '  return __origSwissEphRs(a).then(function(m) {'
+    '    globalThis.__swissephRsModule = m;'
+    '    return m;'
+    '  });'
+    '};',
+  );
 }
 
 /// Counterpart: (systematic divergence: web loader seam)
