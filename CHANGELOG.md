@@ -1,3 +1,10 @@
+## 0.2.2
+
+- Build hook: Android and iOS cross-compilation support. Maps
+  `targetOS`/`targetArchitecture` to Rust target triples, wires the NDK
+  clang linker for Android, and fails early with an actionable message
+  when a `rustup` target is missing. Desktop path unchanged.
+
 ## 0.2.1
 
 - Fixed web: `loadEpheFile` threw "Emscripten module not available" because
