@@ -701,10 +701,15 @@ double gauquelinSector(
 // Ayanamsa
 // ---------------------------------------------------------------------------
 
-/// Call `swisseph_get_ayanamsa_ex` and return the ayanamsa value.
-double getAyanamsaEx(Pointer<Void> handle, double tjdEt, int iflag) {
+/// Call `swisseph_get_ayanamsa_ex` and return ayanamsa + flags used.
+({double ayanamsa, CalcFlags flagsUsed}) getAyanamsaEx(
+  Pointer<Void> handle,
+  double tjdEt,
+  int iflag,
+) {
   return using((arena) {
     final daya = arena<Double>();
+    final pFlags = arena<Int32>();
     final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
     final code = swissephGetAyanamsaEx(
       handle,
@@ -712,17 +717,17 @@ double getAyanamsaEx(Pointer<Void> handle, double tjdEt, int iflag) {
       iflag,
       nullptr, // use handle's configured sidereal mode
       daya,
-      nullptr, // flagsUsed
+      pFlags,
       errBuf,
       _errBufSize,
     );
     _checkResult(code, errBuf);
-    return daya.value;
+    return (ayanamsa: daya.value, flagsUsed: CalcFlags(pFlags.value));
   });
 }
 
 /// Call `swisseph_get_ayanamsa_ex` with per-call sidereal mode override.
-double getAyanamsaExWithConfig(
+({double ayanamsa, CalcFlags flagsUsed}) getAyanamsaExWithConfig(
   Pointer<Void> handle,
   double tjdEt,
   int iflag,
@@ -730,6 +735,7 @@ double getAyanamsaExWithConfig(
 ) {
   return using((arena) {
     final daya = arena<Double>();
+    final pFlags = arena<Int32>();
     final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
     final (:geopos, :sidMode) = config_pack.marshalPerCallOverrides(
       arena,
@@ -743,19 +749,24 @@ double getAyanamsaExWithConfig(
       iflag,
       sidMode,
       daya,
-      nullptr,
+      pFlags,
       errBuf,
       _errBufSize,
     );
     _checkResult(code, errBuf);
-    return daya.value;
+    return (ayanamsa: daya.value, flagsUsed: CalcFlags(pFlags.value));
   });
 }
 
-/// Call `swisseph_get_ayanamsa_ex_ut` and return the ayanamsa value.
-double getAyanamsaUt(Pointer<Void> handle, double tjdUt, int iflag) {
+/// Call `swisseph_get_ayanamsa_ex_ut` and return ayanamsa + flags used.
+({double ayanamsa, CalcFlags flagsUsed}) getAyanamsaUt(
+  Pointer<Void> handle,
+  double tjdUt,
+  int iflag,
+) {
   return using((arena) {
     final daya = arena<Double>();
+    final pFlags = arena<Int32>();
     final errBuf = arena<Uint8>(_errBufSize).cast<Utf8>();
     final code = swissephGetAyanamsaExUt(
       handle,
@@ -763,12 +774,12 @@ double getAyanamsaUt(Pointer<Void> handle, double tjdUt, int iflag) {
       iflag,
       nullptr,
       daya,
-      nullptr,
+      pFlags,
       errBuf,
       _errBufSize,
     );
     _checkResult(code, errBuf);
-    return daya.value;
+    return (ayanamsa: daya.value, flagsUsed: CalcFlags(pFlags.value));
   });
 }
 
@@ -2110,8 +2121,8 @@ void _fillHeliacal(
   dobs[0] = age;
   dobs[1] = snellenRatio;
   dobs[2] = opticType;
-  dobs[3] = magnification;
-  dobs[4] = aperture;
+  dobs[3] = aperture;
+  dobs[4] = magnification;
   dobs[5] = transmission;
 }
 
