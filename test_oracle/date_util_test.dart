@@ -370,6 +370,35 @@ void main() {
   });
 
   // -----------------------------------------------------------------------
+  // siderealTime / siderealTime0
+  // -----------------------------------------------------------------------
+
+  group('siderealTime', () {
+    test('J2000.0', () {
+      const jd = JdUt1(2451545.0);
+      final rs = eph.siderealTime(jd);
+      final oc = oracle.siderealTime(jd.value);
+      expectAgreement('siderealTime J2000', rs, oc, AgreementClass.positional);
+    });
+
+    test('modern date', () {
+      final jd = julday(2024, 6, 15, 12.0, CalendarType.gregorian);
+      final rs = eph.siderealTime(jd);
+      final oc = oracle.siderealTime(jd.value);
+      expectAgreement('siderealTime modern', rs, oc, AgreementClass.positional);
+    });
+  });
+
+  group('siderealTime0', () {
+    test('explicit obliquity and nutation', () {
+      const jd = JdUt1(2451545.0);
+      final rs = eph.siderealTime0(jd, 23.44, 0.005);
+      final oc = oracle.siderealTime0(jd.value, 23.44, 0.005);
+      expectAgreement('siderealTime0', rs, oc, AgreementClass.bitwise);
+    });
+  });
+
+  // -----------------------------------------------------------------------
   // timeEqu / lmtToLat / latToLmt
   // -----------------------------------------------------------------------
 
@@ -493,6 +522,65 @@ void main() {
       expect(rs.minutes, equals(oc.minutes));
       expect(rs.seconds, equals(oc.seconds));
       expect(rs.sign, equals(oc.sign));
+    });
+  });
+
+  // -----------------------------------------------------------------------
+  // cotrans
+  // -----------------------------------------------------------------------
+
+  group('cotrans', () {
+    test('ecliptic to equatorial', () {
+      const lon = 120.0;
+      const lat = 5.0;
+      const dist = 1.0;
+      const eps = 23.44;
+      final rs = cotrans(lon, lat, dist, eps);
+      final oc = oracle.cotrans(lon, lat, dist, eps);
+      expectAgreement('cotrans lon', rs[0], oc.lon, AgreementClass.bitwise);
+      expectAgreement('cotrans lat', rs[1], oc.lat, AgreementClass.bitwise);
+      expectAgreement('cotrans dist', rs[2], oc.dist, AgreementClass.bitwise);
+    });
+
+    test('zero obliquity is identity', () {
+      const lon = 45.0;
+      const lat = -10.0;
+      const dist = 2.5;
+      final rs = cotrans(lon, lat, dist, 0.0);
+      final oc = oracle.cotrans(lon, lat, dist, 0.0);
+      expectAgreement(
+        'cotrans zero-eps lon',
+        rs[0],
+        oc.lon,
+        AgreementClass.bitwise,
+      );
+      expectAgreement(
+        'cotrans zero-eps lat',
+        rs[1],
+        oc.lat,
+        AgreementClass.bitwise,
+      );
+    });
+
+    test('negative obliquity (equatorial to ecliptic)', () {
+      const lon = 200.0;
+      const lat = 30.0;
+      const dist = 1.0;
+      const eps = -23.44;
+      final rs = cotrans(lon, lat, dist, eps);
+      final oc = oracle.cotrans(lon, lat, dist, eps);
+      expectAgreement(
+        'cotrans neg-eps lon',
+        rs[0],
+        oc.lon,
+        AgreementClass.bitwise,
+      );
+      expectAgreement(
+        'cotrans neg-eps lat',
+        rs[1],
+        oc.lat,
+        AgreementClass.bitwise,
+      );
     });
   });
 
