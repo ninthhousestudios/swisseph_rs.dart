@@ -401,6 +401,25 @@ double deltaT(Pointer<Void> handle, double tjdUt) {
   return result;
 }
 
+/// Call `swisseph_sidtime`.
+double siderealTime(Pointer<Void> handle, double tjdUt) {
+  final result = swissephSidtime(handle, tjdUt);
+  if (result.isNaN) {
+    throw const CErrorException('swisseph_sidtime returned NaN');
+  }
+  return result;
+}
+
+/// Call `swisseph_sidtime0`.
+double siderealTime0(
+  Pointer<Void> handle,
+  double tjdUt,
+  double eps,
+  double nut,
+) {
+  return swissephSidtime0(handle, tjdUt, eps, nut);
+}
+
 /// Call `swisseph_time_equ`.
 double timeEqu(Pointer<Void> handle, double tjdUt) {
   return using((arena) {
@@ -2474,5 +2493,46 @@ double topoArcusVisionis(
     );
     _checkResult(code, errBuf);
     return dret[0];
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Math
+// ---------------------------------------------------------------------------
+
+/// Call `swisseph_cotrans`.
+List<double> cotrans(double lon, double lat, double dist, double eps) {
+  return using((arena) {
+    final xpo = arena<Double>(3);
+    xpo[0] = lon;
+    xpo[1] = lat;
+    xpo[2] = dist;
+    final xpn = arena<Double>(3);
+    swissephCotrans(xpo, xpn, eps);
+    return [xpn[0], xpn[1], xpn[2]];
+  });
+}
+
+/// Call `swisseph_cotrans_sp`.
+List<double> cotransWithSpeed(
+  double lon,
+  double lat,
+  double dist,
+  double lonSpeed,
+  double latSpeed,
+  double distSpeed,
+  double eps,
+) {
+  return using((arena) {
+    final xpo = arena<Double>(6);
+    xpo[0] = lon;
+    xpo[1] = lat;
+    xpo[2] = dist;
+    xpo[3] = lonSpeed;
+    xpo[4] = latSpeed;
+    xpo[5] = distSpeed;
+    final xpn = arena<Double>(6);
+    swissephCotransSp(xpo, xpn, eps);
+    return [xpn[0], xpn[1], xpn[2], xpn[3], xpn[4], xpn[5]];
   });
 }

@@ -399,6 +399,18 @@ late final swissephSplitDeg = _lib
       )
     >('swisseph_split_deg');
 
+late final swissephSidtime = _lib
+    .lookupFunction<
+      Double Function(Pointer<Void>, Double),
+      double Function(Pointer<Void>, double)
+    >('swisseph_sidtime');
+
+late final swissephSidtime0 = _lib
+    .lookupFunction<
+      Double Function(Pointer<Void>, Double, Double, Double),
+      double Function(Pointer<Void>, double, double, double)
+    >('swisseph_sidtime0');
+
 // ---------------------------------------------------------------------------
 // Houses & Gauquelin
 // ---------------------------------------------------------------------------
@@ -1612,3 +1624,19 @@ late final swissephTopoArcusVisionis = _lib
         int,
       )
     >('swisseph_topo_arcus_visionis');
+
+// ---------------------------------------------------------------------------
+// Math
+// ---------------------------------------------------------------------------
+
+late final swissephCotrans = _lib
+    .lookupFunction<
+      Void Function(Pointer<Double>, Pointer<Double>, Double),
+      void Function(Pointer<Double>, Pointer<Double>, double)
+    >('swisseph_cotrans');
+
+late final swissephCotransSp = _lib
+    .lookupFunction<
+      Void Function(Pointer<Double>, Pointer<Double>, Double),
+      void Function(Pointer<Double>, Pointer<Double>, double)
+    >('swisseph_cotrans_sp');

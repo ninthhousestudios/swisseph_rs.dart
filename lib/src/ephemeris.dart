@@ -110,6 +110,18 @@ final class Ephemeris implements Finalizable {
     return marshal.deltaT(_handle, jd.value);
   }
 
+  /// Counterpart: swisseph::Ephemeris::sidereal_time
+  double siderealTime(JdUt1 jd) {
+    _checkOpen();
+    return marshal.siderealTime(_handle, jd.value);
+  }
+
+  /// Counterpart: swisseph::Ephemeris::sidereal_time0
+  double siderealTime0(JdUt1 jd, double eps, double nut) {
+    _checkOpen();
+    return marshal.siderealTime0(_handle, jd.value, eps, nut);
+  }
+
   /// Counterpart: swisseph::Ephemeris::time_equ
   double timeEqu(double tjdUt) {
     _checkOpen();
@@ -1137,6 +1149,32 @@ double normalizeDegrees(double x) {
   var result = x % 360.0;
   if (result < 0) result += 360.0;
   return result;
+}
+
+/// Counterpart: swisseph::math::cotrans
+List<double> cotrans(double lon, double lat, double dist, double eps) {
+  return marshal.cotrans(lon, lat, dist, eps);
+}
+
+/// Counterpart: swisseph::math::cotrans_with_speed
+List<double> cotransWithSpeed(
+  double lon,
+  double lat,
+  double dist,
+  double lonSpeed,
+  double latSpeed,
+  double distSpeed,
+  double eps,
+) {
+  return marshal.cotransWithSpeed(
+    lon,
+    lat,
+    dist,
+    lonSpeed,
+    latSpeed,
+    distSpeed,
+    eps,
+  );
 }
 
 /// Counterpart: swisseph::houses::houses_armc

@@ -451,6 +451,19 @@ external void swissephSplitDeg(
   Pointer<Int32> sign,
 );
 
+@Native<Double Function(Pointer<Void>, Double)>(symbol: 'swisseph_sidtime')
+external double swissephSidtime(Pointer<Void> handle, double tjdUt);
+
+@Native<Double Function(Pointer<Void>, Double, Double, Double)>(
+  symbol: 'swisseph_sidtime0',
+)
+external double swissephSidtime0(
+  Pointer<Void> handle,
+  double tjdUt,
+  double eps,
+  double nut,
+);
+
 // ---------------------------------------------------------------------------
 // Houses & Gauquelin
 // ---------------------------------------------------------------------------
@@ -1640,4 +1653,26 @@ external int swissephTopoArcusVisionis(
   Pointer<Double> dret,
   Pointer<Utf8> errBuf,
   int errCap,
+);
+
+// ---------------------------------------------------------------------------
+// Math
+// ---------------------------------------------------------------------------
+
+@Native<Void Function(Pointer<Double>, Pointer<Double>, Double)>(
+  symbol: 'swisseph_cotrans',
+)
+external void swissephCotrans(
+  Pointer<Double> xpo,
+  Pointer<Double> xpn,
+  double eps,
+);
+
+@Native<Void Function(Pointer<Double>, Pointer<Double>, Double)>(
+  symbol: 'swisseph_cotrans_sp',
+)
+external void swissephCotransSp(
+  Pointer<Double> xpo,
+  Pointer<Double> xpn,
+  double eps,
 );
