@@ -269,13 +269,16 @@ final class Ephemeris implements Finalizable {
   // -----------------------------------------------------------------------
 
   /// Counterpart: swisseph::Ephemeris::get_ayanamsa_ex
-  double getAyanamsaEx(JdTt jd, CalcFlags flags) {
+  ({double ayanamsa, CalcFlags flagsUsed}) getAyanamsaEx(
+    JdTt jd,
+    CalcFlags flags,
+  ) {
     _checkOpen();
     return marshal.getAyanamsaEx(_handle, jd.value, flags.value);
   }
 
   /// Counterpart: swisseph::Ephemeris::get_ayanamsa_ex_with_config
-  double getAyanamsaExWithConfig(
+  ({double ayanamsa, CalcFlags flagsUsed}) getAyanamsaExWithConfig(
     JdTt jd,
     CalcFlags flags,
     EphemerisConfig config,
@@ -290,7 +293,10 @@ final class Ephemeris implements Finalizable {
   }
 
   /// Counterpart: swisseph::Ephemeris::get_ayanamsa_ut
-  double getAyanamsaUt(JdUt1 jd, CalcFlags flags) {
+  ({double ayanamsa, CalcFlags flagsUsed}) getAyanamsaUt(
+    JdUt1 jd,
+    CalcFlags flags,
+  ) {
     _checkOpen();
     return marshal.getAyanamsaUt(_handle, jd.value, flags.value);
   }

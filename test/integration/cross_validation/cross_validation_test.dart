@@ -212,10 +212,13 @@ void main() {
         final config = EphemerisConfig(siderealMode: _sidModeFromId(sidId));
         final eph = Ephemeris(config);
         try {
-          final result = eph.getAyanamsaUt(jd, CalcFlags.none);
+          final (:ayanamsa, flagsUsed: _) = eph.getAyanamsaUt(
+            jd,
+            CalcFlags.none,
+          );
           final tol = _trueAyanamsas.contains(sidId) ? _epsLoose : _eps;
           expect(
-            result,
+            ayanamsa,
             closeTo(expected, tol),
             reason: '$sidName (id=$sidId) ayanamsa at JD=${jd.value}',
           );
@@ -496,14 +499,14 @@ void main() {
         final tol = _trueAyanamsas.contains(sidId) ? _epsLoose : _eps;
         final config = EphemerisConfig(siderealMode: _sidModeFromId(sidId));
 
-        final result = _eph.getAyanamsaExWithConfig(
+        final (:ayanamsa, flagsUsed: _) = _eph.getAyanamsaExWithConfig(
           JdTt(jd),
           CalcFlags.none,
           config,
         );
 
         expect(
-          result,
+          ayanamsa,
           closeTo(expected, tol),
           reason: 'getAyanamsaEx(sidId=$sidId) at JD=$jd',
         );
