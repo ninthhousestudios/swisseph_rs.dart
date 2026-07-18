@@ -1,3 +1,12 @@
+## 0.2.3
+
+- Added `siderealTime` and `siderealTime0` methods on `Ephemeris` for
+  Greenwich Apparent Sidereal Time (GAST).
+- Added `cotrans` and `cotransWithSpeed` free functions for ecliptic ↔
+  equatorial coordinate transformation.
+- Bumped swisseph-ffi to `64bc1533` (adds `swisseph_cotrans` /
+  `swisseph_cotrans_sp` FFI exports).
+
 ## 0.2.2
 
 - Build hook: Android and iOS cross-compilation support. Maps
