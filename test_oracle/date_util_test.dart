@@ -585,6 +585,68 @@ void main() {
   });
 
   // -----------------------------------------------------------------------
+  // cotransWithSpeed (engine-trusted — swisseph.dart lacks swe_cotrans_sp)
+  // -----------------------------------------------------------------------
+
+  group('cotransWithSpeed', () {
+    test('zero obliquity is identity for all six fields', () {
+      const lon = 120.0, lat = 5.0, dist = 1.0;
+      const lonSpd = 0.5, latSpd = -0.1, distSpd = 0.01;
+      final rs = cotransWithSpeed(lon, lat, dist, lonSpd, latSpd, distSpd, 0.0);
+      expectAgreement('ctSp zero-eps lon', rs[0], lon, AgreementClass.bitwise);
+      expectAgreement('ctSp zero-eps lat', rs[1], lat, AgreementClass.bitwise);
+      expectAgreement(
+        'ctSp zero-eps dist',
+        rs[2],
+        dist,
+        AgreementClass.bitwise,
+      );
+      expectAgreement(
+        'ctSp zero-eps lonSpd',
+        rs[3],
+        lonSpd,
+        AgreementClass.bitwise,
+      );
+      expectAgreement(
+        'ctSp zero-eps latSpd',
+        rs[4],
+        latSpd,
+        AgreementClass.bitwise,
+      );
+      expectAgreement(
+        'ctSp zero-eps distSpd',
+        rs[5],
+        distSpd,
+        AgreementClass.bitwise,
+      );
+    });
+
+    test('position fields match cotrans', () {
+      const lon = 200.0, lat = -15.0, dist = 1.0, eps = 23.44;
+      final pos = cotrans(lon, lat, dist, eps);
+      final full = cotransWithSpeed(lon, lat, dist, 0.0, 0.0, 0.0, eps);
+      expectAgreement(
+        'ctSp vs ct lon',
+        full[0],
+        pos[0],
+        AgreementClass.bitwise,
+      );
+      expectAgreement(
+        'ctSp vs ct lat',
+        full[1],
+        pos[1],
+        AgreementClass.bitwise,
+      );
+      expectAgreement(
+        'ctSp vs ct dist',
+        full[2],
+        pos[2],
+        AgreementClass.bitwise,
+      );
+    });
+  });
+
+  // -----------------------------------------------------------------------
   // normalizeDegrees (engine-trusted, self-test only)
   // -----------------------------------------------------------------------
 
