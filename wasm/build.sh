@@ -63,6 +63,7 @@ EXPORTS='[
   "_swisseph_nod_aps","_swisseph_nod_aps_ut",
   "_swisseph_get_orbital_elements","_swisseph_orbit_max_min_true_distance",
   "_swisseph_azalt","_swisseph_azalt_rev",
+  "_swisseph_cotrans","_swisseph_cotrans_sp",
   "_swisseph_refrac","_swisseph_refrac_extended",
   "_swisseph_fixstar2","_swisseph_fixstar2_ut","_swisseph_fixstar2_mag",
   "_swisseph_heliacal_ut","_swisseph_heliacal_pheno_ut",
