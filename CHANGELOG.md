@@ -3,9 +3,6 @@
 - **Breaking:** `getAyanamsaEx`, `getAyanamsaExWithConfig`, and
   `getAyanamsaUt` now return `({double ayanamsa, CalcFlags flagsUsed})`
   instead of bare `double`, exposing ephemeris-fallback information.
-- Fixed `_fillHeliacal` dobs array: `dobs[3]`/`dobs[4]` were swapped
-  (aperture ↔ magnification), producing wrong heliacal results with
-  non-default telescope parameters.
 
 ## 0.2.3
 
