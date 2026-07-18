@@ -88,8 +88,9 @@ const _phenoBodies = [
 const Set<String> _allMethods = {
   // Calc (5)
   'calcUt', 'calc', 'calcUtWithConfig', 'calcWithConfig', 'calcPctr',
-  // DateTime — instance (7)
-  'deltaT', 'timeEqu', 'lmtToLat', 'latToLmt',
+  // DateTime — instance (9)
+  'deltaT', 'siderealTime', 'siderealTime0',
+  'timeEqu', 'lmtToLat', 'latToLmt',
   'utcToJd', 'jdetToUtc', 'jdut1ToUtc',
   // DateTime — free (5)
   'julday', 'revjul', 'dateConversion', 'dayOfWeek', 'utcTimeZone',
@@ -124,8 +125,8 @@ const Set<String> _allMethods = {
   'heliacalAngle', 'topoArcusVisionis',
   // Coordinate — free (2)
   'refrac', 'refracExtended',
-  // Utility — free (2)
-  'splitDegrees', 'normalizeDegrees',
+  // Utility — free (4)
+  'splitDegrees', 'cotrans', 'cotransWithSpeed', 'normalizeDegrees',
   // Utility — instance (2)
   'getPlanetName', 'close',
   // Utility — free (1)
@@ -296,6 +297,8 @@ void _dateTimeWork(
 ) {
   m.addAll([
     'deltaT',
+    'siderealTime',
+    'siderealTime0',
     'timeEqu',
     'lmtToLat',
     'latToLmt',
@@ -328,6 +331,13 @@ void _dateTimeWork(
     _inc(c, 'dateTime');
 
     final dt = eph.deltaT(jdUt);
+    _inc(c, 'dateTime');
+
+    final sidT = eph.siderealTime(jdUt);
+    _inc(c, 'dateTime');
+    assert(sidT >= 0.0 && sidT < 24.0, 'siderealTime out of range: $sidT');
+
+    eph.siderealTime0(jdUt, 23.44, 0.0);
     _inc(c, 'dateTime');
 
     final jdTt = JdTt(jdUt.value + dt);
@@ -679,6 +689,8 @@ void _utilWork(
 ) {
   m.addAll([
     'splitDegrees',
+    'cotrans',
+    'cotransWithSpeed',
     'normalizeDegrees',
     'engineVersion',
     'getPlanetName',
@@ -708,6 +720,14 @@ void _utilWork(
 
     splitDegrees(deg, SplitDegFlags.nakshatra);
     _inc(c, 'util');
+
+    final ct = cotrans(deg, deg / 10.0, 1.0, 23.44);
+    _inc(c, 'util');
+    assert(ct.length == 3, 'cotrans returned ${ct.length} values');
+
+    final ctSp = cotransWithSpeed(deg, deg / 10.0, 1.0, 0.5, 0.1, 0.0, 23.44);
+    _inc(c, 'util');
+    assert(ctSp.length == 6, 'cotransWithSpeed returned ${ctSp.length} values');
   }
 }
 

@@ -218,6 +218,14 @@ class Oracle {
     return _swe.deltat(jd);
   }
 
+  double siderealTime(double jdUt) {
+    return _swe.sidTime(jdUt);
+  }
+
+  double siderealTime0(double jdUt, double eps, double nut) {
+    return _swe.sidTime0(jdUt, eps, nut);
+  }
+
   double timeEqu(double jd) {
     return _swe.timeEqu(jd);
   }
@@ -244,6 +252,16 @@ class Oracle {
       secondsFraction: r.secondsFraction,
       sign: r.sign,
     );
+  }
+
+  ({double lon, double lat, double dist}) cotrans(
+    double lon,
+    double lat,
+    double dist,
+    double eps,
+  ) {
+    final r = _swe.cotrans(lon, lat, dist, eps);
+    return (lon: r.lon, lat: r.lat, dist: r.dist);
   }
 
   // -----------------------------------------------------------------------

@@ -32,6 +32,8 @@ const oracleMap = <String, OracleEntry>{
     'lifecycle; materializes shared handle — no oracle equivalent',
   ),
   'Ephemeris.deltaT': OracleEntry.direct(),
+  'Ephemeris.siderealTime': OracleEntry.direct(),
+  'Ephemeris.siderealTime0': OracleEntry.direct(),
   'Ephemeris.timeEqu': OracleEntry.direct(),
   'Ephemeris.lmtToLat': OracleEntry.direct(),
   'Ephemeris.latToLmt': OracleEntry.direct(),
@@ -51,6 +53,10 @@ const oracleMap = <String, OracleEntry>{
   'dayOfWeek': OracleEntry.direct(),
   'utcTimeZone': OracleEntry.direct(),
   'splitDegrees': OracleEntry.direct(),
+  'cotrans': OracleEntry.direct(),
+  'cotransWithSpeed': OracleEntry.engineTrusted(
+    'swisseph.dart does not wrap swe_cotrans_sp',
+  ),
   'normalizeDegrees': OracleEntry.engineTrusted(
     'pure math (x % 360); oracle does not expose swe_degnorm',
   ),
