@@ -1,3 +1,10 @@
+## 0.2.5
+
+- Fixed asteroid file parsing for MPC numbers > 22767 (e.g. Quaoar 50000).
+  2-byte `ipl[]` entries were sign-extended from i16, wrapping body IDs above
+  32767 to negative values and causing "ephemeris not available" errors despite
+  valid files on disk. Bumped swisseph-ffi to `b6a9f82`.
+
 ## 0.2.4
 
 - **Breaking:** `getAyanamsaEx`, `getAyanamsaExWithConfig`, and
