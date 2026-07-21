@@ -1,3 +1,10 @@
+## 0.2.6
+
+- Fixed `calcPctr` for main asteroid bodies (Chiron, Pholus, Ceres, Pallas,
+  Juno, Vesta). The internal position provider was missing the main asteroid
+  file set, causing `BeyondEphemerisLimits` errors for these bodies even when
+  `.se1` files were present. Bumped swisseph-ffi to `c3c27cb`.
+
 ## 0.2.5
 
 - Fixed asteroid file parsing for MPC numbers > 22767 (e.g. Quaoar 50000).
