@@ -1,3 +1,11 @@
+## 0.2.7
+
+- Fixed `nodAps`/`nodApsUt` for numbered asteroids (e.g. Eros 433) with the
+  Swiss ephemeris backend. The internal position provider was constructed with
+  empty asteroid and planet-moon file lists, causing `EphemerisNotAvailable`
+  errors. Also includes `calcPctr` alias normalization for asteroid bodies.
+  Bumped swisseph-ffi to `a4cf744`.
+
 ## 0.2.6
 
 - Fixed `calcPctr` for main asteroid bodies (Chiron, Pholus, Ceres, Pallas,
