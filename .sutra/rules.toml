@@ -89,3 +89,16 @@ target = "lib/src/**"
 threshold = 12
 severity = "blocking"
 provenance = "skill default (vidhi-sutra-seed), bound checkpoint:swisseph-rs-dart/25, revised checkpoint:swisseph-rs-dart/35, revised checkpoint:swisseph-rs-dart/40 (structural max=11 on flags.dart)"
+
+# ═══════════════════════════════════════════════════════════════════
+# Forbidden patterns (vidhi/language-rules/dart.toml)
+# ═══════════════════════════════════════════════════════════════════
+
+[[constraint]]
+kind = "forbidden_pattern"
+language = "dart"
+query = '((comment) @match (#match? @match "^//+ *ignore(_for_file)?:"))'
+name = "no-ignore-comments"
+severity = "blocking"
+provenance = "house analysis_options.yaml baseline"
+scope = "lib/"
