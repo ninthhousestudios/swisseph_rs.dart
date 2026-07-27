@@ -75,6 +75,7 @@ EXPORTS='[
 
 echo "Linking with emcc..."
 emcc "$LIB" -o "$SCRIPT_DIR/swisseph_ffi.js" \
+  --js-library "$SCRIPT_DIR/lib-random-fill.js" \
   -s MODULARIZE=1 \
   -s EXPORT_NAME=SwissEphRs \
   -s ALLOW_MEMORY_GROWTH=1 \
