@@ -1,4 +1,4 @@
-## Unreleased
+## 0.2.8
 
 - Fixed web builds throwing `TypeError: The provided ArrayBufferView value
   must not be resizable` on every `Ephemeris` construction in current Chrome.
@@ -15,6 +15,20 @@
   default (`'swisseph_ffi'`) fetched a 404; awaiting only `onLoad` then hung
   indefinitely. The pre-load now mirrors the extension resolution and rejects
   on load error.
+- Fixed `initializeWasm()` appending a second `.js` to glue URLs that carry a
+  query string, e.g. a cache-busted `swisseph_ffi.js?v=1`. The extension is
+  now resolved from the parsed URI's last path segment, matching how
+  `wasm_ffi` decides.
+
+Web consumers who added a `crypto.getRandomValues` workaround to their
+`index.html` for the resizable-buffer error can remove it after upgrading;
+the fix now ships inside the package's WASM glue.
+
+Note for anyone else shipping an Emscripten module: this is not specific to
+this package. emcc 6.0.2 still emits an unguarded
+`crypto.getRandomValues(HEAPU8.subarray(...))` for non-`SHARED_MEMORY`
+builds, so any module built with `ALLOW_MEMORY_GROWTH` hits it on current
+Chrome. Bumping the Emscripten SDK does not fix it.
 
 ## 0.2.7
 
