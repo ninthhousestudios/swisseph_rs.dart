@@ -8,7 +8,7 @@ import 'dart:async';
 import 'dart:js_interop';
 import 'dart:js_interop_unsafe';
 
-import 'package:swisseph_rs/src/loader_web.dart' as loader;
+import 'package:swisseph_rs/src/loader_timeouts.dart' as loader;
 import 'package:swisseph_rs/swisseph_rs.dart';
 import 'package:test/test.dart';
 
@@ -51,6 +51,34 @@ void main() {
           allOf(contains(_stallingGlue), contains('never finished')),
         ),
       ),
+    );
+  });
+
+  test('an abandoned attempt cannot publish before a later one exists', () async {
+    // The narrow window the generation guard originally left open. Bumping the
+    // stamp at the *start of the next attempt* only parks an orphan once a
+    // successor exists; an orphan that resolves in between still matched its
+    // own generation and published. Nothing about the "publish over a later
+    // one" test below reaches this ordering -- it releases the fixture after a
+    // retry has already bumped the stamp, which is the case that always
+    // worked.
+    await expectLater(
+      initializeWasm(_stallingGlue),
+      throwsA(isA<TimeoutException>()),
+    );
+
+    // No retry. The abandoned attempt resolves into a world where it is still
+    // the most recent one to have run.
+    _jsEval('globalThis.__stallRelease({ __isFake: true });');
+    await Future<void>.delayed(Duration.zero);
+    await Future<void>.delayed(Duration.zero);
+
+    expect(
+      globalContext.has('__swissephRsModule'),
+      isFalse,
+      reason:
+          'the abandoned attempt published its module with no successor to '
+          'be parked behind',
     );
   });
 

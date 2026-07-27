@@ -7,7 +7,7 @@ library;
 import 'dart:async';
 import 'dart:js_interop';
 
-import 'package:swisseph_rs/src/loader_web.dart' as loader;
+import 'package:swisseph_rs/src/loader_timeouts.dart' as loader;
 import 'package:swisseph_rs/swisseph_rs.dart';
 import 'package:test/test.dart';
 import 'package:web/web.dart' as web;

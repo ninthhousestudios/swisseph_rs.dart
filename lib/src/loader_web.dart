@@ -6,84 +6,14 @@ import 'dart:js_interop';
 import 'dart:js_interop_unsafe';
 import 'dart:typed_data';
 
-import 'package:meta/meta.dart';
 import 'package:wasm_ffi/ffi.dart';
 import 'package:web/web.dart' as web;
 
+import 'loader_timeouts.dart';
 import 'wasm_state.dart' as wasm;
 
 const _ephePath = '/ephe';
 bool _dirCreated = false;
-
-/// How long to wait for the glue `<script>` tag to fire load or error.
-///
-/// A server that accepts the connection and then never responds -- a stalled
-/// proxy, a hung CDN edge, a captive portal black-holing the request -- fires
-/// neither event, so an unbounded wait is a silent forever-hang. This bounds
-/// it.
-///
-/// 30s is chosen against what this timeout actually covers: the Emscripten
-/// glue only (~68KB), not the ~857KB sibling `.wasm`, which is fetched later
-/// inside [DynamicLibrary.open]. 68KB clears 30s on any connection above
-/// ~20kbit/s, i.e. everything short of a link already too dead to run the
-/// module. Anything shorter starts failing legitimate cold-mobile loads;
-/// anything longer is indistinguishable from the hang it exists to prevent.
-const defaultGlueLoadTimeout = Duration(seconds: 30);
-
-/// How long to wait for [DynamicLibrary.open] to instantiate the module.
-///
-/// [_glueLoadTimeout] bounds only the `<script>` tag. Everything expensive
-/// happens after it, inside `DynamicLibrary.open`, on awaits with no timeout
-/// of their own:
-///
-///  * a `http.head` probe for `<path>.js` / `<path>.wasm`, taken whenever
-///    modulePath carries no extension -- which is the documented default;
-///  * the Emscripten factory call, which fetches the ~857KB `.wasm` and
-///    instantiates it.
-///
-/// The same stalled server that black-holes the glue URL black-holes these,
-/// so bounding the script tag alone narrows the hang rather than closing it.
-///
-/// 60s is not proportional to the 12.5x larger payload, deliberately. What
-/// this bounds is a stall (unbounded), not slowness, so the budget only has
-/// to sit above any plausibly-legitimate load: 857KB lands inside 60s on
-/// anything above ~120kbit/s, and below that the module is too slow to be
-/// usable at all. Erring generous is cheap now that a failed init is
-/// retryable.
-const defaultModuleInstantiateTimeout = Duration(seconds: 60);
-
-/// The timeouts actually applied, overridable only by tests.
-///
-/// Abandoning an attempt is reachable *only* by letting a timeout elapse, so
-/// without a seam every test of the stall paths -- including the generation
-/// guard, which is the piece standing between the instantiation timeout and a
-/// corrupted [Memory.global] -- costs a full 90s of wall clock. See
-/// [debugSetLoaderTimeouts].
-Duration _glueLoadTimeout = defaultGlueLoadTimeout;
-Duration _moduleInstantiateTimeout = defaultModuleInstantiateTimeout;
-
-/// Shorten the loader's timeouts so the stall paths can be exercised.
-///
-/// Test-only, and deliberately *not* a caller-facing knob: this library is not
-/// exported from `swisseph_rs.dart`, so the package's public surface is
-/// unchanged and the transliteration rule is untouched. The duration staying
-/// fixed for callers is a decision (swisseph-rs-dart/51), not an oversight --
-/// this seam exists to make a 90-second test a sub-second one, nothing more.
-///
-/// Pair with [debugResetLoaderTimeouts] in a tearDown; the overrides are
-/// process-global.
-@visibleForTesting
-void debugSetLoaderTimeouts({Duration? glueLoad, Duration? moduleInstantiate}) {
-  if (glueLoad != null) _glueLoadTimeout = glueLoad;
-  if (moduleInstantiate != null) _moduleInstantiateTimeout = moduleInstantiate;
-}
-
-/// Restore both loader timeouts to their shipping defaults.
-@visibleForTesting
-void debugResetLoaderTimeouts() {
-  _glueLoadTimeout = defaultGlueLoadTimeout;
-  _moduleInstantiateTimeout = defaultModuleInstantiateTimeout;
-}
 
 /// Attempt counter, bumped once per [initializeWasm] attempt.
 ///
@@ -91,6 +21,34 @@ void debugResetLoaderTimeouts() {
 /// wrapper in [_loadAndWrapFactory] for why an abandoned attempt must be
 /// parked rather than left to finish.
 int _initGeneration = 0;
+
+/// The generation stamp no attempt ever carries.
+///
+/// Generations start at 1, so parking the JS-side stamp here retires whatever
+/// attempt owned it without handing ownership to anything.
+const _retiredGeneration = -1;
+
+/// Retire [generation] the moment its attempt is abandoned.
+///
+/// The wrapper installed by [_loadAndWrapFactory] parks a factory promise only
+/// when the JS-side stamp no longer matches the generation it closed over.
+/// Bumping the stamp when the *next* attempt starts is too late: between a
+/// timeout firing and that next attempt, the abandoned factory still matches,
+/// so it would publish its module and let `DynamicLibrary.open` run on to
+/// publish the orphan's [Memory.global] and `WasmTable.global` -- the exact
+/// corruption the guard exists to prevent, through the one window it left
+/// open. Retiring here closes it: the attempt is dead the instant it fails,
+/// not once a successor exists.
+///
+/// Guarded on the stamp still belonging to [generation] so a late failure can
+/// never retire someone else's attempt.
+void _retireGeneration(int generation) {
+  _jsEval(
+    'if (globalThis.__swissephRsGen === $generation) {'
+    '  globalThis.__swissephRsGen = $_retiredGeneration;'
+    '}',
+  );
+}
 
 /// Counterpart: (systematic divergence: web loader seam)
 ///
@@ -138,6 +96,18 @@ Future<void> _doInit(String path) async {
   // module is stored in __swissephRsModule. DynamicLibrary.open's
   // importLibrary call will detect the script as already loaded and skip it.
   final generation = ++_initGeneration;
+  try {
+    await _doInitGeneration(path, generation);
+  } catch (_) {
+    // Every exit from this attempt other than success is an abandonment, and
+    // none of them cancel work already in flight. Retire the generation here,
+    // while the single-flight latch still guarantees no successor exists.
+    _retireGeneration(generation);
+    rethrow;
+  }
+}
+
+Future<void> _doInitGeneration(String path, int generation) async {
   final resolved = await _loadAndWrapFactory(path, generation);
 
   // Hand wasm_ffi the same absolute URL the tag carries, not the caller's
@@ -154,22 +124,30 @@ Future<void> _doInit(String path) async {
         moduleName: 'SwissEphRs',
         useAsGlobal: GlobalMemory.yes,
       ).timeout(
-        _moduleInstantiateTimeout,
+        moduleInstantiateTimeout,
         onTimeout: () => throw TimeoutException(
           'Timed out instantiating the WASM module from "$path"; the glue '
           'script loaded but the module never finished initializing (the '
           'sibling .wasm fetch is the usual culprit).',
-          _moduleInstantiateTimeout,
+          moduleInstantiateTimeout,
         ),
       );
 
-  // The factory wrapper stores the module here, and only for the current
-  // generation. Missing means something re-defined globalThis.SwissEphRs
-  // between the wrap and the factory call -- most plausibly a late-arriving
-  // duplicate glue <script> from an earlier attempt, which re-runs
-  // `var SwissEphRs = ...` and strips the wrapper off. Fail here, naming it,
-  // rather than at the first getEmscriptenFS() with "module not available".
-  if (!globalContext.has('__swissephRsModule')) {
+  // The factory wrapper stores the module here, stamped with the generation
+  // that captured it. Check the stamp rather than mere presence: an abandoned
+  // earlier attempt can have left a module behind, and that stale value would
+  // satisfy a presence check while __swissephRsModule points at a heap this
+  // attempt does not own.
+  //
+  // A mismatch means something re-defined globalThis.SwissEphRs between the
+  // wrap and the factory call -- most plausibly a late-arriving duplicate glue
+  // <script> from an earlier attempt, which re-runs `var SwissEphRs = ...` and
+  // strips the wrapper off. Fail here, naming it, rather than at the first
+  // getEmscriptenFS() with "module not available".
+  final capturedGen = globalContext.getProperty<JSNumber?>(
+    '__swissephRsModuleGen'.toJS,
+  );
+  if (capturedGen?.toDartInt != generation) {
     throw StateError(
       'WASM module loaded but was not captured from "$path"; the glue script '
       'appears to have been re-executed and replaced the factory wrapper.',
@@ -233,13 +211,13 @@ Future<String> _loadAndWrapFactory(String path, int generation) async {
   // left behind would also confuse wasm_ffi's isImported() src-matching dedup
   // into skipping the real load.
   await loaded.future.timeout(
-    _glueLoadTimeout,
+    glueLoadTimeout,
     onTimeout: () {
       script.remove();
       throw TimeoutException(
         'Timed out loading WASM glue script from "$src"; the server accepted '
         'the request but never completed it.',
-        _glueLoadTimeout,
+        glueLoadTimeout,
       );
     },
   );
@@ -254,7 +232,10 @@ Future<String> _loadAndWrapFactory(String path, int generation) async {
   //    global would be re-assigned by the next attempt while the previous
   //    attempt's wrapper still reads it by name -- so attempt 1's wrapper
   //    would end up calling attempt 2's factory.
-  //  * a stale attempt's promise is parked, never resolved. Timing out
+  //  * a stale attempt's promise is parked, never resolved -- stale meaning
+  //    the JS-side stamp has moved on, which _retireGeneration makes true the
+  //    instant an attempt fails rather than whenever a successor happens to
+  //    start. Timing out
   //    DynamicLibrary.open does not cancel it: the abandoned open() is still
   //    parked on this promise, and if it ever resolved it would run the rest
   //    of open() and publish the *orphan's* Memory.global and
@@ -274,6 +255,7 @@ Future<String> _loadAndWrapFactory(String path, int generation) async {
     '        return new Promise(function() {});'
     '      }'
     '      globalThis.__swissephRsModule = m;'
+    '      globalThis.__swissephRsModuleGen = gen;'
     '      return m;'
     '    });'
     '  };'
