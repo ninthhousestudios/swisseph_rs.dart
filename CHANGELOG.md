@@ -1,3 +1,21 @@
+## Unreleased
+
+- Fixed web builds throwing `TypeError: The provided ArrayBufferView value
+  must not be resizable` on every `Ephemeris` construction in current Chrome.
+  Under `ALLOW_MEMORY_GROWTH`, WASM memory is exposed as a resizable
+  ArrayBuffer, and Web Crypto rejects views backed by one — so the engine's
+  first entropy request (16 bytes, inside `swisseph_new`) threw. The WASM
+  module loaded fine, so the failure landed on first use rather than at
+  startup. Fixed at the source via an `--js-library` override of Emscripten's
+  `$initRandomFill` (`wasm/lib-random-fill.js`), so generated glue fills a
+  plain buffer and copies. The `.wasm` binary is unchanged.
+- Fixed `initializeWasm()` hanging forever instead of throwing when the glue
+  script fails to load. The pre-load used `modulePath` verbatim while
+  `wasm_ffi` resolves an extensionless path to `<path>.js`, so the documented
+  default (`'swisseph_ffi'`) fetched a 404; awaiting only `onLoad` then hung
+  indefinitely. The pre-load now mirrors the extension resolution and rejects
+  on load error.
+
 ## 0.2.7
 
 - Fixed `nodAps`/`nodApsUt` for numbered asteroids (e.g. Eros 433) with the

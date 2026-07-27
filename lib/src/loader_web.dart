@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Ninth House Studios LLC
 
+import 'dart:async';
 import 'dart:js_interop';
 import 'dart:js_interop_unsafe';
 import 'dart:typed_data';
@@ -61,12 +62,36 @@ Future<void> _doInit(String path) async {
 external void _jsEval(String code);
 
 Future<void> _loadAndWrapFactory(String path) async {
+  // wasm_ffi's DynamicLibrary.open resolves an extensionless modulePath to
+  // "<path>.js". Mirror that here so the pre-load requests the same URL --
+  // otherwise this fetches a 404 and wasm_ffi's isImported() dedup (which
+  // matches on script src) fails to see the pre-loaded tag.
+  final src = path.endsWith('.js') || path.endsWith('.wasm')
+      ? path
+      : '$path.js';
   final script = web.HTMLScriptElement()
     ..type = 'text/javascript'
-    ..src = path
+    ..src = src
     ..async = true;
   web.document.head!.appendChild(script);
-  await script.onLoad.first;
+  // A script that fails to fetch fires onError and never onLoad, so awaiting
+  // onLoad alone turns any bad modulePath into a silent forever-hang.
+  final loaded = Completer<void>();
+  unawaited(
+    script.onLoad.first.then((_) {
+      if (!loaded.isCompleted) loaded.complete();
+    }),
+  );
+  unawaited(
+    script.onError.first.then((_) {
+      if (!loaded.isCompleted) {
+        loaded.completeError(
+          StateError('Failed to load WASM glue script from "$src".'),
+        );
+      }
+    }),
+  );
+  await loaded.future;
   _jsEval(
     'var __origSwissEphRs = globalThis.SwissEphRs;'
     'globalThis.SwissEphRs = function(a) {'
