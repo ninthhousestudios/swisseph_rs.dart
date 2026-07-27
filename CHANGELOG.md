@@ -1,4 +1,4 @@
-## 0.2.8
+## 0.2.9
 
 - Bumped swisseph-ffi to `d8ef3bb` (swisseph-rs 0.1.8), which fixes an
   infinite Newton loop in crossing refinement against DE441 ephemeris files.
@@ -7,6 +7,11 @@
   `NoConvergenceException`. 0.1.7 and 0.1.8 carry that mapping plus a
   correction to the generated C header's `swisseph_azalt` signature; neither
   changes an ABI this package consumes.
+- Added `NoConvergenceException`, the counterpart to
+  `swisseph::Error::NoConvergence`. It joins the `SweException` hierarchy, so
+  exhaustive switches over `SweException` need a new arm.
+
+## 0.2.8
 
 - Fixed web builds throwing `TypeError: The provided ArrayBufferView value
   must not be resizable` on every `Ephemeris` construction in current Chrome.
