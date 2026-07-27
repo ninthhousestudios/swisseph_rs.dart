@@ -34,6 +34,17 @@ task (/28–/34).
 Ephemeris files: `ephe/` symlink → `../swisseph-rs/ephe`. Run Swiss-file
 tests with `SWE_EPHE_PATH=ephe dart test`.
 
+The agreement-class oracle harness is a **separate package** — it cannot
+co-resolve with `swisseph_rs` (see enforcement-ledger, "Running the oracle
+harness"). Run it with `cd test_oracle && SWE_EPHE_PATH=../ephe dart test`;
+`dart test` at the repo root does not reach it.
+
+Swiss-file goldens are valid only against the pinned ephemeris data release
+(`docs/ephemeris-data-releases.md`). Refreshing `ephe/` invalidates them:
+`test/integration/ephemeris_release_test.dart` fails first and names the
+change. Bumping that pin without re-recording the goldens it lists defeats
+the mechanism.
+
 ## Invariants (enforcement-ledger bucket c — reviewed, not machine-checked)
 
 ### API discipline

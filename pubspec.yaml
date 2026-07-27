@@ -20,6 +20,8 @@ dependencies:
 
 dev_dependencies:
   analyzer: ^14.0.0
+  # Content-digest pin for sefstars.txt (test/integration/ephemeris_release_test.dart)
+  crypto: ^3.0.6
   lints: ^6.0.0
   test: ^1.25.6
 

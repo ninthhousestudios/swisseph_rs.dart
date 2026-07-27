@@ -39,6 +39,35 @@ test-asserted, pointed at its implementing task.
 | 20 | "peak RSS bounded consistent with ONE loaded engine" | Testing Decisions | (d) | Stress test | test (/38) |
 | 21 | libaditya 545-value dataset green | Testing Decisions | (d) | Dataset runner in standard test invocation | test (/39) |
 | 22 | arrow/swe facade contract preserved through the migration | Out of Scope / story 33 | (d) | arrow's existing test suite | test (arjuna/arrow/10) |
+| 23 | Swiss-file goldens are valid only against the ephemeris data release they were recorded from | Testing Decisions | (d)+(c) | Release pin test reads `.se1` provenance headers + `sefstars.txt` digest; inventory reviewed in `docs/ephemeris-data-releases.md` | test (/50) |
+
+## Running the oracle harness (rows 14–16)
+
+The agreement-class harness lives in `test_oracle/`, which is **its own
+package** (`swisseph_rs_oracle`, `publish_to: none`), not part of
+`swisseph_rs`:
+
+```
+cd test_oracle && dart pub get
+SWE_EPHE_PATH=../ephe dart test
+```
+
+It is a separate package because `package:swisseph` — the C Swiss Ephemeris
+used as the numerical oracle — pins `hooks ^1.0.2` while `swisseph_rs` is on
+`hooks ^2.0.2`, so the two cannot co-resolve. `test_oracle/pubspec.yaml`
+carries `dependency_overrides` lifting `hooks`, `code_assets`, and
+`native_toolchain_c` to their v2 releases; overrides apply only to the root
+package, which is exactly why they cannot live in `swisseph_rs/pubspec.yaml`.
+Retire them once `swisseph` publishes a release accepting `hooks ^2`.
+
+This harness was unrunnable from the `hooks` v2 migration until
+`swisseph-rs-dart/50`. Rows 14–16 route claims here, so while it was offline
+those claims had no mechanism — if it stops resolving again, treat that as a
+ledger outage, not as lint noise.
+
+Note that the harness does **not** subsume row 23: it compares against the C
+engine reading the *same* `ephe/` directory, so a data release swap moves both
+sides together and is invisible to it.
 
 ## Retired v1 rows (ADR-0002)
 
