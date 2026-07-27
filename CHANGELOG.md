@@ -19,6 +19,28 @@
   query string, e.g. a cache-busted `swisseph_ffi.js?v=1`. The extension is
   now resolved from the parsed URI's last path segment, matching how
   `wasm_ffi` decides.
+- Fixed `loadEpheFile()`/MEMFS being silently dead when `initializeWasm()`
+  was given a `..`-relative `modulePath`. `wasm_ffi`'s script dedup compares
+  a tag's *resolved* URL against the raw string with `endsWith`, so any
+  relative path got a second glue tag injected; the re-executed glue stripped
+  the module-capture wrapper and every MEMFS call threw
+  `StateError('Emscripten module not available.')`. The capture is now an
+  accessor property on `globalThis` that survives any number of glue
+  executions, and only the active initialization attempt may publish a
+  module — a post-initialization consumer instantiating the glue for its own
+  purposes can no longer redirect this package's filesystem handle.
+- Fixed the glue's string decoding throwing `TypeError: The provided
+  ArrayBuffer value must not be resizable` for strings longer than 16 bytes
+  (same Chrome resizable-memory change as above — `TextDecoder` refuses
+  views into a resizable heap). The Swiss-file path was the first to return
+  a string that long. Patched via an idempotent post-processing step in
+  `wasm/build.sh` (`.slice()` instead of `.subarray()` when the heap is
+  resizable), matching what newer Emscripten does upstream.
+- `initializeWasm()` is now bounded end to end: 30 s for the glue script
+  load and 60 s for module instantiation (which includes the sibling `.wasm`
+  fetch), each failing with a `TimeoutException` instead of hanging on a
+  server that accepts the connection and never responds. A failed
+  initialization releases the single-flight latch, so it may be retried.
 
 Web consumers who added a `crypto.getRandomValues` workaround to their
 `index.html` for the resizable-buffer error can remove it after upgrading;
