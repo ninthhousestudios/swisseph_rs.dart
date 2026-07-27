@@ -31,8 +31,13 @@ statefulness, Moshier limitations, config marshaling duplication threshold,
 and oracle flag naming gotchas. Read this before implementing any binding
 task (/28–/34).
 
-Ephemeris files: `ephe/` symlink → `../swisseph-rs/ephe`. Run Swiss-file
-tests with `SWE_EPHE_PATH=ephe dart test`.
+Ephemeris files: `ephe/` is a git-ignored **real directory** (never a symlink
+— the browser test server will not follow one out of the package root, and
+the web Swiss-file test silently skipped for exactly that reason). Populate
+it per "Populating ephe/" in `docs/ephemeris-data-releases.md`. Run Swiss-file
+tests with `SWE_EPHE_PATH=ephe dart test`, and the browser leg with
+`dart test -p chrome <file>` — a bare `dart test -p chrome` also drags the
+VM-only tests into the browser, where `dart:io` fails.
 
 The agreement-class oracle harness is a **separate package** — it cannot
 co-resolve with `swisseph_rs` (see enforcement-ledger, "Running the oracle

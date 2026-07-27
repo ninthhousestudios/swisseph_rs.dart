@@ -1,10 +1,17 @@
 # Ephemeris data releases and the goldens pinned to them
 
-`ephe/` is a symlink to `../swisseph-rs/ephe`, which is untracked on both
-sides. The binary Swiss Ephemeris data release is therefore invisible to git:
-nothing in either repo records when it changed or what it changed from. A
-refresh of that directory silently invalidates every expectation computed from
-a `.se1` file.
+`ephe/` holds the binary Swiss Ephemeris data and is git-ignored, so the data
+release is invisible to git: nothing in the repo records when it changed or
+what it changed from. A refresh of that directory silently invalidates every
+expectation computed from a `.se1` file.
+
+It used to be a symlink to `../swisseph-rs/ephe`. It is now a **real
+directory** — the browser test server does not follow a symlink out of the
+package root, so every fetch of `ephe/…` 404'd and the only web-side
+Swiss-file test skipped itself for as long as it existed
+(`swisseph-rs-dart/57`). Being a real directory also means this repo holds its
+own snapshot of the data rather than aliasing a neighbour's, which is what
+makes the release pin below meaningful.
 
 This document is the record that git cannot keep. It names the pinned release,
 inventories which tests depend on the data, and states what to do when the
@@ -51,7 +58,7 @@ files, so a data swap moves both sides together and is invisible there).
 | Test | File(s) read | Tolerance | Catches a release change? |
 | --- | --- | --- | --- |
 | `integration/ephemeris_test.dart` → `calcUt Sun longitude` → *Swiss-file: Sun at J2000 epoch* | `sepl_18.se1`, `semo_18.se1` | 1e-9 deg | **Yes** — this is the one test that caught DE431→DE441. |
-| `integration/web_test.dart` → `Swiss-file path (MEMFS)` → *loadEpheFile → construct → calc* | `sepl_18.se1` | 1e-3 deg | **No** — ~35,000x looser than the DE441 shift, and browser-gated with a self-skip when `ephe/` is not served. Provides no backstop. See `swisseph-rs-dart/57`. |
+| `integration/web_test.dart` → `Swiss-file path (MEMFS)` → *loadEpheFile → construct → calc* | `sepl_18.se1`, `semo_18.se1` | 1e-9 deg | **Yes**, since `swisseph-rs-dart/57`. Was 1e-3 deg behind a silent skip; now runs and asserts longitude, longitude speed, and distance, all three bit-identical to the C oracle and the native binding. |
 
 ### Data-dependent, but not a golden
 
@@ -84,11 +91,36 @@ than its Swiss-file coverage actually is:
 - `integration/web_reexec_test.dart` — DOM and script-tag assertions.
 
 **Conclusion of the audit.** Swiss-file coverage is thin, and it is thin in
-exactly the way the DE441 incident suggested: precisely one test in `test/`
-carries a tight-tolerance golden tied to `.se1` content. The apparent breadth
-of the golden suite is Moshier breadth and does not exercise the data files.
-That single test remains the only numerical detector; the release pin exists so
-that detection no longer depends on it.
+exactly the way the DE441 incident suggested: the apparent breadth of the
+golden suite is Moshier breadth and does not exercise the data files. At the
+time of the audit precisely one test carried a tight-tolerance golden tied to
+`.se1` content; `swisseph-rs-dart/57` made the web-side test a second one, on
+both the native and web legs. The release pin exists so that detection no
+longer rests on either.
+
+## Populating `ephe/`
+
+`ephe/` is git-ignored, so a fresh clone has none of it. Populate it by
+copying the data files — not by symlinking, which breaks the browser tests:
+
+```sh
+mkdir -p ephe
+cp -p /path/to/swisseph/ephe/*.se1 \
+      /path/to/swisseph/ephe/*.txt \
+      /path/to/swisseph/ephe/*.md  ephe/
+```
+
+That is ~122 MB. Deliberately omitted: `de441.eph` (2.6 GB JPL binary — the
+`JPLEPH` flag is only ever exercised as a precedence fallback and never opens
+the file), `list.zip`, and the `ast*/`, `ep4/`, `sat/` subdirectories, which
+nothing references. Add them if minor-planet work needs them.
+
+`ephe/` must stay out of the published package. It already does: with no
+`.pubignore` present, pub honours `.gitignore`, and the archive is 864 KB.
+**Do not add a root `.pubignore` for this** — a `.pubignore` *replaces*
+`.gitignore` for publishing rather than adding to it, so introducing one
+pulls `rust/target/` and friends back in and the archive jumps to 125 MB
+(measured). Verify with `dart pub publish --dry-run` if in doubt.
 
 ## When the release changes
 

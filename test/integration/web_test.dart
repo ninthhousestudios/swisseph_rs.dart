@@ -116,15 +116,45 @@ void main() {
       );
     });
 
+    // Positional agreement class (1e-9 deg), same as the native Swiss-file
+    // golden in ephemeris_test.dart — the web leg is held to the numbers, not
+    // merely to "returned something Sun-shaped".
+    //
+    // These three values are bit-identical across the C Swiss Ephemeris
+    // oracle, the native Dart binding, and this web build. That is the claim
+    // worth pinning: MEMFS staging feeds the engine the same bytes a native
+    // ephePath does, so the web seam introduces no numerical drift at all.
+    //
+    // Data-dependent golden — recorded against the SE3 / DE441 release pinned
+    // by ephemeris_release_test.dart. If ephe/ is upgraded, re-record from the
+    // oracle; do not loosen the tolerance
+    // (docs/ephemeris-data-releases.md).
+    //
+    // Both files are required: a geocentric Sun resolves the Earth from the
+    // planetary file and the Earth-Moon barycentre correction from the lunar
+    // one. Staging only sepl_18.se1 fails with "no planet or moon ephemeris
+    // files found".
     test('loadEpheFile → construct → calc', () async {
-      late final Uint8List bytes;
-      try {
-        bytes = await _fetchBytes('../../ephe/sepl_18.se1');
-      } on StateError {
-        markTestSkipped('sepl_18.se1 not served (ephe/ symlink outside root)');
-        return;
+      for (final name in ['sepl_18.se1', 'semo_18.se1']) {
+        final Uint8List bytes;
+        try {
+          bytes = await _fetchBytes('../../ephe/$name');
+        } on StateError {
+          // Deliberately not a skip. This is the only web-side Swiss-file
+          // coverage there is; when it was gated behind markTestSkipped the
+          // suite reported "All tests passed" while never once exercising the
+          // MEMFS path (swisseph-rs-dart/57). An unpopulated ephe/ is a setup
+          // fault and should say so.
+          fail(
+            'ephe/$name is not being served by the test server.\n'
+            'ephe/ must be a real directory inside the package root — a '
+            'symlink is not followed and every fetch 404s. See '
+            '"Populating ephe/" in docs/ephemeris-data-releases.md.',
+          );
+        }
+        loadEpheFile(name, bytes);
       }
-      loadEpheFile('sepl_18.se1', bytes);
+
       final eph = Ephemeris(
         const EphemerisConfig(
           ephemerisSource: EphemerisSource.swiss,
@@ -132,9 +162,14 @@ void main() {
         ),
       );
       addTearDown(eph.close);
-      final r = eph.calcUt(const JdUt1(2451545.0), Body.sun, CalcFlags.speed);
-      expect(r.longitude, closeTo(280.369, 0.001));
-      expect(r.distance, closeTo(0.983, 0.001));
+      final r = eph.calcUt(
+        const JdUt1(2451545.0),
+        Body.sun,
+        CalcFlags.speed | CalcFlags.swiEph,
+      );
+      expect(r.longitude, closeTo(280.3689186698997, 1e-9));
+      expect(r.longitudeSpeed, closeTo(1.0194341629435535, 1e-9));
+      expect(r.distance, closeTo(0.9833276253625055, 1e-9));
     });
 
     test('the Emscripten module is captured, with one glue tag', () {
