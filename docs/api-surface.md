@@ -495,6 +495,7 @@ pub enum Error {
     InvalidLeapSecond { year: i32, month: i32, day: i32 },
     UnsupportedEphemeris(EphemerisSource),
     SiderealModeRequiresFixedStars(SiderealMode),
+    NoConvergence, // iterative search (e.g. a crossing refinement) did not converge
     CError(String), // catch-all, ported from C's string-buffer error reporting
 }
 ```
@@ -1961,6 +1962,7 @@ pub enum SweErrorCode {
     UnsupportedEphemeris = -14,
     SiderealModeRequiresFixedStars = -15,
     CError = -16,
+    NoConvergence = -17,
     Panic = -90,
     InvalidArg = -91,
     Internal = -99,

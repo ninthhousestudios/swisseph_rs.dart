@@ -90,6 +90,11 @@ final class CErrorException extends SweException {
   const CErrorException(super.message);
 }
 
+/// Counterpart: swisseph::Error::NoConvergence
+final class NoConvergenceException extends SweException {
+  const NoConvergenceException(super.message);
+}
+
 /// Counterpart: swisseph::Error::Panic
 final class EnginePanicException extends SweException {
   const EnginePanicException(super.message);
@@ -132,6 +137,7 @@ SweException exceptionFromCode(int code, String message) => switch (code) {
   -14 => UnsupportedEphemerisException(message),
   -15 => SiderealModeRequiresFixedStarsException(message),
   -16 => CErrorException(message),
+  -17 => NoConvergenceException(message),
   -90 => EnginePanicException(message),
   -91 => InvalidArgException(message),
   -99 => InternalException(message),

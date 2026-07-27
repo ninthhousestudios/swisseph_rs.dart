@@ -1,5 +1,13 @@
 ## 0.2.8
 
+- Bumped swisseph-ffi to `d8ef3bb` (swisseph-rs 0.1.8), which fixes an
+  infinite Newton loop in crossing refinement against DE441 ephemeris files.
+  0.1.6 introduced that fix along with `swisseph::Error::NoConvergence`, which
+  the FFI now maps to the new append-only code `-17`, surfaced in Dart as
+  `NoConvergenceException`. 0.1.7 and 0.1.8 carry that mapping plus a
+  correction to the generated C header's `swisseph_azalt` signature; neither
+  changes an ABI this package consumes.
+
 - Fixed web builds throwing `TypeError: The provided ArrayBufferView value
   must not be resizable` on every `Ephemeris` construction in current Chrome.
   Under `ALLOW_MEMORY_GROWTH`, WASM memory is exposed as a resizable

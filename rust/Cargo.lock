@@ -26,15 +26,15 @@ dependencies = [
 [[package]]
 name = "swisseph-ffi"
 version = "0.2.0"
-source = "git+ssh://git@github.com/ninthhousestudios/swisseph-rs?rev=a4cf744#a4cf7447f38a5c713d321d10a57b61e6412924be"
+source = "git+ssh://git@github.com/ninthhousestudios/swisseph-rs?rev=d8ef3bb#d8ef3bb8e5afbf5ed893227df4883ed406949a9f"
 dependencies = [
  "swisseph-rs",
 ]
 
 [[package]]
 name = "swisseph-rs"
-version = "0.1.5"
-source = "git+ssh://git@github.com/ninthhousestudios/swisseph-rs?rev=a4cf744#a4cf7447f38a5c713d321d10a57b61e6412924be"
+version = "0.1.8"
+source = "git+ssh://git@github.com/ninthhousestudios/swisseph-rs?rev=d8ef3bb#d8ef3bb8e5afbf5ed893227df4883ed406949a9f"
 dependencies = [
  "bitflags",
  "memmap2",
