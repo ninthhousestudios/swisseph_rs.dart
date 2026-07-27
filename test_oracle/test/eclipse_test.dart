@@ -898,48 +898,48 @@ void main() {
 
       // Occultation attr values are computed at the search-found event time;
       // search-class time uncertainty propagates into all geometry fields.
-      const _occAttrCls = AgreementClass.boundary;
-      const _occAttrTol = 1e-6;
-      const _occAttrArt = 'search-derived occultation geometry';
+      const occAttrCls = AgreementClass.boundary;
+      const occAttrTol = 1e-6;
+      const occAttrArt = 'search-derived occultation geometry';
       expectAgreement(
         'attr.magnitude',
         actual.attr.magnitude,
         expected.magnitude,
-        _occAttrCls,
-        tolerance: _occAttrTol,
-        boundaryArtifact: _occAttrArt,
+        occAttrCls,
+        tolerance: occAttrTol,
+        boundaryArtifact: occAttrArt,
       );
       expectAgreement(
         'attr.diameterRatio',
         actual.attr.diameterRatio,
         expected.diameterRatio,
-        _occAttrCls,
-        tolerance: _occAttrTol,
-        boundaryArtifact: _occAttrArt,
+        occAttrCls,
+        tolerance: occAttrTol,
+        boundaryArtifact: occAttrArt,
       );
       expectAgreement(
         'attr.obscuration',
         actual.attr.obscuration,
         expected.obscuration,
-        _occAttrCls,
-        tolerance: _occAttrTol,
-        boundaryArtifact: _occAttrArt,
+        occAttrCls,
+        tolerance: occAttrTol,
+        boundaryArtifact: occAttrArt,
       );
       expectAgreement(
         'attr.azimuth',
         actual.attr.azimuth,
         expected.sunAzimuth,
-        _occAttrCls,
-        tolerance: _occAttrTol,
-        boundaryArtifact: _occAttrArt,
+        occAttrCls,
+        tolerance: occAttrTol,
+        boundaryArtifact: occAttrArt,
       );
       expectAgreement(
         'attr.trueAltitude',
         actual.attr.trueAltitude,
         expected.sunTrueAltitude,
-        _occAttrCls,
-        tolerance: _occAttrTol,
-        boundaryArtifact: _occAttrArt,
+        occAttrCls,
+        tolerance: occAttrTol,
+        boundaryArtifact: occAttrArt,
       );
       expectAgreement(
         'attr.sarosSeries',

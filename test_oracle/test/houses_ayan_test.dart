@@ -346,7 +346,7 @@ void main() {
         final expected = oracle.getAyanamsaEx(jd.value, 0, swe.seSidmLahiri);
         expectAgreement(
           'ayanamsa',
-          actual,
+          actual.ayanamsa,
           expected,
           AgreementClass.positional,
         );
@@ -369,7 +369,7 @@ void main() {
         );
         expectAgreement(
           'ayanamsa',
-          actual,
+          actual.ayanamsa,
           expected,
           AgreementClass.positional,
         );
@@ -389,7 +389,12 @@ void main() {
       const config = EphemerisConfig(siderealMode: SiderealMode.lahiri);
       final actual = eph.getAyanamsaExWithConfig(jd, CalcFlags.none, config);
       final expected = oracle.getAyanamsaEx(jd.value, 0, swe.seSidmLahiri);
-      expectAgreement('ayanamsa', actual, expected, AgreementClass.positional);
+      expectAgreement(
+        'ayanamsa',
+        actual.ayanamsa,
+        expected,
+        AgreementClass.positional,
+      );
     });
   });
 
@@ -411,7 +416,7 @@ void main() {
         );
         expectAgreement(
           'ayanamsa',
-          actual,
+          actual.ayanamsa,
           expected,
           AgreementClass.positional,
         );

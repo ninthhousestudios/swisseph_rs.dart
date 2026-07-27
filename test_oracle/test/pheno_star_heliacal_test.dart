@@ -119,8 +119,7 @@ void main() {
         CalcFlags.none,
         config,
       );
-      final sweOracle = swe.SwissEph.find();
-      sweOracle.setSidMode(swe.seSidmLahiri);
+      final sweOracle = swe.SwissEph.find()..setSidMode(swe.seSidmLahiri);
       try {
         final expected = sweOracle.pheno(
           j2000Et.value,
@@ -140,8 +139,9 @@ void main() {
           AgreementClass.positional,
         );
       } finally {
-        sweOracle.setSidMode(0);
-        sweOracle.close();
+        sweOracle
+          ..setSidMode(0)
+          ..close();
       }
     });
   });
@@ -155,8 +155,7 @@ void main() {
         CalcFlags.none,
         config,
       );
-      final sweOracle = swe.SwissEph.find();
-      sweOracle.setSidMode(swe.seSidmLahiri);
+      final sweOracle = swe.SwissEph.find()..setSidMode(swe.seSidmLahiri);
       try {
         final expected = sweOracle.phenoUt(
           j2000Ut.value,
@@ -176,8 +175,9 @@ void main() {
           AgreementClass.positional,
         );
       } finally {
-        sweOracle.setSidMode(0);
-        sweOracle.close();
+        sweOracle
+          ..setSidMode(0)
+          ..close();
       }
     });
   });

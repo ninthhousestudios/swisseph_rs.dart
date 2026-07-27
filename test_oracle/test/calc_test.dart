@@ -508,9 +508,9 @@ void main() {
           ),
         ),
       );
-      final sWeOracle = swe.SwissEph.find();
-      sWeOracle.setSidMode(swe.seSidmLahiri);
-      sWeOracle.setTopo(77.59, 12.97, 920);
+      final sWeOracle = swe.SwissEph.find()
+        ..setSidMode(swe.seSidmLahiri)
+        ..setTopo(77.59, 12.97, 920);
       try {
         final oResult = sWeOracle.calc(
           jd.value,
@@ -527,8 +527,9 @@ void main() {
         );
         _topoSpec.compare(actual, expected);
       } finally {
-        sWeOracle.setSidMode(0);
-        sWeOracle.close();
+        sWeOracle
+          ..setSidMode(0)
+          ..close();
       }
     });
   });

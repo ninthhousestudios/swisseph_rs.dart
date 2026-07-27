@@ -589,35 +589,52 @@ void main() {
   // -----------------------------------------------------------------------
 
   group('cotransWithSpeed', () {
+    // Positional, not bitwise: eps=0 makes the rotation an identity, but the
+    // engine still routes through polar -> cartesian -> polar, so the inputs
+    // do not come back bit-identical (lon=120.0 returns 119.99999999999999,
+    // a 1.4e-14 deg round-trip loss). This is a self-consistency check against
+    // the literal inputs, not an oracle comparison — swisseph.dart exposes no
+    // swe_cotrans_sp — so there is no second implementation to agree bitwise
+    // with. Unrelated to the boundary-artifact tolerances in the ledger.
     test('zero obliquity is identity for all six fields', () {
       const lon = 120.0, lat = 5.0, dist = 1.0;
       const lonSpd = 0.5, latSpd = -0.1, distSpd = 0.01;
       final rs = cotransWithSpeed(lon, lat, dist, lonSpd, latSpd, distSpd, 0.0);
-      expectAgreement('ctSp zero-eps lon', rs[0], lon, AgreementClass.bitwise);
-      expectAgreement('ctSp zero-eps lat', rs[1], lat, AgreementClass.bitwise);
+      expectAgreement(
+        'ctSp zero-eps lon',
+        rs[0],
+        lon,
+        AgreementClass.positional,
+      );
+      expectAgreement(
+        'ctSp zero-eps lat',
+        rs[1],
+        lat,
+        AgreementClass.positional,
+      );
       expectAgreement(
         'ctSp zero-eps dist',
         rs[2],
         dist,
-        AgreementClass.bitwise,
+        AgreementClass.positional,
       );
       expectAgreement(
         'ctSp zero-eps lonSpd',
         rs[3],
         lonSpd,
-        AgreementClass.bitwise,
+        AgreementClass.positional,
       );
       expectAgreement(
         'ctSp zero-eps latSpd',
         rs[4],
         latSpd,
-        AgreementClass.bitwise,
+        AgreementClass.positional,
       );
       expectAgreement(
         'ctSp zero-eps distSpd',
         rs[5],
         distSpd,
-        AgreementClass.bitwise,
+        AgreementClass.positional,
       );
     });
 
