@@ -14,6 +14,21 @@ import 'wasm_state.dart' as wasm;
 const _ephePath = '/ephe';
 bool _dirCreated = false;
 
+/// How long to wait for the glue `<script>` tag to fire load or error.
+///
+/// A server that accepts the connection and then never responds -- a stalled
+/// proxy, a hung CDN edge, a captive portal black-holing the request -- fires
+/// neither event, so an unbounded wait is a silent forever-hang. This bounds
+/// it.
+///
+/// 30s is chosen against what this timeout actually covers: the Emscripten
+/// glue only (~68KB), not the ~857KB sibling `.wasm`, which is fetched later
+/// inside [DynamicLibrary.open]. 68KB clears 30s on any connection above
+/// ~20kbit/s, i.e. everything short of a link already too dead to run the
+/// module. Anything shorter starts failing legitimate cold-mobile loads;
+/// anything longer is indistinguishable from the hang it exists to prevent.
+const _glueLoadTimeout = Duration(seconds: 30);
+
 /// Counterpart: (systematic divergence: web loader seam)
 ///
 /// Load the swisseph_ffi WASM module. Must be called before constructing
@@ -25,6 +40,13 @@ bool _dirCreated = false;
 /// This function is single-flight and idempotent: concurrent or repeated
 /// calls with the same [modulePath] return the same future. Calling with a
 /// different path after initialization has started throws [StateError].
+///
+/// A *failed* initialization is not sticky: the single-flight latch is
+/// released, so the call may be retried (with the same or a different
+/// [modulePath]). Loading the glue script can fail transiently -- the
+/// [TimeoutException] raised when the script neither loads nor errors within
+/// 30 seconds is exactly such a case -- and a permanently poisoned latch
+/// would make one bad network moment terminal for the isolate.
 Future<void> initializeWasm([String? modulePath]) {
   final path = modulePath ?? 'swisseph_ffi';
   if (wasm.initFuture != null) {
@@ -37,7 +59,11 @@ Future<void> initializeWasm([String? modulePath]) {
     return wasm.initFuture!;
   }
   wasm.initModulePath = path;
-  wasm.initFuture = _doInit(path);
+  wasm.initFuture = _doInit(path).onError<Object>((error, stack) {
+    wasm.initFuture = null;
+    wasm.initModulePath = null;
+    Error.throwWithStackTrace(error, stack);
+  });
   return wasm.initFuture!;
 }
 
@@ -98,7 +124,23 @@ Future<void> _loadAndWrapFactory(String path) async {
       }
     }),
   );
-  await loaded.future;
+  // Neither event fires if the server accepts the connection and then goes
+  // quiet, so bound the wait. The fetch is not cancellable -- a <script> load
+  // has no abort -- so this reports the failure rather than stopping it, and
+  // drops the tag from the DOM: a retry appends a fresh one, and a stale tag
+  // left behind would also confuse wasm_ffi's isImported() src-matching dedup
+  // into skipping the real load.
+  await loaded.future.timeout(
+    _glueLoadTimeout,
+    onTimeout: () {
+      script.remove();
+      throw TimeoutException(
+        'Timed out loading WASM glue script from "$src"; the server accepted '
+        'the request but never completed it.',
+        _glueLoadTimeout,
+      );
+    },
+  );
   _jsEval(
     'var __origSwissEphRs = globalThis.SwissEphRs;'
     'globalThis.SwissEphRs = function(a) {'
