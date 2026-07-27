@@ -66,7 +66,14 @@ Future<void> _loadAndWrapFactory(String path) async {
   // "<path>.js". Mirror that here so the pre-load requests the same URL --
   // otherwise this fetches a 404 and wasm_ffi's isImported() dedup (which
   // matches on script src) fails to see the pre-loaded tag.
-  final src = path.endsWith('.js') || path.endsWith('.wasm')
+  //
+  // Test the extension on the parsed URI's last path segment, not the raw
+  // string: modulePath is a URL, so a cache-busted "swisseph_ffi.js?v=1"
+  // does not end in ".js" and must not have another ".js" appended.
+  // wasm_ffi derives its extension the same way (uri.pathSegments.last).
+  final segments = Uri.parse(path).pathSegments;
+  final lastSegment = segments.isEmpty ? '' : segments.last;
+  final src = lastSegment.endsWith('.js') || lastSegment.endsWith('.wasm')
       ? path
       : '$path.js';
   final script = web.HTMLScriptElement()
