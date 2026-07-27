@@ -29,6 +29,35 @@ bool _dirCreated = false;
 /// anything longer is indistinguishable from the hang it exists to prevent.
 const _glueLoadTimeout = Duration(seconds: 30);
 
+/// How long to wait for [DynamicLibrary.open] to instantiate the module.
+///
+/// [_glueLoadTimeout] bounds only the `<script>` tag. Everything expensive
+/// happens after it, inside `DynamicLibrary.open`, on awaits with no timeout
+/// of their own:
+///
+///  * a `http.head` probe for `<path>.js` / `<path>.wasm`, taken whenever
+///    modulePath carries no extension -- which is the documented default;
+///  * the Emscripten factory call, which fetches the ~857KB `.wasm` and
+///    instantiates it.
+///
+/// The same stalled server that black-holes the glue URL black-holes these,
+/// so bounding the script tag alone narrows the hang rather than closing it.
+///
+/// 60s is not proportional to the 12.5x larger payload, deliberately. What
+/// this bounds is a stall (unbounded), not slowness, so the budget only has
+/// to sit above any plausibly-legitimate load: 857KB lands inside 60s on
+/// anything above ~120kbit/s, and below that the module is too slow to be
+/// usable at all. Erring generous is cheap now that a failed init is
+/// retryable.
+const _moduleInstantiateTimeout = Duration(seconds: 60);
+
+/// Attempt counter, bumped once per [initializeWasm] attempt.
+///
+/// Only the current attempt is allowed to publish its module. See the factory
+/// wrapper in [_loadAndWrapFactory] for why an abandoned attempt must be
+/// parked rather than left to finish.
+int _initGeneration = 0;
+
 /// Counterpart: (systematic divergence: web loader seam)
 ///
 /// Load the swisseph_ffi WASM module. Must be called before constructing
@@ -74,20 +103,53 @@ Future<void> _doInit(String path) async {
   // Pre-loading + wrapping before DynamicLibrary.open ensures the captured
   // module is stored in __swissephRsModule. DynamicLibrary.open's
   // importLibrary call will detect the script as already loaded and skip it.
-  await _loadAndWrapFactory(path);
+  final generation = ++_initGeneration;
+  final resolved = await _loadAndWrapFactory(path, generation);
 
-  wasm.wasmLibrary = await DynamicLibrary.open(
-    path,
-    moduleName: 'SwissEphRs',
-    useAsGlobal: GlobalMemory.yes,
-  );
+  // Hand wasm_ffi the same absolute URL the tag carries, not the caller's
+  // path. Its isImported() dedup compares an element's resolved .src against
+  // the string it is given with endsWith, so any path the browser resolves --
+  // anything relative, "../" above all -- fails to match, and it injects a
+  // second glue tag. See _loadAndWrapFactory for why that is fatal. Passing
+  // the resolved URL also carries an explicit extension, which skips
+  // wasm_ffi's http.head probe for "<path>.js" / "<path>.wasm" -- one more
+  // unbounded await removed from this path.
+  wasm.wasmLibrary =
+      await DynamicLibrary.open(
+        resolved,
+        moduleName: 'SwissEphRs',
+        useAsGlobal: GlobalMemory.yes,
+      ).timeout(
+        _moduleInstantiateTimeout,
+        onTimeout: () => throw TimeoutException(
+          'Timed out instantiating the WASM module from "$path"; the glue '
+          'script loaded but the module never finished initializing (the '
+          'sibling .wasm fetch is the usual culprit).',
+          _moduleInstantiateTimeout,
+        ),
+      );
+
+  // The factory wrapper stores the module here, and only for the current
+  // generation. Missing means something re-defined globalThis.SwissEphRs
+  // between the wrap and the factory call -- most plausibly a late-arriving
+  // duplicate glue <script> from an earlier attempt, which re-runs
+  // `var SwissEphRs = ...` and strips the wrapper off. Fail here, naming it,
+  // rather than at the first getEmscriptenFS() with "module not available".
+  if (!globalContext.has('__swissephRsModule')) {
+    throw StateError(
+      'WASM module loaded but was not captured from "$path"; the glue script '
+      'appears to have been re-executed and replaced the factory wrapper.',
+    );
+  }
   wasm.wasmInitialized = true;
 }
 
 @JS('eval')
 external void _jsEval(String code);
 
-Future<void> _loadAndWrapFactory(String path) async {
+/// Loads the glue script and wraps the Emscripten factory, returning the
+/// absolute URL the tag was given.
+Future<String> _loadAndWrapFactory(String path, int generation) async {
   // wasm_ffi's DynamicLibrary.open resolves an extensionless modulePath to
   // "<path>.js". Mirror that here so the pre-load requests the same URL --
   // otherwise this fetches a 404 and wasm_ffi's isImported() dedup (which
@@ -99,9 +161,15 @@ Future<void> _loadAndWrapFactory(String path) async {
   // wasm_ffi derives its extension the same way (uri.pathSegments.last).
   final segments = Uri.parse(path).pathSegments;
   final lastSegment = segments.isEmpty ? '' : segments.last;
-  final src = lastSegment.endsWith('.js') || lastSegment.endsWith('.wasm')
+  final withExtension =
+      lastSegment.endsWith('.js') || lastSegment.endsWith('.wasm')
       ? path
       : '$path.js';
+  // Resolve against the document URL up front. A script element's .src getter
+  // always reports the resolved absolute URL, and wasm_ffi's dedup matches on
+  // that string, so keeping the caller's relative form here is what lets a
+  // duplicate tag through.
+  final src = Uri.base.resolve(withExtension).toString();
   final script = web.HTMLScriptElement()
     ..type = 'text/javascript'
     ..src = src
@@ -141,15 +209,43 @@ Future<void> _loadAndWrapFactory(String path) async {
       );
     },
   );
+  // Wrap the Emscripten factory so the module instance is captured into
+  // globalThis.__swissephRsModule -- wasm_ffi's EmscriptenModule holds it with
+  // no public accessor, and getEmscriptenFS() needs it for MEMFS.
+  //
+  // Two details exist for the sake of a *second* attempt, which the retry
+  // semantics of initializeWasm() now make reachable:
+  //
+  //  * `orig` is closed over by an IIFE rather than parked in a global. A
+  //    global would be re-assigned by the next attempt while the previous
+  //    attempt's wrapper still reads it by name -- so attempt 1's wrapper
+  //    would end up calling attempt 2's factory.
+  //  * a stale attempt's promise is parked, never resolved. Timing out
+  //    DynamicLibrary.open does not cancel it: the abandoned open() is still
+  //    parked on this promise, and if it ever resolved it would run the rest
+  //    of open() and publish the *orphan's* Memory.global and
+  //    WasmTable.global over a successful retry's. Half the pointer
+  //    arithmetic would then resolve against one heap and half against
+  //    another -- silent memory corruption, strictly worse than the hang this
+  //    timeout replaces. Parking leaks one JS continuation per failed
+  //    attempt, which is the cheaper side of that trade.
   _jsEval(
-    'var __origSwissEphRs = globalThis.SwissEphRs;'
-    'globalThis.SwissEphRs = function(a) {'
-    '  return __origSwissEphRs(a).then(function(m) {'
-    '    globalThis.__swissephRsModule = m;'
-    '    return m;'
-    '  });'
-    '};',
+    '(function() {'
+    '  var orig = globalThis.SwissEphRs;'
+    '  var gen = $generation;'
+    '  globalThis.__swissephRsGen = gen;'
+    '  globalThis.SwissEphRs = function(a) {'
+    '    return orig(a).then(function(m) {'
+    '      if (globalThis.__swissephRsGen !== gen) {'
+    '        return new Promise(function() {});'
+    '      }'
+    '      globalThis.__swissephRsModule = m;'
+    '      return m;'
+    '    });'
+    '  };'
+    '})();',
   );
+  return src;
 }
 
 /// Counterpart: (systematic divergence: web loader seam)

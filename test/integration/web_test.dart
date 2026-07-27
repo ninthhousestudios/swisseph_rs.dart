@@ -9,6 +9,7 @@ import 'dart:typed_data';
 
 import 'package:swisseph_rs/swisseph_rs.dart';
 import 'package:test/test.dart';
+import 'package:web/web.dart' as web;
 
 extension type _Response(JSObject _) implements JSObject {
   external JSPromise<JSArrayBuffer> arrayBuffer();
@@ -134,6 +135,36 @@ void main() {
       final r = eph.calcUt(const JdUt1(2451545.0), Body.sun, CalcFlags.speed);
       expect(r.longitude, closeTo(280.369, 0.001));
       expect(r.distance, closeTo(0.983, 0.001));
+    });
+
+    test('the Emscripten module is captured, with one glue tag', () {
+      // Regression test: wasm_ffi's isImported() dedup matches a script
+      // element's *resolved* .src against the string it is handed, with
+      // endsWith. Hand it a relative path and the match fails, so it injects
+      // its own glue tag, that tag re-runs `var SwissEphRs = ...`, and the
+      // factory wrapper that captures the module into __swissephRsModule is
+      // stripped off before it is ever called. getEmscriptenFS() then throws
+      // and the whole MEMFS path is dead.
+      //
+      // The staging test above is the one that would have caught this, and it
+      // skips whenever ephe/ is not served -- which is always, locally. So
+      // assert the invariant directly and without the fixture: any staging
+      // call at all proves the module was captured.
+      loadEpheFile('capture_probe.se1', Uint8List.fromList([1, 2, 3]));
+
+      final scripts = web.document.querySelectorAll('script[src]');
+      var glueTags = 0;
+      for (var i = 0; i < scripts.length; i++) {
+        final src = (scripts.item(i)! as web.HTMLScriptElement).src;
+        if (src.contains('swisseph_ffi')) glueTags++;
+      }
+      expect(
+        glueTags,
+        1,
+        reason:
+            'a second glue tag re-executes the glue and un-wraps the '
+            'factory, even though the module still loads',
+      );
     });
 
     test('loadEpheFile rejects path traversal', () {
