@@ -92,9 +92,7 @@ Future<void> _doInit(String path) async {
   // Load the Emscripten glue script and wrap the factory to capture the
   // module instance. wasm_ffi's EmscriptenModule wraps the raw JS module
   // with no public accessor, but getEmscriptenFS() needs it for MEMFS.
-  // Pre-loading + wrapping before DynamicLibrary.open ensures the captured
-  // module is stored in __swissephRsModule. DynamicLibrary.open's
-  // importLibrary call will detect the script as already loaded and skip it.
+  // Pre-loading also bounds the fetch, which DynamicLibrary.open does not.
   final generation = ++_initGeneration;
   try {
     await _doInitGeneration(path, generation);
@@ -114,7 +112,9 @@ Future<void> _doInitGeneration(String path, int generation) async {
   // path. Its isImported() dedup compares an element's resolved .src against
   // the string it is given with endsWith, so any path the browser resolves --
   // anything relative, "../" above all -- fails to match, and it injects a
-  // second glue tag. See _loadAndWrapFactory for why that is fatal. Passing
+  // second glue tag. Correctness no longer rides on that match (the capture
+  // is an accessor on globalThis; see _loadAndWrapFactory), but a duplicate
+  // tag is still a wasted fetch and a second module instantiation. Passing
   // the resolved URL also carries an explicit extension, which skips
   // wasm_ffi's http.head probe for "<path>.js" / "<path>.wasm" -- one more
   // unbounded await removed from this path.
@@ -139,10 +139,9 @@ Future<void> _doInitGeneration(String path, int generation) async {
   // satisfy a presence check while __swissephRsModule points at a heap this
   // attempt does not own.
   //
-  // A mismatch means something re-defined globalThis.SwissEphRs between the
-  // wrap and the factory call -- most plausibly a late-arriving duplicate glue
-  // <script> from an earlier attempt, which re-runs `var SwissEphRs = ...` and
-  // strips the wrapper off. Fail here, naming it, rather than at the first
+  // A mismatch means the module this attempt received was never published
+  // under its stamp -- e.g. an abandoned attempt's factory resolving under a
+  // retired generation. Fail here, naming it, rather than at the first
   // getEmscriptenFS() with "module not available".
   final capturedGen = globalContext.getProperty<JSNumber?>(
     '__swissephRsModuleGen'.toJS,
@@ -164,8 +163,8 @@ external void _jsEval(String code);
 Future<String> _loadAndWrapFactory(String path, int generation) async {
   // wasm_ffi's DynamicLibrary.open resolves an extensionless modulePath to
   // "<path>.js". Mirror that here so the pre-load requests the same URL --
-  // otherwise this fetches a 404 and wasm_ffi's isImported() dedup (which
-  // matches on script src) fails to see the pre-loaded tag.
+  // otherwise this fetches a 404, and hands wasm_ffi a URL the pre-load
+  // never warmed.
   //
   // Test the extension on the parsed URI's last path segment, not the raw
   // string: modulePath is a URL, so a cache-busted "swisseph_ffi.js?v=1"
@@ -182,6 +181,9 @@ Future<String> _loadAndWrapFactory(String path, int generation) async {
   // that string, so keeping the caller's relative form here is what lets a
   // duplicate tag through.
   final src = Uri.base.resolve(withExtension).toString();
+  // Install the capture *before* the tag, so the assignment the glue performs
+  // on execution is the one that arms it.
+  _installFactoryCapture(generation);
   final script = web.HTMLScriptElement()
     ..type = 'text/javascript'
     ..src = src
@@ -221,47 +223,78 @@ Future<String> _loadAndWrapFactory(String path, int generation) async {
       );
     },
   );
-  // Wrap the Emscripten factory so the module instance is captured into
-  // globalThis.__swissephRsModule -- wasm_ffi's EmscriptenModule holds it with
-  // no public accessor, and getEmscriptenFS() needs it for MEMFS.
-  //
-  // Two details exist for the sake of a *second* attempt, which the retry
-  // semantics of initializeWasm() now make reachable:
-  //
-  //  * `orig` is closed over by an IIFE rather than parked in a global. A
-  //    global would be re-assigned by the next attempt while the previous
-  //    attempt's wrapper still reads it by name -- so attempt 1's wrapper
-  //    would end up calling attempt 2's factory.
-  //  * a stale attempt's promise is parked, never resolved -- stale meaning
-  //    the JS-side stamp has moved on, which _retireGeneration makes true the
-  //    instant an attempt fails rather than whenever a successor happens to
-  //    start. Timing out
-  //    DynamicLibrary.open does not cancel it: the abandoned open() is still
-  //    parked on this promise, and if it ever resolved it would run the rest
-  //    of open() and publish the *orphan's* Memory.global and
-  //    WasmTable.global over a successful retry's. Half the pointer
-  //    arithmetic would then resolve against one heap and half against
-  //    another -- silent memory corruption, strictly worse than the hang this
-  //    timeout replaces. Parking leaks one JS continuation per failed
-  //    attempt, which is the cheaper side of that trade.
+  return src;
+}
+
+/// Arms the module capture for [generation] and keeps it armed.
+///
+/// The Emscripten factory has to be wrapped so the module instance lands in
+/// `globalThis.__swissephRsModule` -- wasm_ffi's EmscriptenModule holds it
+/// with no public accessor, and getEmscriptenFS() needs it for MEMFS.
+///
+/// The wrapping is installed as an accessor property rather than by assigning
+/// over `globalThis.SwissEphRs` after the glue has run, because a plain
+/// assignment only survives until the next time the glue executes. The glue's
+/// top-level `var SwissEphRs = ...` does not redefine an existing own property
+/// of the global object -- it assigns through it -- so a getter/setter pair
+/// re-wraps every load instead of being overwritten by it. Any duplicate tag
+/// (wasm_ffi's isImported() dedup matches a script's *resolved* .src with
+/// endsWith, so it re-injects for any "../"-relative path), any late arrival
+/// from an abandoned attempt, any host page that loads the glue itself: all of
+/// them now feed the capture rather than strip it off.
+///
+/// Two details exist for the sake of a *second* attempt, which the retry
+/// semantics of initializeWasm() make reachable:
+///
+///  * the raw factory is closed over per attempt, and mirrored into
+///    `__swissephRsRaw` only so a re-install can recover it without
+///    double-wrapping its own predecessor's wrapper.
+///  * a stale attempt's promise is parked, never resolved -- stale meaning the
+///    JS-side stamp has moved on, which [_retireGeneration] makes true the
+///    instant an attempt fails rather than whenever a successor happens to
+///    start. Timing out DynamicLibrary.open does not cancel it: the abandoned
+///    open() is still parked on this promise, and if it ever resolved it would
+///    run the rest of open() and publish the *orphan's* [Memory.global] and
+///    `WasmTable.global` over a successful retry's. Half the pointer
+///    arithmetic would then resolve against one heap and half against another
+///    -- silent memory corruption, strictly worse than the hang this timeout
+///    replaces. Parking leaks one JS continuation per failed attempt, which is
+///    the cheaper side of that trade.
+void _installFactoryCapture(int generation) {
   _jsEval(
     '(function() {'
-    '  var orig = globalThis.SwissEphRs;'
     '  var gen = $generation;'
-    '  globalThis.__swissephRsGen = gen;'
-    '  globalThis.SwissEphRs = function(a) {'
-    '    return orig(a).then(function(m) {'
-    '      if (globalThis.__swissephRsGen !== gen) {'
-    '        return new Promise(function() {});'
-    '      }'
-    '      globalThis.__swissephRsModule = m;'
-    '      globalThis.__swissephRsModuleGen = gen;'
-    '      return m;'
-    '    });'
+    '  var raw = globalThis.__swissephRsRaw;'
+    '  var d = Object.getOwnPropertyDescriptor(globalThis, "SwissEphRs");'
+    '  if (d && !d.get && d.value !== undefined) { raw = d.value; }'
+    '  var wrap = function(f) {'
+    '    if (typeof f !== "function") { return f; }'
+    '    return function(a) {'
+    '      return f(a).then(function(m) {'
+    '        if (globalThis.__swissephRsGen !== gen) {'
+    '          return new Promise(function() {});'
+    '        }'
+    '        globalThis.__swissephRsModule = m;'
+    '        globalThis.__swissephRsModuleGen = gen;'
+    '        return m;'
+    '      });'
+    '    };'
     '  };'
+    '  var wrapped = wrap(raw);'
+    '  globalThis.__swissephRsRaw = raw;'
+    '  globalThis.__swissephRsGen = gen;'
+    '  Object.defineProperty(globalThis, "SwissEphRs", {'
+    '    configurable: true,'
+    '    enumerable: true,'
+    '    get: function() { return wrapped; },'
+    '    set: function(f) {'
+    '      raw = f;'
+    '      globalThis.__swissephRsRaw = f;'
+    '      wrapped = wrap(f);'
+    '    },'
+    '  });'
     '})();',
   );
-  return src;
 }
 
 /// Counterpart: (systematic divergence: web loader seam)
