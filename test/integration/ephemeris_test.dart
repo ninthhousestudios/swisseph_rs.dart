@@ -108,8 +108,18 @@ void main() {
         CalcFlags.speed | CalcFlags.swiEph,
       );
       // Swiss-file Sun at J2000.0. Positional agreement class: 1e-9°.
-      expect(result.longitude, closeTo(280.3689186985535, 1e-9));
-      expect(result.longitudeSpeed, closeTo(1.019434162877954, 1e-9));
+      //
+      // Data-dependent golden: these values are bit-identical to the C Swiss
+      // Ephemeris oracle read against the SE3 / DE441 data release currently
+      // in ephe/ (sepl_18.se1, semo_18.se1 header: "Created for Astrodienst
+      // in Switzerland 2026/05/26, based on JPL Ephemeris DE441").
+      //
+      // The previous golden was recorded against the older DE431 files; the
+      // DE431 -> DE441 upgrade moved this longitude by ~2.9e-8° (~1e-4"),
+      // which exceeds the agreement class. Re-record from the oracle -- do
+      // not loosen the tolerance -- if ephe/ is upgraded again.
+      expect(result.longitude, closeTo(280.3689186698997, 1e-9));
+      expect(result.longitudeSpeed, closeTo(1.0194341629435535, 1e-9));
     });
   });
 }
