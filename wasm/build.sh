@@ -84,5 +84,41 @@ emcc "$LIB" -o "$SCRIPT_DIR/swisseph_ffi.js" \
   -s "EXPORTED_RUNTIME_METHODS=['FS','HEAPU8','HEAPF64']" \
   -O2
 
+# Post-process: make UTF8ArrayToString survive a resizable heap.
+#
+# ALLOW_MEMORY_GROWTH makes the WebAssembly.Memory growable, and Chrome now
+# exposes a growable memory's .buffer as a *resizable* ArrayBuffer. TextDecoder
+# refuses to decode a view backed by one ("The provided ArrayBuffer value must
+# not be resizable"), so every UTF8ToString of more than 16 bytes throws. The
+# 16-byte threshold is why this stayed hidden: short strings take the manual
+# char-by-char path, and only the Swiss-file code path returns strings long
+# enough to reach the decoder (swisseph-rs-dart/57).
+#
+# .slice() copies into a fresh, non-resizable buffer; .subarray() aliases the
+# resizable one. Newer Emscripten does this upstream — drop this step once the
+# toolchain here is new enough that the pattern below no longer matches.
+echo "Patching glue for resizable-heap TextDecoder..."
+GLUE="$SCRIPT_DIR/swisseph_ffi.js"
+OLD='UTF8Decoder.decode(heapOrArray.subarray(idx,endPtr))'
+NEW='UTF8Decoder.decode(heapOrArray.buffer.resizable?heapOrArray.slice(idx,endPtr):heapOrArray.subarray(idx,endPtr))'
+if grep -qF "$NEW" "$GLUE"; then
+  echo "  already patched (emcc emitted the resizable-safe form)"
+elif grep -qF "$OLD" "$GLUE"; then
+  python3 - "$GLUE" "$OLD" "$NEW" <<'PY'
+import sys
+path, old, new = sys.argv[1], sys.argv[2], sys.argv[3]
+src = open(path).read()
+if src.count(old) != 1:
+    sys.exit(f'ERROR: expected exactly 1 occurrence of the decode call, found {src.count(old)}')
+open(path, 'w').write(src.replace(old, new))
+PY
+  echo "  patched"
+else
+  echo "ERROR: neither the patched nor the unpatched decode call was found in" >&2
+  echo "       $GLUE — the Emscripten glue changed shape. Re-derive this" >&2
+  echo "       patch before shipping; do not skip it silently." >&2
+  exit 1
+fi
+
 echo "Built: $SCRIPT_DIR/swisseph_ffi.js + swisseph_ffi.wasm"
 ls -lh "$SCRIPT_DIR/swisseph_ffi.js" "$SCRIPT_DIR/swisseph_ffi.wasm"
