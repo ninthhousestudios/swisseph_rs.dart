@@ -6,6 +6,7 @@ import 'dart:js_interop';
 import 'dart:js_interop_unsafe';
 import 'dart:typed_data';
 
+import 'package:meta/meta.dart';
 import 'package:wasm_ffi/ffi.dart';
 import 'package:web/web.dart' as web;
 
@@ -27,7 +28,7 @@ bool _dirCreated = false;
 /// ~20kbit/s, i.e. everything short of a link already too dead to run the
 /// module. Anything shorter starts failing legitimate cold-mobile loads;
 /// anything longer is indistinguishable from the hang it exists to prevent.
-const _glueLoadTimeout = Duration(seconds: 30);
+const defaultGlueLoadTimeout = Duration(seconds: 30);
 
 /// How long to wait for [DynamicLibrary.open] to instantiate the module.
 ///
@@ -49,7 +50,40 @@ const _glueLoadTimeout = Duration(seconds: 30);
 /// anything above ~120kbit/s, and below that the module is too slow to be
 /// usable at all. Erring generous is cheap now that a failed init is
 /// retryable.
-const _moduleInstantiateTimeout = Duration(seconds: 60);
+const defaultModuleInstantiateTimeout = Duration(seconds: 60);
+
+/// The timeouts actually applied, overridable only by tests.
+///
+/// Abandoning an attempt is reachable *only* by letting a timeout elapse, so
+/// without a seam every test of the stall paths -- including the generation
+/// guard, which is the piece standing between the instantiation timeout and a
+/// corrupted [Memory.global] -- costs a full 90s of wall clock. See
+/// [debugSetLoaderTimeouts].
+Duration _glueLoadTimeout = defaultGlueLoadTimeout;
+Duration _moduleInstantiateTimeout = defaultModuleInstantiateTimeout;
+
+/// Shorten the loader's timeouts so the stall paths can be exercised.
+///
+/// Test-only, and deliberately *not* a caller-facing knob: this library is not
+/// exported from `swisseph_rs.dart`, so the package's public surface is
+/// unchanged and the transliteration rule is untouched. The duration staying
+/// fixed for callers is a decision (swisseph-rs-dart/51), not an oversight --
+/// this seam exists to make a 90-second test a sub-second one, nothing more.
+///
+/// Pair with [debugResetLoaderTimeouts] in a tearDown; the overrides are
+/// process-global.
+@visibleForTesting
+void debugSetLoaderTimeouts({Duration? glueLoad, Duration? moduleInstantiate}) {
+  if (glueLoad != null) _glueLoadTimeout = glueLoad;
+  if (moduleInstantiate != null) _moduleInstantiateTimeout = moduleInstantiate;
+}
+
+/// Restore both loader timeouts to their shipping defaults.
+@visibleForTesting
+void debugResetLoaderTimeouts() {
+  _glueLoadTimeout = defaultGlueLoadTimeout;
+  _moduleInstantiateTimeout = defaultModuleInstantiateTimeout;
+}
 
 /// Attempt counter, bumped once per [initializeWasm] attempt.
 ///
