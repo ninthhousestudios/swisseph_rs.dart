@@ -152,7 +152,34 @@ Future<void> _doInitGeneration(String path, int generation) async {
       'appears to have been re-executed and replaced the factory wrapper.',
     );
   }
+  _disarmCapture(generation);
   wasm.wasmInitialized = true;
+}
+
+/// Stop publishing captured modules, now that [generation] owns the one that
+/// counts.
+///
+/// The accessor stays installed for the life of the page -- it has to, or a
+/// later glue execution would leave a raw factory behind. But it must stop
+/// *publishing* the moment this attempt's module is the one wasm_ffi bound to.
+/// Any later call of the factory -- a host page instantiating the glue for its
+/// own purposes, a caller driving it directly -- produces a second Emscripten
+/// module with its own heap. Republishing that module would point
+/// getEmscriptenFS() at the new heap while [wasm.wasmLibrary], [Memory.global]
+/// and every bound function still address the old one, so staged .se1 files
+/// would land in a filesystem the engine never reads. Silent, and miserable to
+/// diagnose.
+///
+/// Disarming is not the same as retiring the generation: a retired generation
+/// parks its factory promise forever, which is right for an abandoned attempt
+/// but wrong here. A post-initialization caller gets its module back, it just
+/// does not get to redirect ours.
+void _disarmCapture(int generation) {
+  _jsEval(
+    'if (globalThis.__swissephRsArmed === $generation) {'
+    '  globalThis.__swissephRsArmed = $_retiredGeneration;'
+    '}',
+  );
 }
 
 @JS('eval')
@@ -243,6 +270,15 @@ Future<String> _loadAndWrapFactory(String path, int generation) async {
 /// from an abandoned attempt, any host page that loads the glue itself: all of
 /// them now feed the capture rather than strip it off.
 ///
+/// Wrapping and *publishing* are separate concerns. The wrapper stays in place
+/// for the life of the page; whether it publishes what it sees into
+/// `__swissephRsModule` is gated on `__swissephRsArmed`, which [_disarmCapture]
+/// clears once this attempt's module is the one wasm_ffi bound to. Every
+/// resolution the wrapper sees, published or not, bumps `__swissephRsCaptures`
+/// -- a liveness counter, so "is the wrapper still on the call path?" is an
+/// observable question rather than an inference from a global that may
+/// legitimately not have changed.
+///
 /// Two details exist for the sake of a *second* attempt, which the retry
 /// semantics of initializeWasm() make reachable:
 ///
@@ -271,11 +307,15 @@ void _installFactoryCapture(int generation) {
     '    if (typeof f !== "function") { return f; }'
     '    return function(a) {'
     '      return f(a).then(function(m) {'
+    '        globalThis.__swissephRsCaptures ='
+    '          (globalThis.__swissephRsCaptures || 0) + 1;'
     '        if (globalThis.__swissephRsGen !== gen) {'
     '          return new Promise(function() {});'
     '        }'
-    '        globalThis.__swissephRsModule = m;'
-    '        globalThis.__swissephRsModuleGen = gen;'
+    '        if (globalThis.__swissephRsArmed === gen) {'
+    '          globalThis.__swissephRsModule = m;'
+    '          globalThis.__swissephRsModuleGen = gen;'
+    '        }'
     '        return m;'
     '      });'
     '    };'
@@ -283,6 +323,7 @@ void _installFactoryCapture(int generation) {
     '  var wrapped = wrap(raw);'
     '  globalThis.__swissephRsRaw = raw;'
     '  globalThis.__swissephRsGen = gen;'
+    '  globalThis.__swissephRsArmed = gen;'
     '  Object.defineProperty(globalThis, "SwissEphRs", {'
     '    configurable: true,'
     '    enumerable: true,'
